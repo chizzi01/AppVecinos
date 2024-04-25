@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 
-const Servicios = () => {
+const Servicios = (logueado) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [nombreServicio, setNombreServicio] = useState('');
     const [proveedor, setProveedor] = useState('');
@@ -82,10 +82,11 @@ const Servicios = () => {
                     </TouchableOpacity>
                 ))}
             </ScrollView>
+            {logueado.logueado === true ? (
             <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
                 <Ionicons name="add" size={30} color="white" />
             </TouchableOpacity>
-
+            ) : null}
             <Modal
                 animationType="slide"
                 transparent={true}

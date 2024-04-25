@@ -1,10 +1,7 @@
-import { StatusBar } from 'expo-status-bar';
-import Constants from 'expo-constants';
-import theme from './src/theme';
 import { useLocation } from 'react-router-native';
 import { Link } from 'react-router-native';
-import { NativeRouter as Router, Route, Routes, useNavigate } from 'react-router-native';
-import React, { useRef, useState } from 'react';
+import { NativeRouter as Router, Route, Routes } from 'react-router-native';
+import React, { useRef, useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons'
 import {
@@ -14,7 +11,9 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 
 import Comercios from './src/components/Comercios';
@@ -23,22 +22,63 @@ import Reclamos from './src/components/Reclamos';
 import Denuncias from './src/components/Denuncias';
 import Login from './src/components/Login';
 import Home from './src/components/Home';
+import Perfil from './src/components/Perfil';
+import { AppRegistry } from 'react-native';
+import { name as appName } from './app.json';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+
+
 
 const App = () => {
   const drawer = useRef(null);
   const [drawerPosition] = useState('left');
+  const [logueado, setLogueado] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
+
+
+  useEffect(() => {
+    const fetchLogueado = async () => {
+      const value = await AsyncStorage.getItem('logueado');
+      if (value !== null && value === 'true') {
+        setLogueado(true);
+        console.log('logueado');
+      } else {
+        setLogueado(false);
+      }
+    };
+
+    fetchLogueado();
+  }, []);
+
+  const handleLogin = () => {
+    setLogueado(true);
+  };
+
+
+  const handleLogout = async () => {
+    await AsyncStorage.setItem('logueado', 'false');
+    setLogueado(false);
+    setModalVisible(false);
+    navigation.navigate('Login');
+  };
 
 
   const navigationView = () => (
 
 
     <View style={[styles.container, styles.navigationContainer]}>
-      <Link to="/" onPress={() => drawer.current.closeDrawer()}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="home" size={30} color="#57B27E" />
-          <Text style={styles.link}>Home</Text>
-        </View>
-      </Link>
+      {logueado === false && (
+        <>
+          <Link to="/" onPress={() => drawer.current.closeDrawer()}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="home" size={30} color="#57B27E" />
+              <Text style={styles.link}>Home</Text>
+            </View>
+          </Link>
+        </>
+      )}
       <Link to="/comercios" onPress={() => drawer.current.closeDrawer()}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Ionicons name="cart" size={30} color="#3072ff" />
@@ -51,25 +91,46 @@ const App = () => {
           <Text style={styles.link}>Servicios</Text>
         </View>
       </Link>
-      <Link to="/reclamos" onPress={() => drawer.current.closeDrawer()}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="construct" size={30} color="#2c3e50" />
-          <Text style={styles.link}>Reclamos</Text>
-        </View>
-      </Link>
-      <Link to="/denuncias" onPress={() => drawer.current.closeDrawer()}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="alert-circle" size={30} color="#fd746c" />
-          <Text style={styles.link}>Denuncias</Text>
-        </View>
-      </Link>
+      {logueado === true && (
+        <>
+          <Link to="/reclamos" onPress={() => drawer.current.closeDrawer()}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="construct" size={30} color="#2c3e50" />
+              <Text style={styles.link}>Reclamos</Text>
+            </View>
+          </Link>
+          <Link to="/denuncias" onPress={() => drawer.current.closeDrawer()}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="alert-circle" size={30} color="#fd746c" />
+              <Text style={styles.link}>Denuncias</Text>
+            </View>
+          </Link>
+        </>
+      )}
       <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-        <Link to="/login" onPress={() => drawer.current.closeDrawer()}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="log-in" size={30} color="#4bdaa3" />
-            <Text style={styles.link}>Ingresar</Text>
-          </View>
-        </Link>
+        {logueado === true ? (
+          <>
+            <Link to="/perfil" onPress={() => drawer.current.closeDrawer()}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="person-circle-outline" size={30} color="#3072ff" />
+                <Text style={styles.link}>Mi perfil</Text>
+              </View>
+            </Link>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="log-out" size={30} color="#fd746c" />
+                <Text style={styles.link}>Cerrar sesión</Text>
+              </View>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <Link to="/login" onPress={() => drawer.current.closeDrawer()}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="log-in" size={30} color="#4bdaa3" />
+              <Text style={styles.link}>Ingresar</Text>
+            </View>
+          </Link>
+        )}
       </View>
     </View>
   );
@@ -78,7 +139,7 @@ const App = () => {
     nombre: 'Juan',
     apellido: 'Perez',
     email: 'juanperez@gmail.com',
-    password: 'pepito123',
+    password: '123',
     dni: '12345678',
     tipo: 'vecino',
     validado: true,
@@ -88,7 +149,7 @@ const App = () => {
     const location = useLocation();
     let appBarColor;
     let titulo;
-    
+
     switch (location.pathname) {
       case '/':
         appBarColor = '#57B27E';
@@ -112,15 +173,19 @@ const App = () => {
         break;
       case '/login':
         appBarColor = '#4bdaa3';
-        titulo = 'Ingresar';
+        titulo = 'Ingreso';
+        break;
+      case '/perfil':
+        appBarColor = '#3072ff';
+        titulo = 'Bienvenido/a ' + usuario.nombre ;
         break;
       default:
         appBarColor = 'grey';
         titulo = 'Home';
     }
-  
+
     return (
-      <View style={[styles.appBar, {backgroundColor: appBarColor}]}>
+      <View style={[styles.appBar, { backgroundColor: appBarColor }]}>
         <Text style={styles.appBarTitle}>{titulo}</Text>
       </View>
     );
@@ -130,7 +195,7 @@ const App = () => {
   return (
     <Router style={[styles.appSpace]}>
       <SafeAreaView style={{ flex: 1 }}>
-      <AppBarTitle />
+        <AppBarTitle />
         <DrawerLayoutAndroid
           ref={drawer}
           drawerWidth={300}
@@ -142,22 +207,73 @@ const App = () => {
           </TouchableOpacity>
           <View>
             <Routes>
-              <Route path="/" element={<Home/>} />
+              <Route path="/" element={<Home />} />
               <Route path="/home" element={<Home />} />
-              <Route path="/comercios" element={<Comercios />} />
-              <Route path="/servicios" element={<Servicios />} />
+              <Route path="/comercios" element={<Comercios logueado={logueado} />} />
+              <Route path="/servicios" element={<Servicios logueado={logueado} />} />
               <Route path="/reclamos" element={<Reclamos />} /> // Asegúrate de que el componente Reclamos está correctamente definido y exportado
               <Route path="/denuncias" element={<Denuncias />} />
-              <Route path="/login" element={<Login user={usuario} />} />
+              <Route path="/perfil" element={<Perfil nombre={usuario.nombre} apellido={usuario.apellido} email={usuario.email} onPasswordChange={() => console.log('Cambiando contraseña')} />} />
+              <Route path="/login" element={<Login user={usuario} onLogin={handleLogin} />} />
             </Routes>
           </View>
         </DrawerLayoutAndroid>
+        <Modal animationType="slide"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={() => {
+            setModalVisible(false);
+          }}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Text>¿Deseas cerrar sesión?</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={styles.buttonsModal}>
+                  <Link to="/login" onPress={() => drawer.current.closeDrawer()}>
+                  <Button title="Sí" onPress={handleLogout} color={'#fd746c'} />
+                  </Link>
+                </View>
+                <View style={styles.buttonsModal}>
+                  <Button title="No" onPress={() => setModalVisible(false)} />
+                </View>
+              </View>
+
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </Router>
   );
 };
 
+AppRegistry.registerComponent(appName, () => App);
+
 const styles = StyleSheet.create({
+  modalView: {
+    width: '60%',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 25,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  buttonsModal: {
+    margin: 10,
+    width: '40%',
+  },
   container: {
     flex: 1,
     alignItems: 'left',
@@ -213,6 +329,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+
 });
+
 
 export default App;

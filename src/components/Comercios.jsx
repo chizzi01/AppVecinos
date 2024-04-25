@@ -7,7 +7,7 @@ import CardServicio from './CardServicio';
 import { Picker } from '@react-native-picker/picker';
 
 
-const Comercios = () => {
+const Comercios = (logueado) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalComercioVisible, setModalComercioVisible] = useState(false);
     const [selectedComercio, setSelectedComercio] = useState(null);
@@ -36,6 +36,7 @@ const Comercios = () => {
         console.log(nombreServicio, proveedor, telefono, descripcion);
         setModalVisible(false);
     };
+    console.log(logueado.logueado);
 
     const pickImage = async () => {
         const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -85,10 +86,11 @@ const Comercios = () => {
                     </TouchableOpacity>
                 ))}
             </ScrollView>
+            {logueado.logueado === true ? (
             <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
                 <Ionicons name="add" size={30} color="white" />
             </TouchableOpacity>
-
+            ) : null}
             <Modal
                 animationType="slide"
                 transparent={true}
