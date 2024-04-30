@@ -23,6 +23,8 @@ import Denuncias from './src/components/Denuncias';
 import Login from './src/components/Login';
 import Home from './src/components/Home';
 import Perfil from './src/components/Perfil';
+import Notificaciones from './src/components/Notificaciones';
+import Notificacion from  './src/components/Notificaciones';
 import { AppRegistry } from 'react-native';
 import { name as appName } from './app.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -110,9 +112,15 @@ const App = () => {
       <View style={{ flex: 1, justifyContent: 'flex-end' }}>
         {logueado === true ? (
           <>
+            <Link to="/notificaciones" onPress={() => drawer.current.closeDrawer()}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="notifications" size={30} color="#d6c833" />
+                <Text style={styles.link}>Notificaciones</Text>
+              </View>
+            </Link>
             <Link to="/perfil" onPress={() => drawer.current.closeDrawer()}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="person-circle-outline" size={30} color="#3072ff" />
+                <Ionicons name="person-circle-outline" size={30} color="#57B27E" />
                 <Text style={styles.link}>Mi perfil</Text>
               </View>
             </Link>
@@ -145,6 +153,12 @@ const App = () => {
     validado: true,
   };
 
+  const notificacionesEjemplo = [
+    { title: 'Notificación 1', date: '2022-04-29', type: 'Reclamo', description: 'Descripción de la notificación 1' },
+    { title: 'Notificación 2', date: '2022-04-20', type: 'Denuncia', description: 'Descripción de la notificación 2' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+  ];
+
   const AppBarTitle = () => {
     const location = useLocation();
     let appBarColor;
@@ -176,9 +190,13 @@ const App = () => {
         titulo = 'Ingreso';
         break;
       case '/perfil':
-        appBarColor = '#3072ff';
-        titulo = 'Bienvenido/a ' + usuario.nombre ;
+        appBarColor = '#57B27E';
+        titulo = 'Bienvenido/a ' + usuario.nombre;
         break;
+        case '/notificaciones':
+          appBarColor = '#decf35';
+          titulo = 'Notificaciones';
+          break; 
       default:
         appBarColor = 'grey';
         titulo = 'Home';
@@ -215,6 +233,7 @@ const App = () => {
               <Route path="/denuncias" element={<Denuncias />} />
               <Route path="/perfil" element={<Perfil nombre={usuario.nombre} apellido={usuario.apellido} email={usuario.email} onPasswordChange={() => console.log('Cambiando contraseña')} />} />
               <Route path="/login" element={<Login user={usuario} onLogin={handleLogin} />} />
+              <Route path="/notificaciones" element={<Notificaciones notificaciones={notificacionesEjemplo}/>} />
             </Routes>
           </View>
         </DrawerLayoutAndroid>
@@ -230,7 +249,7 @@ const App = () => {
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View style={styles.buttonsModal}>
                   <Link to="/login" onPress={() => drawer.current.closeDrawer()}>
-                  <Button title="Sí" onPress={handleLogout} color={'#fd746c'} />
+                    <Button title="Sí" onPress={handleLogout} color={'#fd746c'} />
                   </Link>
                 </View>
                 <View style={styles.buttonsModal}>

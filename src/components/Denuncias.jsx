@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { Picker } from '@react-native-picker/picker';
 import CheckBox from '@react-native-community/checkbox';
+import { Switch } from 'react-native';
 
 
 
@@ -18,6 +19,8 @@ const Denuncias = () => {
     const [generada, setGenerada] = useState(''); // o cualquier valor inicial que necesites
     const [search, setSearch] = useState('');
     const [termsAccepted, setTermsAccepted] = useState(false);
+    const [vecinoDenuncia, setVecinoDenuncia] = useState(false);
+    const [comercioDenuncia, setComercioDenuncia] = useState(false);
 
 
     const handleSave = () => {
@@ -68,15 +71,15 @@ const Denuncias = () => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.filterAlign}>
-            <View style={styles.searchSection}>
-                <Ionicons style={styles.searchIcon} name="search" size={20} color="#000" />
-                <TextInput
-                    style={styles.inputSearch}
-                    placeholder="Buscar por nombre"
-                    selectionColor="#fd746c"
-                    onChangeText={text => setSearch(text)}
-                />
-            </View>
+                <View style={styles.searchSection}>
+                    <Ionicons style={styles.searchIcon} name="search" size={20} color="#000" />
+                    <TextInput
+                        style={styles.inputSearch}
+                        placeholder="Buscar por nombre"
+                        selectionColor="#fd746c"
+                        onChangeText={text => setSearch(text)}
+                    />
+                </View>
                 <Picker
                     selectedValue={generada}
                     onValueChange={(itemValue) => setGenerada(itemValue)}
@@ -115,20 +118,44 @@ const Denuncias = () => {
             >
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
-                        <Text style={styles.titulo}>Nueva denuncia</Text>
-                        <TextInput style={styles.input} placeholder="Motivo" onChangeText={setMotivo} selectionColor="#fd746c"  />
+                        <Text style={styles.tituloModal}>Nueva denuncia</Text>
+                        <View style={styles.inRowAlign}>
+                            <TouchableOpacity
+                                style={styles.checkboxContainer}
+                                onPress={() => {
+                                    setVecinoDenuncia(!vecinoDenuncia);
+                                    setComercioDenuncia(vecinoDenuncia);
+                                }}
+                            >
+                                <Text style={[styles.checkbox, vecinoDenuncia ? styles.checkboxSelected : null]}>{vecinoDenuncia ? '✓' : ''}</Text>
+                                <Text style={styles.checkboxText}>Vecino</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.checkboxContainer}
+                                onPress={() => {
+                                    setComercioDenuncia(!comercioDenuncia);
+                                    setVecinoDenuncia(comercioDenuncia);
+                                }}
+                            >
+                                <Text style={[styles.checkbox, comercioDenuncia ? styles.checkboxSelected : null]}>{comercioDenuncia ? '✓' : ''}</Text>
+                                <Text style={styles.checkboxText}>Comercio</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <TextInput style={styles.input} placeholder="Motivo" onChangeText={setMotivo} selectionColor="#fd746c" />
                         <TextInput style={styles.input} placeholder="Dirección" onChangeText={setDireccion} selectionColor="#fd746c" />
                         <TextInput style={styles.input} placeholder="Informacion adicional" onChangeText={setDescripcion} multiline={true}
-                            numberOfLines={4} selectionColor="#fd746c"/>
+                            numberOfLines={4} selectionColor="#fd746c" />
                         <TouchableOpacity style={styles.addImg} onPress={pickImage}>
                             <Ionicons name="attach" size={20} color="grey" />
                             <Text style={styles.colorText}>Adjuntar imagenes</Text>
                         </TouchableOpacity>
-                        {/* <CheckBox
-                            value={termsAccepted}
-                            onValueChange={setTermsAccepted}
-                        /> */}
-                        <Text style={styles.termsText}>Acepto los términos y condiciones</Text>
+                        <TouchableOpacity
+                            style={styles.checkboxContainer}
+                            onPress={() => setTermsAccepted(!termsAccepted)}
+                        >
+                            <Text style={[styles.checkbox, termsAccepted ? styles.checkboxSelected : null]}>{termsAccepted ? '✓' : ''}</Text>
+                            <Text style={styles.checkboxText}>Confirmo autenticidad del hecho</Text>
+                        </TouchableOpacity>
                         <View style={styles.lineAlign}>
                             <Button title="Crear denuncia" onPress={handleSave} />
                             <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
@@ -170,6 +197,13 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 10,
+        color: '#fd746c',
+    },
+    tituloModal: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#fd746c',
     },
     codigo: {
         fontSize: 15,
@@ -294,6 +328,37 @@ const styles = StyleSheet.create({
         paddingLeft: 0,
         backgroundColor: '#fff',
         color: '#424242',
+    },
+    checkboxContainer: {
+        flexDirection: 'row',
+        marginBottom: 20,
+    },
+    checkbox: {
+        alignSelf: 'center',
+        borderColor: '#fd746c',
+        borderRadius: 12,
+        borderWidth: 1,
+        height: 20,
+        justifyContent: 'center', // Añade esto
+        alignItems: 'center', // Añade esto
+        marginRight: 10,
+        width: 20,
+    },
+    checkboxSelected: {
+        backgroundColor: '#fd746c',
+        color: '#fff',
+        textAlign: 'center',
+    },
+    checkboxText: {
+        maxWidth: '80%',
+        color: '#7E7E7E',
+        marginRight: 10,
+    },
+    inRowAlign: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
     },
 });
 
