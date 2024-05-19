@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import CardServicio from './CardServicio';
 import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, Image } from 'react-native';
@@ -33,6 +33,7 @@ const Servicios = (logueado) => {
         console.log(nombreServicio, proveedor, telefono, descripcion);
         setModalVisible(false);
     };
+
 
     const pickImage = async () => {
         const { status } = await MediaLibrary.requestPermissionsAsync();
