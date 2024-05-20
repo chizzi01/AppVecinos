@@ -14,6 +14,6 @@ const getServicios = async(setServicios) => {
       let jsonData = await response.json();
       console.log(jsonData)
       setServicios(jsonData);
-      //hjola
+      //hjolahghg
 }
 export default getServicios;
