@@ -2,10 +2,10 @@ import React from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const CardServicio = ({ imagen, nombreServicio, proveedor, horario }) => {
+const CardServicio = ({ idServicio, nombreServicio, proveedor, horario }) => {
     return (
         <View style={styles.container}>
-            <Image source={imagen} style={styles.image} />
+            <Image source={{ uri: `https://municipio-g8-servidor-production.up.railway.app/api/servicios/getPrimerImagen/${idServicio}` }}style={styles.image} />
             <View style={styles.textContainer}>
                 <Text style={styles.nombreServicio}>{nombreServicio}</Text>
                 <Text style={styles.proveedor}>{proveedor}</Text>

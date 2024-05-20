@@ -5,6 +5,7 @@ import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, 
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
+import getServicios from '../controllers/servicios';
 
 const Servicios = (logueado) => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -15,18 +16,23 @@ const Servicios = (logueado) => {
     const [selectedServicio, setSelectedServicio] = useState(null);
     const [modalServicioVisible, setModalServicioVisible] = useState(false);
     const [search, setSearch] = useState('');
-    const servicios = [
-        { id:'01', imagen: require('../img/servicio.jpg'), nombreServicio: 'Carpinteria a domicilio', proveedor: 'Don Ramon', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        { id:'02', imagen: require('../img/servicio.jpg'), nombreServicio: 'Plomeria a domicilio', proveedor: 'Juan Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        { id:'03', imagen: require('../img/servicio.jpg'), nombreServicio: 'Electricidad a domicilio', proveedor: 'Nicolas Gonzales', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        { id:'04', imagen: require('../img/servicio.jpg'), nombreServicio: 'Gasista a domicilio', proveedor: 'Federico Martinez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        { id:'05', imagen: require('../img/servicio.jpg'), nombreServicio: 'Cerrajeria', proveedor: 'Lucas Gomez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        { id:'06', imagen: require('../img/servicio.jpg'), nombreServicio: 'Pintura a domicilio', proveedor: 'Michael Jackson', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        { id:'07', imagen: require('../img/servicio.jpg'), nombreServicio: 'Jardineria a domicilio', proveedor: 'Carla Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        { id:'08', imagen: require('../img/servicio.jpg'), nombreServicio: 'Limpieza a domicilio', proveedor: 'Juana Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        { id:'09', imagen: require('../img/servicio.jpg'), nombreServicio: 'Carpinteria', proveedor: 'Mengana Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+    //const servicios = [
+     //   { id:'01', imagen: require('../img/servicio.jpg'), nombreServicio: 'Carpinteria a domicilio', proveedor: 'Don Ramon', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+       // { id:'02', imagen: require('../img/servicio.jpg'), nombreServicio: 'Plomeria a domicilio', proveedor: 'Juan Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+        //{ id:'03', imagen: require('../img/servicio.jpg'), nombreServicio: 'Electricidad a domicilio', proveedor: 'Nicolas Gonzales', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+        //{ id:'04', imagen: require('../img/servicio.jpg'), nombreServicio: 'Gasista a domicilio', proveedor: 'Federico Martinez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+        //{ id:'05', imagen: require('../img/servicio.jpg'), nombreServicio: 'Cerrajeria', proveedor: 'Lucas Gomez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+        //{ id:'06', imagen: require('../img/servicio.jpg'), nombreServicio: 'Pintura a domicilio', proveedor: 'Michael Jackson', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+        //{ id:'07', imagen: require('../img/servicio.jpg'), nombreServicio: 'Jardineria a domicilio', proveedor: 'Carla Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+        //{ id:'08', imagen: require('../img/servicio.jpg'), nombreServicio: 'Limpieza a domicilio', proveedor: 'Juana Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+        //{ id:'09', imagen: require('../img/servicio.jpg'), nombreServicio: 'Carpinteria', proveedor: 'Mengana Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
 
-    ];
+    //];
+
+    const [servicios, setServicios] = useState([])
+    useEffect(() => {
+        getServicios(setServicios)
+      }, []);
 
     const handleSave = () => {
         // Save the new service
@@ -57,7 +63,7 @@ const Servicios = (logueado) => {
     };
 
     const filteredServicios = servicios.filter(servicio =>
-        servicio.nombreServicio.toLowerCase().includes(search.toLowerCase())
+        servicio.tituloServicio.toLowerCase().includes(search.toLowerCase())
     );
 
     return (
@@ -73,12 +79,12 @@ const Servicios = (logueado) => {
             </View>
             <ScrollView>
                 {filteredServicios.map((servicio, index) => (
-                    <TouchableOpacity key={servicio.id} onPress={() => { setSelectedServicio(servicio); setModalServicioVisible(true); }}>
+                    <TouchableOpacity key={servicio.idServicio} onPress={() => { setSelectedServicio(servicio); setModalServicioVisible(true); }}>
                         <CardServicio
-                            key={servicio.id}
-                            imagen={servicio.imagen}
-                            nombreServicio={servicio.nombreServicio}
-                            proveedor={servicio.proveedor}
+                            key={servicio.idServicio}
+                            idServicio={servicio.idServicio}
+                            nombreServicio={servicio.tituloServicio}
+                            proveedor={"hhh"}
                         />
                     </TouchableOpacity>
                 ))}
@@ -134,7 +140,7 @@ const Servicios = (logueado) => {
                                     style={styles.carouselImage}
                                     onError={(error) => console.log(error)}
                                 />
-                                <Text style={styles.comercioTitulo}>{selectedServicio.nombreServicio}</Text>
+                                <Text style={styles.comercioTitulo}>{selectedServicio.tituloServicio}</Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Ionicons name="person" size={20} color="#7E7E7E" />
                                     <Text style={styles.comercioProveedor}>{selectedServicio.proveedor}</Text>
