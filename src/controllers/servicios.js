@@ -10,7 +10,7 @@ const getServicios = async(setServicios) => {
         mode:'cors'
       };
       
-      let response = await fetch("https://municipio-g8-servidor-production.up.railway.app/api/servicios/getServicios", requestOptions);
+      let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/servicios/getServicios", requestOptions);
       let jsonData = await response.json();
       console.log(jsonData)
       setServicios(jsonData);

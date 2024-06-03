@@ -2,17 +2,17 @@ import React from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const CardServicio = ({ idServicio, nombreServicio, proveedor, horario }) => {
+const CardReclamo = ({ idReclamo, nombreReclamo, direccion, ultActualizacion, rubro  }) => {
     return (
         <View style={styles.container}>
-            <Image source={{ uri: `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/servicios/getPrimerImagen/${idServicio}` }}style={styles.image} />
+            <Image source={{ uri: `https://municipio-g8-servidor-production.up.railway.app/api/reclamos/getPrimerImagen/${idReclamo}` }} style={styles.image} />
             <View style={styles.textContainer}>
-                <Text style={styles.nombreServicio}>{nombreServicio}</Text>
-                <Text style={styles.proveedor}>{proveedor}</Text>
-                {horario && (
+                <Text style={styles.nombreServicio}>{nombreReclamo}</Text>
+                <Text style={styles.proveedor}>{direccion}</Text>
+                {rubro && (
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Ionicons style={styles.clock} name="time" size={20} color="#7E7E7E" />
-                        <Text style={styles.proveedor}>{horario}</Text>
+                        <Text style={styles.proveedor}>{rubro}</Text>
                     </View>
                 )}
             </View>
@@ -75,4 +75,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default CardServicio;
+export default CardReclamo;

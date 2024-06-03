@@ -1,4 +1,4 @@
-const getComercios = async(setComercios) => {
+const getReclamos = async(setReclamos) => {
 
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -10,10 +10,10 @@ const getComercios = async(setComercios) => {
         mode:'cors'
       };
       
-      let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/comercios/getComercios", requestOptions);
+      let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/reclamos/getReclamos", requestOptions);
       let jsonData = await response.json();
       console.log(jsonData)
-      getComercios(jsonData);
+      setReclamos(jsonData);
       //hjolahghg
 }
-export default getComercios;
+export default getReclamos;

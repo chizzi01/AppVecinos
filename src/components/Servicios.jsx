@@ -89,7 +89,7 @@ const Servicios = (logueado) => {
                             key={servicio.idServicio}
                             idServicio={servicio.idServicio}
                             nombreServicio={servicio.tituloServicio}
-                            proveedor={"hhh"}
+                            proveedor={servicio.proveedor}
                         />
                     </TouchableOpacity>
                 ))

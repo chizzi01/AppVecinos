@@ -1,9 +1,10 @@
-import React, { useState, useRef } from 'react';
-import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { Picker } from '@react-native-picker/picker';
+import getReclamos from '../controllers/reclamos';
 
 
 
@@ -17,11 +18,16 @@ const Reclamos = () => {
     const [descripcion, setDescripcion] = useState('');
     const [search, setSearch] = useState('');
     const [rubro, setRubro] = useState('');
+    const [loading, setLoading] = useState(true);
+
+    const [reclamos, setReclamos] = useState([])
+    useEffect(() => {
+        getReclamos(setReclamos).then(() => setLoading(false));
+      }, []);
 
 
     const handleSave = () => {
         // Save the new service
-        console.log(nombreServicio, proveedor, telefono, descripcion);
         setModalVisible(false);
     };
 
@@ -62,26 +68,25 @@ const Reclamos = () => {
         }
       };
       
-    
+
     
 
 
-    const reclamos = [
-        { nombre: 'Reclamo 1', direccion: 'Dirección 1', codigo: '#1288', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
-        { nombre: 'Reclamo 2', direccion: 'Dirección 2', codigo: '#1289', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
-        { nombre: 'Reclamo 3', direccion: 'Dirección 3', codigo: '#1290', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
-        { nombre: 'Reclamo 4', direccion: 'Dirección 4', codigo: '#1291', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
-        { nombre: 'Reclamo 5', direccion: 'Dirección 5', codigo: '#1292', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
-        { nombre: 'Reclamo 6', direccion: 'Dirección 6', codigo: '#1293', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
-        { nombre: 'Reclamo 7', direccion: 'Dirección 7', codigo: '#1294', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
-        { nombre: 'Reclamo 8', direccion: 'Dirección 8', codigo: '#1295', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
-        { nombre: 'Reclamo 9', direccion: 'Dirección 9', codigo: '#1296', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
-        { nombre: 'Reclamo 10', direccion: 'Dirección 10', codigo: '#1297', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
-    ];
+    // const reclamos = [
+    //     { nombre: 'Reclamo 1', direccion: 'Dirección 1', codigo: '#1288', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
+    //     { nombre: 'Reclamo 2', direccion: 'Dirección 2', codigo: '#1289', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
+    //     { nombre: 'Reclamo 3', direccion: 'Dirección 3', codigo: '#1290', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
+    //     { nombre: 'Reclamo 4', direccion: 'Dirección 4', codigo: '#1291', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
+    //     { nombre: 'Reclamo 5', direccion: 'Dirección 5', codigo: '#1292', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
+    //     { nombre: 'Reclamo 6', direccion: 'Dirección 6', codigo: '#1293', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
+    //     { nombre: 'Reclamo 7', direccion: 'Dirección 7', codigo: '#1294', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
+    //     { nombre: 'Reclamo 8', direccion: 'Dirección 8', codigo: '#1295', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
+    //     { nombre: 'Reclamo 9', direccion: 'Dirección 9', codigo: '#1296', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
+    //     { nombre: 'Reclamo 10', direccion: 'Dirección 10', codigo: '#1297', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
+    // ];
 
     const filteredReclamos = reclamos.filter(reclamo =>
-        reclamo.nombre.toLowerCase().includes(search.toLowerCase()) &&
-        (!rubro || reclamo.rubro === rubro)
+        (reclamo.sitios.descripcion || '').toLowerCase().includes((search || '').toLowerCase())
     );
 
     return (
@@ -107,16 +112,21 @@ const Reclamos = () => {
                 </Picker>
             </View>
             <ScrollView>
-                {filteredReclamos.map((reclamo, index) => (
-                    <View key={reclamo.codigo} style={styles.reclamosCard}>
-                        <Text style={styles.titulo}>🛠 {reclamo.nombre}</Text>
-                        <Text style={styles.codigo}>Reclamo N°: {reclamo.codigo}</Text>
+            {loading ? (
+                // Muestra el spinner si los datos aún se están cargando
+                <ActivityIndicator size="large" color="#2c3e50" style={{marginTop:20}} />
+            ) : (
+                filteredReclamos.map((reclamo, index) => (
+                    <View key={reclamo.idReclamo} style={styles.reclamosCard}>
+                        <Text style={styles.titulo}>🛠 {reclamo.sitios.descripcion}</Text>
+                        <Text style={styles.codigo}>Reclamo N°: {reclamo.idReclamo}</Text>
                         <Text style={styles.direccion}>Dirección: {reclamo.direccion}</Text>
                         <Text style={styles.direccion}>Rubro: {reclamo.rubro}</Text>
                         <Text>Última actualizacion: {reclamo.ultActualizacion}</Text>
                     </View>
 
-                ))}
+                ))
+            )}
             </ScrollView>
             <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
                 <Ionicons name="add" size={30} color="white" />
