@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import CardServicio from './CardServicio';
-import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, Image } from 'react-native';
+import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
@@ -16,6 +16,7 @@ const Servicios = (logueado) => {
     const [selectedServicio, setSelectedServicio] = useState(null);
     const [modalServicioVisible, setModalServicioVisible] = useState(false);
     const [search, setSearch] = useState('');
+    const [loading, setLoading] = useState(true);
     //const servicios = [
      //   { id:'01', imagen: require('../img/servicio.jpg'), nombreServicio: 'Carpinteria a domicilio', proveedor: 'Don Ramon', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
        // { id:'02', imagen: require('../img/servicio.jpg'), nombreServicio: 'Plomeria a domicilio', proveedor: 'Juan Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
@@ -31,7 +32,7 @@ const Servicios = (logueado) => {
 
     const [servicios, setServicios] = useState([])
     useEffect(() => {
-        getServicios(setServicios)
+        getServicios(setServicios).then(() => setLoading(false));
       }, []);
 
     const handleSave = () => {
@@ -78,7 +79,11 @@ const Servicios = (logueado) => {
                 />
             </View>
             <ScrollView>
-                {filteredServicios.map((servicio, index) => (
+            {loading ? (
+                // Muestra el spinner si los datos aún se están cargando
+                <ActivityIndicator size="large" color="#ff834e" style={{marginTop:20}} />
+            ) : (
+                filteredServicios.map((servicio, index) => (
                     <TouchableOpacity key={servicio.idServicio} onPress={() => { setSelectedServicio(servicio); setModalServicioVisible(true); }}>
                         <CardServicio
                             key={servicio.idServicio}
@@ -87,7 +92,9 @@ const Servicios = (logueado) => {
                             proveedor={"hhh"}
                         />
                     </TouchableOpacity>
-                ))}
+                ))
+            )}
+            
             </ScrollView>
             {logueado.logueado === true ? (
             <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>

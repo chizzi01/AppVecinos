@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import CardServicio from './CardServicio';
 import { Picker } from '@react-native-picker/picker';
+import getComercios from '../controllers/comercios';
 
 
 const Comercios = (logueado) => {
@@ -18,25 +19,31 @@ const Comercios = (logueado) => {
     const [telefono, setTelefono] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [search, setSearch] = useState('');
-    const comercios = [
-        { id: '1', imagen: require('../img/comercio.jpg'), nombreComercio: 'Lavanderia', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-        { id: '2', imagen: require('../img/comercio.jpg'), nombreComercio: 'Peluqueria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-        { id: '3', imagen: require('../img/comercio.jpg'), nombreComercio: 'Pintureria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-        { id: '4', imagen: require('../img/comercio.jpg'), nombreComercio: 'Veterinaria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-        { id: '5', imagen: require('../img/comercio.jpg'), nombreComercio: 'Ferreteria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-        { id: '6', imagen: require('../img/comercio.jpg'), nombreComercio: 'Supermercado', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-        { id: '7', imagen: require('../img/comercio.jpg'), nombreComercio: 'Kiosco', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-        { id: '8', imagen: require('../img/comercio.jpg'), nombreComercio: 'Panaderia', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-        { id: '9', imagen: require('../img/comercio.jpg'), nombreComercio: 'Carniceria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
+    const [loading, setLoading] = useState(true);
+    // const comercios = [
+    //     { id: '1', imagen: require('../img/comercio.jpg'), nombreComercio: 'Lavanderia', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
+    //     { id: '2', imagen: require('../img/comercio.jpg'), nombreComercio: 'Peluqueria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
+    //     { id: '3', imagen: require('../img/comercio.jpg'), nombreComercio: 'Pintureria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
+    //     { id: '4', imagen: require('../img/comercio.jpg'), nombreComercio: 'Veterinaria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
+    //     { id: '5', imagen: require('../img/comercio.jpg'), nombreComercio: 'Ferreteria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
+    //     { id: '6', imagen: require('../img/comercio.jpg'), nombreComercio: 'Supermercado', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
+    //     { id: '7', imagen: require('../img/comercio.jpg'), nombreComercio: 'Kiosco', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
+    //     { id: '8', imagen: require('../img/comercio.jpg'), nombreComercio: 'Panaderia', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
+    //     { id: '9', imagen: require('../img/comercio.jpg'), nombreComercio: 'Carniceria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
 
-    ];
+    // ];
+
+    const [comercios, setComercios] = useState([])
+    useEffect(() => {
+        getComercios(setComercios).then(() => setLoading(false));
+      }, []);
+
 
     const handleSave = () => {
         // Save the new service
         console.log(nombreServicio, proveedor, telefono, descripcion);
         setModalVisible(false);
     };
-    console.log(logueado.logueado);
 
     const pickImage = async () => {
         const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -74,7 +81,11 @@ const Comercios = (logueado) => {
                 />
             </View>
             <ScrollView>
-                {filteredComercios.map((comercio) => (
+            {loading ? (
+                // Muestra el spinner si los datos aún se están cargando
+                <ActivityIndicator size="large" color="#03A9F4" style={{marginTop:20}} />
+            ) : (
+                filteredComercios.map((comercio) => (
                     <TouchableOpacity key={comercio.id} onPress={() => { setSelectedComercio(comercio); setModalComercioVisible(true); }}>
                         <CardServicio
                             key={comercio.id}
@@ -84,7 +95,8 @@ const Comercios = (logueado) => {
                             horario={comercio.horario}
                         />
                     </TouchableOpacity>
-                ))}
+                ))
+            )}
             </ScrollView>
             {logueado.logueado === true ? (
             <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
