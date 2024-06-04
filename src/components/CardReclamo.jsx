@@ -5,10 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 const CardReclamo = ({ idReclamo, nombreReclamo, direccion, ultActualizacion, rubro  }) => {
     return (
         <View style={styles.container}>
-            <Image source={{ uri: `https://municipio-g8-servidor-production.up.railway.app/api/reclamos/getPrimerImagen/${idReclamo}` }} style={styles.image} />
             <View style={styles.textContainer}>
+                <Text style={styles.nombreServicio}>Reclamo N°:{idReclamo}</Text>
                 <Text style={styles.nombreServicio}>{nombreReclamo}</Text>
-                <Text style={styles.proveedor}>{direccion}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Ionicons style={styles.clock} name="location" size={20} color="#7E7E7E" />
+                        <Text style={styles.proveedor}>{direccion}</Text>
+                    </View>
                 {rubro && (
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Ionicons style={styles.clock} name="time" size={20} color="#7E7E7E" />

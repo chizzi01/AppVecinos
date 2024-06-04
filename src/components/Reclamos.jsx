@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text, ActivityIndicator, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
@@ -19,11 +19,14 @@ const Reclamos = () => {
     const [search, setSearch] = useState('');
     const [rubro, setRubro] = useState('');
     const [loading, setLoading] = useState(true);
+    const [modalReclamosVisible, setModalReclamosVisible] = useState(false);
+    const [selectedReclamo, setSelectedReclamo] = useState(null);
+
 
     const [reclamos, setReclamos] = useState([])
     useEffect(() => {
         getReclamos(setReclamos).then(() => setLoading(false));
-      }, []);
+    }, []);
 
 
     const handleSave = () => {
@@ -54,22 +57,22 @@ const Reclamos = () => {
 
     const takeImage = async () => {
         let result = await ImagePicker.launchCameraAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 1,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
         });
-      
-        console.log(result);
-      
-        if (!result.cancelled) {
-          // setImage(result.uri);
-          console.log(result.uri);
-        }
-      };
-      
 
-    
+        console.log(result);
+
+        if (!result.cancelled) {
+            // setImage(result.uri);
+            console.log(result.uri);
+        }
+    };
+
+
+
 
 
     // const reclamos = [
@@ -112,25 +115,58 @@ const Reclamos = () => {
                 </Picker>
             </View>
             <ScrollView>
-            {loading ? (
-                // Muestra el spinner si los datos aún se están cargando
-                <ActivityIndicator size="large" color="#2c3e50" style={{marginTop:20}} />
-            ) : (
-                filteredReclamos.map((reclamo, index) => (
-                    <View key={reclamo.idReclamo} style={styles.reclamosCard}>
-                        <Text style={styles.titulo}>🛠 {reclamo.sitios.descripcion}</Text>
-                        <Text style={styles.codigo}>Reclamo N°: {reclamo.idReclamo}</Text>
-                        <Text style={styles.direccion}>Dirección: {reclamo.direccion}</Text>
-                        <Text style={styles.direccion}>Rubro: {reclamo.rubro}</Text>
-                        <Text>Última actualizacion: {reclamo.ultActualizacion}</Text>
-                    </View>
+                {loading ? (
+                    // Muestra el spinner si los datos aún se están cargando
+                    <ActivityIndicator size="large" color="#2c3e50" style={{ marginTop: 20 }} />
+                ) : (
+                    filteredReclamos.map((reclamo, index) => (
+                        <TouchableOpacity key={reclamo.idReclamo} onPress={() => { setSelectedReclamo(reclamo); setModalReclamosVisible(true); }}>
+                            <View key={reclamo.idReclamo} style={styles.reclamosCard}>
+                                <Text style={styles.titulo}>🛠 {reclamo.sitios.descripcion}</Text>
+                                <Text style={styles.codigo}>Reclamo N°: {reclamo.idReclamo}</Text>
+                                <Text style={styles.direccion}>Dirección: {reclamo.direccion}</Text>
+                                <Text style={styles.direccion}>Rubro: {reclamo.rubro}</Text>
+                                <Text>Última actualizacion: {reclamo.ultActualizacion}</Text>
+                            </View>
+                        </TouchableOpacity>
 
-                ))
-            )}
+                    ))
+                )}
             </ScrollView>
-            <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+            <TouchableOpacity style={styles.fab} onPress={() => setModalReclamosVisible(true)}>
                 <Ionicons name="add" size={30} color="white" />
             </TouchableOpacity>
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalReclamosVisible}
+                onRequestClose={() => {
+                    setModalReclamosVisible(!modalReclamosVisible);
+                }}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.comercioView}>
+                        {selectedReclamo && (
+                            <>
+                                <Image
+                                    source={{ uri: `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/reclamos/getPrimerImagen/${selectedReclamo.idServicio}` }}
+                                    style={styles.carouselImage}
+                                    onError={(error) => console.log(error)}
+                                />
+                                <Text style={styles.reclamoId}>Reclamo #{selectedReclamo.idReclamo}</Text>
+                                <Text style={styles.reclamoEstado}>{selectedReclamo.estado}</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Ionicons style={styles.clock} name="location" size={20} color="#7E7E7E" />
+                                    <Text style={styles.ubiReclamo}>{selectedReclamo.sitios.descripcion}</Text>
+                                </View>
+                                <Text style={styles.comercioDescripcion}>{selectedReclamo.descripcion}</Text>
+                            </>
+                        )}
+                        <Button title="Cerrar" style={{ backgroundColor: 'red' }} onPress={() => setModalReclamosVisible(false)} />
+                    </View>
+                </View>
+            </Modal>
 
             <Modal
                 animationType="slide"
@@ -339,6 +375,63 @@ const styles = StyleSheet.create({
         paddingLeft: 0,
         backgroundColor: '#fff',
         color: '#424242',
+    },
+    comercioView: {
+        backgroundColor: '#f0f0f0',
+        borderRadius: 30,
+        padding: 50,
+        alignItems: 'left',
+        justifyContent: 'space-around',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        height: '90%',
+        width: '95%'
+    },
+    comercioTitulo: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#2c3e50',
+    },
+    comercioProveedor: {
+        fontSize: 20,
+        color: '#2c3e50',
+    },
+    comercioTelefono: {
+        fontSize: 20,
+        color: '#2c3e50',
+    },
+    comercioDescripcion: {
+        fontSize: 20,
+        color: '#2c3e50',
+    },
+    carouselImage: {
+        width: 150,
+        height: 150,
+        borderRadius: 75,
+    },
+    reclamoId: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#2c3e50',
+    },
+    reclamoNombre: {
+        fontSize: 20,
+        color: '#2c3e50',
+    },
+    ubiReclamo: {
+        fontSize: 20,
+        color: '#2c3e50',
+    },
+    clock: {
+        marginRight: 5,
     },
 });
 
