@@ -18,22 +18,22 @@ const Servicios = (logueado) => {
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
     //const servicios = [
-     //   { id:'01', imagen: require('../img/servicio.jpg'), nombreServicio: 'Carpinteria a domicilio', proveedor: 'Don Ramon', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-       // { id:'02', imagen: require('../img/servicio.jpg'), nombreServicio: 'Plomeria a domicilio', proveedor: 'Juan Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        //{ id:'03', imagen: require('../img/servicio.jpg'), nombreServicio: 'Electricidad a domicilio', proveedor: 'Nicolas Gonzales', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        //{ id:'04', imagen: require('../img/servicio.jpg'), nombreServicio: 'Gasista a domicilio', proveedor: 'Federico Martinez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        //{ id:'05', imagen: require('../img/servicio.jpg'), nombreServicio: 'Cerrajeria', proveedor: 'Lucas Gomez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        //{ id:'06', imagen: require('../img/servicio.jpg'), nombreServicio: 'Pintura a domicilio', proveedor: 'Michael Jackson', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        //{ id:'07', imagen: require('../img/servicio.jpg'), nombreServicio: 'Jardineria a domicilio', proveedor: 'Carla Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        //{ id:'08', imagen: require('../img/servicio.jpg'), nombreServicio: 'Limpieza a domicilio', proveedor: 'Juana Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-        //{ id:'09', imagen: require('../img/servicio.jpg'), nombreServicio: 'Carpinteria', proveedor: 'Mengana Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+    //   { id:'01', imagen: require('../img/servicio.jpg'), nombreServicio: 'Carpinteria a domicilio', proveedor: 'Don Ramon', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+    // { id:'02', imagen: require('../img/servicio.jpg'), nombreServicio: 'Plomeria a domicilio', proveedor: 'Juan Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+    //{ id:'03', imagen: require('../img/servicio.jpg'), nombreServicio: 'Electricidad a domicilio', proveedor: 'Nicolas Gonzales', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+    //{ id:'04', imagen: require('../img/servicio.jpg'), nombreServicio: 'Gasista a domicilio', proveedor: 'Federico Martinez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+    //{ id:'05', imagen: require('../img/servicio.jpg'), nombreServicio: 'Cerrajeria', proveedor: 'Lucas Gomez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+    //{ id:'06', imagen: require('../img/servicio.jpg'), nombreServicio: 'Pintura a domicilio', proveedor: 'Michael Jackson', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+    //{ id:'07', imagen: require('../img/servicio.jpg'), nombreServicio: 'Jardineria a domicilio', proveedor: 'Carla Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+    //{ id:'08', imagen: require('../img/servicio.jpg'), nombreServicio: 'Limpieza a domicilio', proveedor: 'Juana Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
+    //{ id:'09', imagen: require('../img/servicio.jpg'), nombreServicio: 'Carpinteria', proveedor: 'Mengana Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
 
     //];
 
     const [servicios, setServicios] = useState([])
     useEffect(() => {
         getServicios(setServicios).then(() => setLoading(false));
-      }, []);
+    }, []);
 
     const handleSave = () => {
         // Save the new service
@@ -79,27 +79,27 @@ const Servicios = (logueado) => {
                 />
             </View>
             <ScrollView>
-            {loading ? (
-                // Muestra el spinner si los datos aún se están cargando
-                <ActivityIndicator size="large" color="#ff834e" style={{marginTop:20}} />
-            ) : (
-                filteredServicios.map((servicio, index) => (
-                    <TouchableOpacity key={servicio.idServicio} onPress={() => { setSelectedServicio(servicio); setModalServicioVisible(true); }}>
-                        <CardServicio
-                            key={servicio.idServicio}
-                            idServicio={servicio.idServicio}
-                            nombreServicio={servicio.tituloServicio}
-                            proveedor={servicio.proveedor}
-                        />
-                    </TouchableOpacity>
-                ))
-            )}
-            
+                {loading ? (
+                    // Muestra el spinner si los datos aún se están cargando
+                    <ActivityIndicator size="large" color="#ff834e" style={{ marginTop: 20 }} />
+                ) : (
+                    filteredServicios.map((servicio, index) => (
+                        <TouchableOpacity key={servicio.idServicio} onPress={() => { setSelectedServicio(servicio); setModalServicioVisible(true); }}>
+                            <CardServicio
+                                key={servicio.idServicio}
+                                idServicio={servicio.idServicio}
+                                nombreServicio={servicio.tituloServicio}
+                                proveedor={servicio.proveedor}
+                            />
+                        </TouchableOpacity>
+                    ))
+                )}
+
             </ScrollView>
             {logueado.logueado === true ? (
-            <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
-                <Ionicons name="add" size={30} color="white" />
-            </TouchableOpacity>
+                <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+                    <Ionicons name="add" size={30} color="white" />
+                </TouchableOpacity>
             ) : null}
             <Modal
                 animationType="slide"
@@ -112,10 +112,10 @@ const Servicios = (logueado) => {
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <Text style={styles.titulo}>Agregar servicio</Text>
-                        <TextInput style={styles.input} placeholder="Nombre del servicio" onChangeText={setNombreServicio} selectionColor="#ff834e"/>
-                        <TextInput style={styles.input} placeholder="Proveedor" onChangeText={setProveedor} selectionColor="#ff834e"/>
-                        <TextInput style={styles.input} placeholder="Telefono" onChangeText={setTelefono} selectionColor="#ff834e" keyboardType="numeric"/>
-                        <TextInput style={styles.input} placeholder="Descripcion" onChangeText={setDescripcion} selectionColor="#ff834e"/>
+                        <TextInput style={styles.input} placeholder="Nombre del servicio" onChangeText={setNombreServicio} selectionColor="#ff834e" />
+                        <TextInput style={styles.input} placeholder="Proveedor" onChangeText={setProveedor} selectionColor="#ff834e" />
+                        <TextInput style={styles.input} placeholder="Telefono" onChangeText={setTelefono} selectionColor="#ff834e" keyboardType="numeric" />
+                        <TextInput style={styles.input} placeholder="Descripcion" onChangeText={setDescripcion} selectionColor="#ff834e" />
                         <TouchableOpacity style={styles.addImg} onPress={pickImage}>
                             <Ionicons name="attach" size={20} color="grey" />
                             <Text style={styles.colorText}>Adjuntar imagenes</Text>
@@ -143,7 +143,7 @@ const Servicios = (logueado) => {
                         {selectedServicio && (
                             <>
                                 <Image
-                                    source={selectedServicio.imagen}
+                                    source={{ uri: `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/servicios/getPrimerImagen/${selectedServicio.idServicio}` }}
                                     style={styles.carouselImage}
                                     onError={(error) => console.log(error)}
                                 />
@@ -159,7 +159,7 @@ const Servicios = (logueado) => {
                                 <Text style={styles.comercioDescripcion}>{selectedServicio.descripcion}</Text>
                             </>
                         )}
-                        <Button title="Cerrar" style={{backgroundColor:'red'}} onPress={() => setModalServicioVisible(false)} />
+                        <Button title="Cerrar" style={{ backgroundColor: 'red' }} onPress={() => setModalServicioVisible(false)} />
                     </View>
                 </View>
             </Modal>
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
         color: '#7E7E7E' // Gray text
     },
     comercioView: {
-        margin: 20,
+        // margin: 20,
         backgroundColor: "#f0f0f0",
         borderRadius: 30,
         padding: 20,
@@ -335,6 +335,14 @@ const styles = StyleSheet.create({
         paddingLeft: 0,
         backgroundColor: '#fff',
         color: '#424242',
+    },
+    image: {
+        width: 150, // Set your desired width
+        height: '100%', // Set your desired height
+        borderTopLeftRadius: 10,
+        borderBottomLeftRadius: 10,
+        //ajustar imagen al tamaño del contenedor
+        resizeMode: 'cover',
     },
 });
 

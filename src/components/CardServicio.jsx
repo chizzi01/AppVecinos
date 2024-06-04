@@ -3,6 +3,7 @@ import { View, Image, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const CardServicio = ({ idServicio, nombreServicio, proveedor, horario }) => {
+    // console.log(idServicio);
     return (
         <View style={styles.container}>
             <Image source={{ uri: `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/servicios/getPrimerImagen/${idServicio}` }}style={styles.image} />
