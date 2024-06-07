@@ -6,11 +6,13 @@ import imagen from '../img/login.png';
 import inspector from '../img/inspector.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigate } from 'react-router-native';
+import esVecino from "../controllers/esVecino";
+import login from "../controllers/login";
 
 
 
 
-const Login = ({ user, onLogin }) => {
+const Login = (onLogin) => {
     const navigate = useNavigate();
 
     const styles = StyleSheet.create({
@@ -200,14 +202,15 @@ const Login = ({ user, onLogin }) => {
 
 
     const handleLogin = async () => {
-        if (dni !== user.dni) {
-            setModalVisible(true);
-        } else {
-            if (user.validado === true ) {
+            console.log(dni)
+            const esUnVecino = esVecino(dni)
+            if (esUnVecino) {
                 setVerificado(true);
-                if (password === user.password ) {
+                const responseLogin = login(dni, password)
+                if (responseLogin.status === 200) {
                     try {
                         await AsyncStorage.setItem('logueado', 'true');
+                        await AsyncStorage.setItem('token', responseLogin.token);
                         alert('Inició sesión correctamente');
                         navigate('/comercios');
                         onLogin();
@@ -216,14 +219,13 @@ const Login = ({ user, onLogin }) => {
                     } catch (error) {
                         // Error saving data
                     }
-                } else if (password !== user.password && password !== ''){
+                } else if (password !== password && password !== ''){
                     alert('Contraseña incorrecta');
                 }
             } else {
                 setEmailModalVisible(true);
             }
         };
-    };
 
 
     const handleSolicitud = () => {

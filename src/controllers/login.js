@@ -1,4 +1,9 @@
-const getLogin = async(setLogin) => {
+const login = async(mail, contrasena) => {
+
+    var raw = JSON.stringify({
+      "documento": mail,
+      "password": contrasena
+    });
 
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -6,14 +11,14 @@ const getLogin = async(setLogin) => {
     var requestOptions = {
         method: 'GET',
         headers: myHeaders,
+        body: raw,
         redirect: 'follow',
         mode:'cors'
       };
+    
       
-      let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/login/getLogin", requestOptions);
-      let jsonData = await response.json();
-      console.log(jsonData)
-      setLogin(jsonData);
+      let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/userVecino/login", requestOptions);
+      return reponse
       //hjolahghg
 }
-export default getLogin;
+export default login;
