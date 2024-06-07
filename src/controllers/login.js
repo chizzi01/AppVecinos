@@ -1,7 +1,7 @@
-const login = async(mail, contrasena) => {
+const login = async(documento, contrasena) => {
 
     var raw = JSON.stringify({
-      "documento": mail,
+      "documento": documento,
       "password": contrasena
     });
 

@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-native';
 import esVecino from "../controllers/esVecino";
 import login from "../controllers/login";
 import habilitado from "../controllers/habilitado";
+import solicitarClave from "../controllers/solicitarClave";
 
 
 
@@ -210,7 +211,6 @@ const Login = ({onLogin}) => {
                 if (estaHabilitado) {
                     setVerificado(true);
                     const responseLogin = await login(dni, password)
-                    console.log(responseLogin.status === 200)
                     if (responseLogin.status === 200) {
                         try {
                             await AsyncStorage.setItem('logueado', 'true');
@@ -221,10 +221,10 @@ const Login = ({onLogin}) => {
                             
                             
                         } catch (error) {
-                            console.log(error)
+                            alert(error)
                             // Error saving data
                         }
-                    } else if (password !== password && password !== ''){
+                    } else {
                         alert('Contraseña incorrecta');
                     }
                 } else {
@@ -234,7 +234,8 @@ const Login = ({onLogin}) => {
         };
 
 
-    const handleSolicitud = () => {
+    const handleSolicitud = async () => {
+        const response = await solicitarClave(dni, email)
         setSolicitudEnviada(true);
     }
 
