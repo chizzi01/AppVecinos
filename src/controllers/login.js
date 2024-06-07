@@ -9,7 +9,7 @@ const login = async(mail, contrasena) => {
     myHeaders.append("Content-Type", "application/json");
 
     var requestOptions = {
-        method: 'GET',
+        method: 'POST',
         headers: myHeaders,
         body: raw,
         redirect: 'follow',
@@ -18,7 +18,8 @@ const login = async(mail, contrasena) => {
     
       
       let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/userVecino/login", requestOptions);
-      return reponse
+      console.log(response)
+      return response
       //hjolahghg
 }
 export default login;

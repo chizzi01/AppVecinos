@@ -8,11 +8,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigate } from 'react-router-native';
 import esVecino from "../controllers/esVecino";
 import login from "../controllers/login";
+import habilitado from "../controllers/habilitado";
 
 
 
 
-const Login = (onLogin) => {
+const Login = ({onLogin}) => {
     const navigate = useNavigate();
 
     const styles = StyleSheet.create({
@@ -200,30 +201,35 @@ const Login = (onLogin) => {
     const [solicitudEnviada, setSolicitudEnviada] = useState(false);
     const [verificado, setVerificado] = useState(false);
 
-
     const handleLogin = async () => {
-            console.log(dni)
-            const esUnVecino = esVecino(dni)
-            if (esUnVecino) {
-                setVerificado(true);
-                const responseLogin = login(dni, password)
-                if (responseLogin.status === 200) {
-                    try {
-                        await AsyncStorage.setItem('logueado', 'true');
-                        await AsyncStorage.setItem('token', responseLogin.token);
-                        alert('Inició sesión correctamente');
-                        navigate('/comercios');
-                        onLogin();
-                  
-
-                    } catch (error) {
-                        // Error saving data
+            const esUnVecino = await esVecino(dni)
+            if (!esUnVecino) {
+                setModalVisible(true);
+            }else {
+                const estaHabilitado = await habilitado(dni)
+                if (estaHabilitado) {
+                    setVerificado(true);
+                    const responseLogin = await login(dni, password)
+                    console.log(responseLogin.status === 200)
+                    if (responseLogin.status === 200) {
+                        try {
+                            await AsyncStorage.setItem('logueado', 'true');
+                            //await AsyncStorage.setItem('token', responseLogin.token);
+                            alert('Inició sesión correctamente');
+                            navigate('/comercios');
+                            onLogin();
+                            
+                            
+                        } catch (error) {
+                            console.log(error)
+                            // Error saving data
+                        }
+                    } else if (password !== password && password !== ''){
+                        alert('Contraseña incorrecta');
                     }
-                } else if (password !== password && password !== ''){
-                    alert('Contraseña incorrecta');
+                } else {
+                    setEmailModalVisible(true);
                 }
-            } else {
-                setEmailModalVisible(true);
             }
         };
 
