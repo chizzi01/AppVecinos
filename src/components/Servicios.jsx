@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import CardServicio from './CardServicio';
-import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, Image, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, Image, ActivityIndicator, KeyboardAvoidingView, KeyboardAvoidingViewComponent } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
@@ -68,103 +68,107 @@ const Servicios = (logueado) => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.searchSection}>
-                <Ionicons style={styles.searchIcon} name="search" size={20} color="#000" />
-                <TextInput
-                    style={styles.inputSearch}
-                    placeholder="Buscar por nombre"
-                    selectionColor="#ff834e"
-                    onChangeText={text => setSearch(text)}
-                />
-            </View>
-            <ScrollView>
-                {loading ? (
-                    // Muestra el spinner si los datos aún se están cargando
-                    <ActivityIndicator size="large" color="#ff834e" style={{ marginTop: 20 }} />
-                ) : (
-                    filteredServicios.map((servicio, index) => (
-                        <TouchableOpacity key={servicio.idServicio} onPress={() => { setSelectedServicio(servicio); setModalServicioVisible(true); }}>
-                            <CardServicio
-                                key={servicio.idServicio}
-                                idServicio={servicio.idServicio}
-                                nombreServicio={servicio.tituloServicio}
-                                proveedor={servicio.proveedor}
-                            />
-                        </TouchableOpacity>
-                    ))
-                )}
-
-            </ScrollView>
-            {logueado.logueado === true ? (
-                <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
-                    <Ionicons name="add" size={30} color="white" />
-                </TouchableOpacity>
-            ) : null}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    setModalVisible(!modalVisible);
-                }}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.titulo}>Agregar servicio</Text>
-                        <TextInput style={styles.input} placeholder="Nombre del servicio" onChangeText={setNombreServicio} selectionColor="#ff834e" />
-                        <TextInput style={styles.input} placeholder="Proveedor" onChangeText={setProveedor} selectionColor="#ff834e" />
-                        <TextInput style={styles.input} placeholder="Telefono" onChangeText={setTelefono} selectionColor="#ff834e" keyboardType="numeric" />
-                        <TextInput style={styles.input} placeholder="Descripcion" onChangeText={setDescripcion} selectionColor="#ff834e" />
-                        <TouchableOpacity style={styles.addImg} onPress={pickImage}>
-                            <Ionicons name="attach" size={20} color="grey" />
-                            <Text style={styles.colorText}>Adjuntar imagenes</Text>
-                        </TouchableOpacity>
-                        <View style={styles.lineAlign}>
-                            <Button title="Guardar" onPress={handleSave} />
-                            <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
-                                <Text style={styles.colorText}>Cancelar</Text>
+        <KeyboardAvoidingView>
+            <SafeAreaView style={styles.container}>
+                <View style={styles.searchSection}>
+                    <Ionicons style={styles.searchIcon} name="search" size={20} color="#000" />
+                    <TextInput
+                        style={styles.inputSearch}
+                        placeholder="Buscar por nombre"
+                        selectionColor="#ff834e"
+                        onChangeText={text => setSearch(text)}
+                    />
+                </View>
+                <ScrollView>
+                    {loading ? (
+                        // Muestra el spinner si los datos aún se están cargando
+                        <ActivityIndicator size="large" color="#ff834e" style={{ marginTop: 20 }} />
+                    ) : (
+                        filteredServicios.map((servicio, index) => (
+                            <TouchableOpacity key={servicio.idServicio} onPress={() => { setSelectedServicio(servicio); setModalServicioVisible(true); }}>
+                                <CardServicio
+                                    key={servicio.idServicio}
+                                    idServicio={servicio.idServicio}
+                                    nombreServicio={servicio.tituloServicio}
+                                    proveedor={servicio.proveedor}
+                                />
                             </TouchableOpacity>
+                        ))
+                    )}
+
+                </ScrollView>
+                {logueado.logueado === true ? (
+                    <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+                        <Ionicons name="add" size={30} color="white" />
+                    </TouchableOpacity>
+                ) : null}
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => {
+                        setModalVisible(!modalVisible);
+                    }}
+                >
+
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <Text style={styles.titulo}>Agregar servicio</Text>
+                            <TextInput style={styles.input} placeholder="Nombre del servicio" onChangeText={setNombreServicio} selectionColor="#ff834e" />
+                            <TextInput style={styles.input} placeholder="Proveedor" onChangeText={setProveedor} selectionColor="#ff834e" />
+                            <TextInput style={styles.input} placeholder="Telefono" onChangeText={setTelefono} selectionColor="#ff834e" keyboardType="numeric" />
+                            <TextInput style={styles.input} placeholder="Descripcion" onChangeText={setDescripcion} selectionColor="#ff834e" />
+                            <TouchableOpacity style={styles.addImg} onPress={pickImage}>
+                                <Ionicons name="attach" size={20} color="grey" />
+                                <Text style={styles.colorText}>Adjuntar imagenes</Text>
+                            </TouchableOpacity>
+                            <View style={styles.lineAlign}>
+                                <Button title="Guardar" onPress={handleSave} />
+                                <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
+                                    <Text style={styles.colorText}>Cancelar</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
-                </View>
-            </Modal>
+                    
+                </Modal>
 
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalServicioVisible}
-                onRequestClose={() => {
-                    setModalVisible(!modalServicioVisible);
-                }}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.comercioView}>
-                        {selectedServicio && (
-                            <>
-                                <Image
-                                    source={{ uri: `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/servicios/getPrimerImagen/${selectedServicio.idServicio}` }}
-                                    style={styles.carouselImage}
-                                    onError={(error) => console.log(error)}
-                                />
-                                <Text style={styles.comercioTitulo}>{selectedServicio.tituloServicio}</Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Ionicons name="person" size={20} color="#7E7E7E" />
-                                    <Text style={styles.comercioProveedor}>{selectedServicio.proveedor}</Text>
-                                </View>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Ionicons name="call" size={20} color="#7E7E7E" />
-                                    <Text style={styles.comercioTelefono}>{selectedServicio.telefono}</Text>
-                                </View>
-                                <Text style={styles.comercioDescripcion}>{selectedServicio.descripcion}</Text>
-                            </>
-                        )}
-                        <Button title="Cerrar" style={{ backgroundColor: 'red' }} onPress={() => setModalServicioVisible(false)} />
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalServicioVisible}
+                    onRequestClose={() => {
+                        setModalVisible(!modalServicioVisible);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.comercioView}>
+                            {selectedServicio && (
+                                <>
+                                    <Image
+                                        source={{ uri: `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/servicios/getPrimerImagen/${selectedServicio.idServicio}` }}
+                                        style={styles.carouselImage}
+                                        onError={(error) => console.log(error)}
+                                    />
+                                    <Text style={styles.comercioTitulo}>{selectedServicio.tituloServicio}</Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="person" size={20} color="#7E7E7E" />
+                                        <Text style={styles.comercioProveedor}>{selectedServicio.proveedor}</Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="call" size={20} color="#7E7E7E" />
+                                        <Text style={styles.comercioTelefono}>{selectedServicio.telefono}</Text>
+                                    </View>
+                                    <Text style={styles.comercioDescripcion}>{selectedServicio.descripcion}</Text>
+                                </>
+                            )}
+                            <Button title="Cerrar" style={{ backgroundColor: 'red' }} onPress={() => setModalServicioVisible(false)} />
+                        </View>
                     </View>
-                </View>
-            </Modal>
+                </Modal>
 
-        </SafeAreaView>
+            </SafeAreaView>
+        </KeyboardAvoidingView>
     );
 };
 const styles = StyleSheet.create({

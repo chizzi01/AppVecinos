@@ -28,6 +28,7 @@ import Notificacion from  './src/components/Notificaciones';
 import { AppRegistry } from 'react-native';
 import { name as appName } from './app.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Keyboard } from 'react-native';
 
 
 
@@ -38,6 +39,23 @@ const App = () => {
   const [drawerPosition] = useState('left');
   const [logueado, setLogueado] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(true);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => setKeyboardVisible(false)
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => setKeyboardVisible(true)
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
 
   useEffect(() => {
@@ -220,9 +238,11 @@ const App = () => {
           drawerPosition={drawerPosition}
           renderNavigationView={navigationView}
         >
-          <TouchableOpacity style={styles.menuButton} onPress={() => drawer.current.openDrawer()}>
-            <Ionicons name="menu" size={36} color="#fff" />
-          </TouchableOpacity>
+      {keyboardVisible && (
+        <TouchableOpacity style={styles.menuButton} onPress={() => drawer.current.openDrawer()}>
+          <Ionicons name="menu" size={36} color="#fff" />
+        </TouchableOpacity>
+      )}
           <View>
             <Routes>
               <Route path="/" element={<Home />} />

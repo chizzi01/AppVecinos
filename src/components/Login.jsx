@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Modal, ImageBackground, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Modal, ImageBackground, ActivityIndicator, KeyboardAvoidingView } from "react-native";
 import theme from "../theme";
 import { Ionicons } from '@expo/vector-icons';
 import imagen from '../img/login.png';
@@ -10,6 +10,7 @@ import esVecino from "../controllers/esVecino";
 import login from "../controllers/login";
 import habilitado from "../controllers/habilitado";
 import solicitarClave from "../controllers/solicitarClave";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 
 
@@ -265,6 +266,7 @@ const Login = ({ onLogin }) => {
     }
 
     return (
+        <KeyboardAvoidingView>
         <View>
             <ImageBackground source={userType === 'inspector' ? inspector : imagen} style={styles.backgroundImage}>
                 <View style={styles.formatDiv}>
@@ -401,6 +403,7 @@ const Login = ({ onLogin }) => {
                 </View>
             </ImageBackground>
         </View>
+        </KeyboardAvoidingView>
     );
 };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, KeyboardAvoidingView } from 'react-native';
 import Sidebar from './Sidebar';
 import { NativeRouter as Router, Routes } from 'react-router-native';
 import { Route } from 'react-router-native';
@@ -11,6 +11,7 @@ import Login from './Login';
 
 const Main = () => {
     return (
+        <KeyboardAvoidingView>
         <View>
             <Sidebar />
             <Routes>
@@ -21,6 +22,7 @@ const Main = () => {
                 <Route path="/login" component={Login} />
             </Routes>
         </View>
+        </KeyboardAvoidingView>
     );
 };
 
