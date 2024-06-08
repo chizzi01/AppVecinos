@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Modal, ImageBackground } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Modal, ImageBackground, ActivityIndicator } from "react-native";
 import theme from "../theme";
 import { Ionicons } from '@expo/vector-icons';
 import imagen from '../img/login.png';
@@ -14,7 +14,7 @@ import solicitarClave from "../controllers/solicitarClave";
 
 
 
-const Login = ({onLogin}) => {
+const Login = ({ onLogin }) => {
     const navigate = useNavigate();
 
     const styles = StyleSheet.create({
@@ -189,6 +189,22 @@ const Login = ({onLogin}) => {
             width: '80%', // Ajusta esto según tus necesidades
             height: '40%', // Ajusta esto según tus necesidades
         },
+        buttonLogin: {
+            backgroundColor: '#4bdaa3',
+            padding: 10,
+            alignItems: 'center',
+            borderRadius: 20,
+            width: '50%',
+            color: 'white',
+        },
+        wrongPass: {
+            color: 'red',
+            textAlign: 'center',
+            backgroundColor: 'white',
+            borderRadius: 10,
+            padding: 5,
+            margin: 5,
+        },
 
     });
 
@@ -201,37 +217,46 @@ const Login = ({onLogin}) => {
     const [email, setEmail] = useState('');
     const [solicitudEnviada, setSolicitudEnviada] = useState(false);
     const [verificado, setVerificado] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [okPassword, setOkPassword] = useState(true);
 
     const handleLogin = async () => {
-            const esUnVecino = await esVecino(dni)
-            if (!esUnVecino) {
-                setModalVisible(true);
-            }else {
-                const estaHabilitado = await habilitado(dni)
-                if (estaHabilitado) {
-                    setVerificado(true);
-                    const responseLogin = await login(dni, password)
-                    if (responseLogin.status === 200) {
-                        try {
-                            await AsyncStorage.setItem('logueado', 'true');
-                            //await AsyncStorage.setItem('token', responseLogin.token);
-                            alert('Inició sesión correctamente');
-                            navigate('/comercios');
-                            onLogin();
-                            
-                            
-                        } catch (error) {
-                            alert(error)
-                            // Error saving data
-                        }
-                    } else {
-                        alert('Contraseña incorrecta');
+        setLoading(true);
+        const esUnVecino = await esVecino(dni)
+        if (!esUnVecino) {
+            setModalVisible(true);
+            setLoading(false);
+        } else {
+            const estaHabilitado = await habilitado(dni)
+
+            if (estaHabilitado) {
+                setVerificado(true);
+                setLoading(false);
+                const responseLogin = await login(dni, password)
+                if (responseLogin.status === 200) {
+                    try {
+                        await AsyncStorage.setItem('logueado', 'true');
+                        //await AsyncStorage.setItem('token', responseLogin.token);
+                        alert('Inició sesión correctamente');
+                        navigate('/comercios');
+                        onLogin();
+
+
+                    } catch (error) {
+                        alert(error)
+                        // Error saving data
                     }
                 } else {
-                    setEmailModalVisible(true);
+                    if (password) {
+                        setOkPassword(false);
+                    }
+
                 }
+            } else {
+                setEmailModalVisible(true);
             }
-        };
+        }
+    };
 
 
     const handleSolicitud = async () => {
@@ -262,13 +287,17 @@ const Login = ({onLogin}) => {
                                 onChangeText={text => setDni(text)}
                             />
                             {verificado ? (
-                                <TextInput
-                                    style={styles.input}
-                                    secureTextEntry
-                                    placeholder="Contraseña"
-                                    onChangeText={(text) => setPassword(text)}
-                                    value={password}
-                                />
+                                <>
+                                    <TextInput
+                                        style={styles.input}
+                                        secureTextEntry
+                                        placeholder="Contraseña"
+                                        onChangeText={(text) => setPassword(text)}
+                                        value={password}
+                                    />
+                                    {okPassword ? null : <Text style={styles.wrongPass}>Contraseña incorrecta</Text>}
+                                    
+                                </>
                             ) : null}
                         </View>
                     ) : (
@@ -292,7 +321,14 @@ const Login = ({onLogin}) => {
                     <TouchableOpacity>
                         <Text style={styles.olvide}>Olvidé mi Contraseña</Text>
                     </TouchableOpacity>
-                    <Button style={styles.button} title="Iniciar sesión" onPress={handleLogin} />
+                    {/* <Button style={styles.button} title={{loading ? 'Iniciar sesión' : <ActivityIndicator size="30px" color="#4bdaa3" />}} onPress={handleLogin} /> */}
+                    <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin} disabled={loading}>
+                        {loading ? (
+                            <ActivityIndicator size="small" color="#FFFF" />
+                        ) : (
+                            <Text>Iniciar sesión</Text>
+                        )}
+                    </TouchableOpacity>
                     <Modal
                         animationType="slide"
                         transparent={true}
