@@ -18,8 +18,9 @@ const login = async(documento, contrasena) => {
     
       
       let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/userVecino/login", requestOptions);
-      console.log(response)
-      return response
+      let data = await response.json()
+      console.log(data)
+      return {status: response.status, data: data}
       //hjolahghg
 }
 export default login;

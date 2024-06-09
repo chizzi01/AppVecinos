@@ -10,7 +10,7 @@ const getComercios = async(setComercios) => {
         mode:'cors'
       };
       
-      let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/comercios/getComercios", requestOptions);
+      let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/comercios/getComercios1", requestOptions);
       let jsonData = await response.json();
       console.log(jsonData)
       getComercios(jsonData);

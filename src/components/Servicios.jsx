@@ -6,6 +6,9 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import getServicios from '../controllers/servicios';
+import { Picker } from '@react-native-picker/picker';
+import postServicios from '../controllers/postServicio';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Servicios = (logueado) => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -17,28 +20,31 @@ const Servicios = (logueado) => {
     const [modalServicioVisible, setModalServicioVisible] = useState(false);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
-    //const servicios = [
-    //   { id:'01', imagen: require('../img/servicio.jpg'), nombreServicio: 'Carpinteria a domicilio', proveedor: 'Don Ramon', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-    // { id:'02', imagen: require('../img/servicio.jpg'), nombreServicio: 'Plomeria a domicilio', proveedor: 'Juan Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-    //{ id:'03', imagen: require('../img/servicio.jpg'), nombreServicio: 'Electricidad a domicilio', proveedor: 'Nicolas Gonzales', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-    //{ id:'04', imagen: require('../img/servicio.jpg'), nombreServicio: 'Gasista a domicilio', proveedor: 'Federico Martinez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-    //{ id:'05', imagen: require('../img/servicio.jpg'), nombreServicio: 'Cerrajeria', proveedor: 'Lucas Gomez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-    //{ id:'06', imagen: require('../img/servicio.jpg'), nombreServicio: 'Pintura a domicilio', proveedor: 'Michael Jackson', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-    //{ id:'07', imagen: require('../img/servicio.jpg'), nombreServicio: 'Jardineria a domicilio', proveedor: 'Carla Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-    //{ id:'08', imagen: require('../img/servicio.jpg'), nombreServicio: 'Limpieza a domicilio', proveedor: 'Juana Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-    //{ id:'09', imagen: require('../img/servicio.jpg'), nombreServicio: 'Carpinteria', proveedor: 'Mengana Perez', telefono: '1167845715', descripcion: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam, tempore ab. Quos iusto tenetur inventore ducimus aut, fuga alias vero excepturi culpa temporibus quam odio officia eos enim nulla quaerat.' },
-
-    //];
+    const [horaInicio, setHoraInicio] = useState('');
+    const [minutoInicio, setMinutoInicio] = useState('');
+    const [horaCierre, setHoraCierre] = useState('');
+    const [minutoCierre, setMinutoCierre] = useState('');
+    const [direccion, setDireccion] = useState('');
+    const [storedValue, setStoredValue] = useState('');
+    const [rubro, setRubro] = useState('');
 
     const [servicios, setServicios] = useState([])
     useEffect(() => {
         getServicios(setServicios).then(() => setLoading(false));
     }, []);
 
-    const handleSave = () => {
-        // Save the new service
-        console.log(nombreServicio, proveedor, telefono, descripcion);
-        setModalVisible(false);
+
+    const getData = async () => { try { const value = await AsyncStorage.getItem('token'); if (value !== null) { setStoredValue(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+
+    useEffect(() => { getData(); }, []);
+
+    const handleSave = async () => {
+        const response = await postServicios(storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion)
+            .then(() => {
+                setModalVisible(false);
+
+            });
+            // console.log(storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion)
     };
 
 
@@ -110,27 +116,63 @@ const Servicios = (logueado) => {
                         setModalVisible(!modalVisible);
                     }}
                 >
-
-                    <View style={styles.centeredView}>
-                        <View style={styles.modalView}>
-                            <Text style={styles.titulo}>Agregar servicio</Text>
-                            <TextInput style={styles.input} placeholder="Nombre del servicio" onChangeText={setNombreServicio} selectionColor="#ff834e" />
-                            <TextInput style={styles.input} placeholder="Proveedor" onChangeText={setProveedor} selectionColor="#ff834e" />
-                            <TextInput style={styles.input} placeholder="Telefono" onChangeText={setTelefono} selectionColor="#ff834e" keyboardType="numeric" />
-                            <TextInput style={styles.input} placeholder="Descripcion" onChangeText={setDescripcion} selectionColor="#ff834e" />
-                            <TouchableOpacity style={styles.addImg} onPress={pickImage}>
-                                <Ionicons name="attach" size={20} color="grey" />
-                                <Text style={styles.colorText}>Adjuntar imagenes</Text>
-                            </TouchableOpacity>
-                            <View style={styles.lineAlign}>
-                                <Button title="Guardar" onPress={handleSave} />
-                                <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
-                                    <Text style={styles.colorText}>Cancelar</Text>
-                                </TouchableOpacity>
+                    <ScrollView>
+                        <View style={styles.centeredView}>
+                            <View style={styles.modalView}>
+                                <Text style={styles.titulo}>Agregar servicio</Text>
+                                <TextInput style={styles.input} placeholder="Nombre del servicio" onChangeText={setNombreServicio} selectionColor="#ff834e" />
+                                <TextInput style={styles.input} placeholder="Direccion" onChangeText={setDireccion} selectionColor="#ff834e" />
+                                <View style={styles.horariosAlign}>
+                                    <Picker style={styles.picker} selectedValue={horaInicio} onValueChange={(itemValue, itemIndex) => setHoraInicio(itemValue)}>
+                                        <Picker.Item label="Apertura" value="" />
+                                        {Array.from({ length: 24 }, (_, index) => (
+                                            <Picker.Item key={index} label={index.toString().padStart(2, '0')} value={index.toString()} />
+                                        ))}
+                                    </Picker>
+                                    <Picker style={styles.picker} selectedValue={minutoInicio} onValueChange={(itemValue, itemIndex) => setMinutoInicio(itemValue)}>
+                                        <Picker.Item label="Minutos" value="" />
+                                        {Array.from({ length: 60 }, (_, index) => (
+                                            <Picker.Item key={index} label={index.toString().padStart(2, '0')} value={index.toString()} />
+                                        ))}
+                                    </Picker>
+                                </View>
+                                <View style={styles.horariosAlign}>
+                                    <Picker style={styles.picker} selectedValue={horaCierre} onValueChange={(itemValue, itemIndex) => setHoraCierre(itemValue)}>
+                                        <Picker.Item label="Cierre" value="" />
+                                        {Array.from({ length: 24 }, (_, index) => (
+                                            <Picker.Item key={index} label={index.toString().padStart(2, '0')} value={index.toString()} />
+                                        ))}
+                                    </Picker>
+                                    <Picker style={styles.picker} selectedValue={minutoCierre} onValueChange={(itemValue, itemIndex) => setMinutoCierre(itemValue)}>
+                                        <Picker.Item label="Minutos" value="" />
+                                        {Array.from({ length: 60 }, (_, index) => (
+                                            <Picker.Item key={index} label={index.toString().padStart(2, '0')} value={index.toString()} />
+                                        ))}
+                                    </Picker>
+                                </View>
+                                <TextInput style={styles.input} placeholder="Telefono" onChangeText={setTelefono} selectionColor="#ff834e" keyboardType="numeric" />
+                                <Picker style={styles.picker} selectedValue={rubro} onValueChange={(itemValue, itemIndex) => setRubro(itemValue)}>
+                                    <Picker.Item label="Rubro" value="0" />
+                                    <Picker.Item label="Electricidad" value="1" />
+                                    <Picker.Item label="Gas" value="2" />
+                                    <Picker.Item label="Agua" value="3" />
+                                    <Picker.Item label="Internet" value="4" />
+                                </Picker>
+                                <TextInput style={styles.input} placeholder="Descripcion" onChangeText={setDescripcion} selectionColor="#ff834e" />
+{/* 
+                                <TouchableOpacity style={styles.addImg} onPress={pickImage}>
+                                    <Ionicons name="attach" size={20} color="grey" />
+                                    <Text style={styles.colorText}>Adjuntar imagenes</Text>
+                                </TouchableOpacity> */}
+                                <View style={styles.lineAlign}>
+                                    <Button title="Guardar" onPress={handleSave} />
+                                    <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
+                                        <Text style={styles.colorText}>Cancelar</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         </View>
-                    </View>
-                    
+                    </ScrollView>
                 </Modal>
 
                 <Modal
@@ -153,11 +195,15 @@ const Servicios = (logueado) => {
                                     <Text style={styles.comercioTitulo}>{selectedServicio.tituloServicio}</Text>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Ionicons name="person" size={20} color="#7E7E7E" />
-                                        <Text style={styles.comercioProveedor}>{selectedServicio.proveedor}</Text>
+                                        <Text style={styles.comercioProveedor}>{selectedServicio.vecinos.nombre + " " + selectedServicio.vecinos.apellido}</Text>
                                     </View>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Ionicons name="call" size={20} color="#7E7E7E" />
                                         <Text style={styles.comercioTelefono}>{selectedServicio.telefono}</Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="time" size={20} color="#7E7E7E" />
+                                        <Text style={styles.comercioTelefono}>{selectedServicio.horaApertura + ":" + selectedServicio.minutoApertura} a {selectedServicio.horaCierre + ":" + selectedServicio.minutoCierre}</Text>
                                     </View>
                                     <Text style={styles.comercioDescripcion}>{selectedServicio.descripcion}</Text>
                                 </>
@@ -213,7 +259,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
-        height: '90%', // Larger height
+        height: '100%', // Larger height
         width: '95%' // Larger width
     },
     input: {
@@ -347,6 +393,21 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 10,
         //ajustar imagen al tamaño del contenedor
         resizeMode: 'cover',
+    },
+    horariosAlign: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        width: '100%'
+    },
+    picker: {
+        height: 40,
+        width: '40%',
+        margin: 12,
+        borderWidth: 1,
+        padding: 10,
+        borderRadius: 10,
+        color: '#333',
+        borderColor: '#4bdaa3',
     },
 });
 

@@ -10,6 +10,8 @@ import esVecino from "../controllers/esVecino";
 import login from "../controllers/login";
 import habilitado from "../controllers/habilitado";
 import solicitarClave from "../controllers/solicitarClave";
+import checkPass from "../controllers/checkPass";
+import generarClave from "../controllers/generarClave";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 
@@ -206,6 +208,24 @@ const Login = ({ onLogin }) => {
             padding: 5,
             margin: 5,
         },
+        confirmPasswordContainer: {
+            width: '100%',
+            margin: 30,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        inputContra: {
+            height: 40,
+            borderColor: 'gray',
+            borderWidth: 1,
+            marginTop: 10,
+            width: '100%',
+            marginBottom: 20,
+            padding: 10,
+            borderRadius: 10,
+            minWidth: 200,
+        },
 
     });
 
@@ -215,11 +235,14 @@ const Login = ({ onLogin }) => {
     const [dni, setDni] = useState('');
     const [legajo, setLegajo] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [email, setEmail] = useState('');
     const [solicitudEnviada, setSolicitudEnviada] = useState(false);
     const [verificado, setVerificado] = useState(false);
     const [loading, setLoading] = useState(false);
     const [okPassword, setOkPassword] = useState(true);
+    const [ModalCrearPassVisible, setModalCrearPassVisible] = useState(false);
+    const [okPasswordIguales, setOkPasswordIguales] = useState(true);
 
     const handleLogin = async () => {
         setLoading(true);
@@ -234,10 +257,15 @@ const Login = ({ onLogin }) => {
                 setVerificado(true);
                 setLoading(false);
                 const responseLogin = await login(dni, password)
+                const responseCheckPass = await checkPass(dni)
+                if (!responseCheckPass) {
+                    setModalCrearPassVisible(true);
+                }
                 if (responseLogin.status === 200) {
                     try {
                         await AsyncStorage.setItem('logueado', 'true');
-                        //await AsyncStorage.setItem('token', responseLogin.token);
+                        await AsyncStorage.setItem('token', responseLogin.data.token);
+                        // console.log('response', responseLogin.data.token);
                         alert('Inició sesión correctamente');
                         navigate('/comercios');
                         onLogin();
@@ -265,144 +293,198 @@ const Login = ({ onLogin }) => {
         setSolicitudEnviada(true);
     }
 
+
+    const handleGenerarPass = async () => {
+        if (password !== confirmPassword) {
+            setOkPasswordIguales(false);
+        } else {
+            const response = await generarClave(dni, password)
+            console.log('respuesta', response)
+            setOkPasswordIguales(true);
+            setModalCrearPassVisible(false);
+
+        }
+    }
+
     return (
         <KeyboardAvoidingView>
-        <View>
-            <ImageBackground source={userType === 'inspector' ? inspector : imagen} style={styles.backgroundImage}>
-                <View style={styles.formatDiv}>
-                    <Text style={styles.title}>Iniciar sesión</Text>
-                    <View style={styles.selection}>
-                        <TouchableOpacity style={styles.button(userType === 'vecino')} onPress={() => setUserType('vecino')}>
-                            <Text style={styles.buttonText}>Vecino</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.button(userType === 'inspector')} onPress={() => setUserType('inspector')}>
-                            <Text style={styles.buttonText}>Inspector</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {userType === 'vecino' ? (
-                        <View style={styles.box}>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Número de documento"
-                                keyboardType="numeric"
-                                onChangeText={text => setDni(text)}
-                            />
-                            {verificado ? (
-                                <>
-                                    <TextInput
-                                        style={styles.input}
-                                        secureTextEntry
-                                        placeholder="Contraseña"
-                                        onChangeText={(text) => setPassword(text)}
-                                        value={password}
-                                    />
-                                    {okPassword ? null : <Text style={styles.wrongPass}>Contraseña incorrecta</Text>}
-                                    
-                                </>
-                            ) : null}
+            <View>
+                <ImageBackground source={userType === 'inspector' ? inspector : imagen} style={styles.backgroundImage}>
+                    <View style={styles.formatDiv}>
+                        <Text style={styles.title}>Iniciar sesión</Text>
+                        <View style={styles.selection}>
+                            <TouchableOpacity style={styles.button(userType === 'vecino')} onPress={() => setUserType('vecino')}>
+                                <Text style={styles.buttonText}>Vecino</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.button(userType === 'inspector')} onPress={() => setUserType('inspector')}>
+                                <Text style={styles.buttonText}>Inspector</Text>
+                            </TouchableOpacity>
                         </View>
-                    ) : (
-                        <>
+
+                        {userType === 'vecino' ? (
                             <View style={styles.box}>
                                 <TextInput
                                     style={styles.input}
-                                    placeholder="Número de legajo"
+                                    placeholder="Número de documento"
                                     keyboardType="numeric"
-                                    onChangeText={text => setLegajo(text)}
+                                    onChangeText={text => setDni(text)}
                                 />
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Contraseña"
-                                    secureTextEntry={true}
-                                    onChangeText={text => setPassword(text)}
-                                />
-                            </View>
-                        </>
-                    )}
-                    <TouchableOpacity>
-                        <Text style={styles.olvide}>Olvidé mi Contraseña</Text>
-                    </TouchableOpacity>
-                    {/* <Button style={styles.button} title={{loading ? 'Iniciar sesión' : <ActivityIndicator size="30px" color="#4bdaa3" />}} onPress={handleLogin} /> */}
-                    <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin} disabled={loading}>
-                        {loading ? (
-                            <ActivityIndicator size="small" color="#FFFF" />
-                        ) : (
-                            <Text>Iniciar sesión</Text>
-                        )}
-                    </TouchableOpacity>
-                    <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={modalVisible}
-                        onRequestClose={() => {
-                            setModalVisible(!modalVisible);
-                        }}
-                    >
-                        <View style={styles.modalBackground}>
-                            <View style={styles.centeredView}>
-                                <View style={styles.modalView}>
-                                    <TouchableOpacity
-                                        style={styles.closeButton}
-                                        onPress={() => setModalVisible(!modalVisible)}
-                                    >
-                                        <Ionicons name="arrow-back-circle-outline" size={35} />
-                                    </TouchableOpacity>
-                                    <Text style={styles.tituloAviso}>Aviso</Text>
-                                    <Text style={styles.descripAviso}>No se encuentra registrado en ningún municipio. Debido a eso no podrá utilizar la aplicación para hacer promociones, reclamos ni denuncias.</Text>
-                                    <Text style={styles.mindescAviso}>Si se ha mudado hace poco, tiene que ir a
-                                        la sede de su municipio para que lo registren
-                                        y desde ese momento puede volver a intentar iniciar sesión como un usuario en esta aplicación.</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </Modal>
-
-                    <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={emailModalVisible}
-                        onRequestClose={() => {
-                            setEmailModalVisible(!emailModalVisible);
-                            setSolicitudEnviada(false);
-                        }}
-                    >
-                        <View style={solicitudEnviada ? styles.centeredViewBlue : styles.centeredView}>
-                            <View style={solicitudEnviada ? styles.modalViewLarge : styles.modalView}>
-                                <TouchableOpacity
-                                    style={styles.closeButton}
-                                    onPress={() => setEmailModalVisible(!emailModalVisible)}
-                                >
-                                    <Ionicons name="arrow-back-circle-outline" size={35} />
-                                </TouchableOpacity>
-                                {solicitudEnviada ? (
+                                {verificado ? (
                                     <>
-                                        <Ionicons name="checkmark-circle" size={50} color="#0A36D3" />
-                                        <Text style={styles.tituloAviso}>Solicitud enviada</Text>
-                                    </>
-                                ) : verificado === false ? (
-                                    <>
-                                        <Text style={styles.tituloAviso}>Solicitar generar clave</Text>
-                                        <Text style={styles.mindescAviso}>Para poder utilizar “LaApp” es necesario
-                                            que genere su clave. El municipio
-                                            corroborará que esté habilitado para generarlo.
-                                            En breve recibirá un mail informando
-                                            su aprobación o desaprobación al mismo.</Text>
                                         <TextInput
-                                            style={styles.inputEmail}
-                                            placeholder="Correo electrónico"
-                                            keyboardType="email-address"
-                                            onChangeText={text => setEmail(text)}
+                                            style={styles.input}
+                                            secureTextEntry
+                                            placeholder="Contraseña"
+                                            onChangeText={(text) => setPassword(text)}
+                                            value={password}
                                         />
-                                        <Button style={styles.button} title="Enviar solicitud" onPress={handleSolicitud} />
+                                        {okPassword ? null : <Text style={styles.wrongPass}>Contraseña incorrecta</Text>}
+
                                     </>
                                 ) : null}
                             </View>
-                        </View>
-                    </Modal>
-                </View>
-            </ImageBackground>
-        </View>
+                        ) : (
+                            <>
+                                <View style={styles.box}>
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder="Número de legajo"
+                                        keyboardType="numeric"
+                                        onChangeText={text => setLegajo(text)}
+                                    />
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder="Contraseña"
+                                        secureTextEntry={true}
+                                        onChangeText={text => setPassword(text)}
+                                    />
+                                </View>
+                            </>
+                        )}
+                        <TouchableOpacity>
+                            <Text style={styles.olvide}>Olvidé mi Contraseña</Text>
+                        </TouchableOpacity>
+                        {/* <Button style={styles.button} title={{loading ? 'Iniciar sesión' : <ActivityIndicator size="30px" color="#4bdaa3" />}} onPress={handleLogin} /> */}
+                        <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin} disabled={loading}>
+                            {loading ? (
+                                <ActivityIndicator size="small" color="#FFFF" />
+                            ) : (
+                                <Text>Iniciar sesión</Text>
+                            )}
+                        </TouchableOpacity>
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={modalVisible}
+                            onRequestClose={() => {
+                                setModalVisible(!modalVisible);
+                            }}
+                        >
+                            <View style={styles.modalBackground}>
+                                <View style={styles.centeredView}>
+                                    <View style={styles.modalView}>
+                                        <TouchableOpacity
+                                            style={styles.closeButton}
+                                            onPress={() => setModalVisible(!modalVisible)}
+                                        >
+                                            <Ionicons name="arrow-back-circle-outline" size={35} />
+                                        </TouchableOpacity>
+                                        <Text style={styles.tituloAviso}>Aviso</Text>
+                                        <Text style={styles.descripAviso}>No se encuentra registrado en ningún municipio. Debido a eso no podrá utilizar la aplicación para hacer promociones, reclamos ni denuncias.</Text>
+                                        <Text style={styles.mindescAviso}>Si se ha mudado hace poco, tiene que ir a
+                                            la sede de su municipio para que lo registren
+                                            y desde ese momento puede volver a intentar iniciar sesión como un usuario en esta aplicación.</Text>
+                                    </View>
+                                </View>
+                            </View>
+                        </Modal>
+
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={ModalCrearPassVisible}
+                            onRequestClose={() => {
+                                setModalCrearPassVisible(!ModalCrearPassVisible);
+                            }}
+                        >
+                            <View style={styles.modalBackground}>
+                                <View style={styles.centeredView}>
+                                    <View style={styles.modalView}>
+                                        <TouchableOpacity
+                                            style={styles.closeButton}
+                                            onPress={() => setModalCrearPassVisible(!ModalCrearPassVisible)}
+                                        >
+                                            <Ionicons name="arrow-back-circle-outline" size={35} />
+                                        </TouchableOpacity>
+                                        <Text style={styles.tituloAviso}>Generar contraseña</Text>
+                                        <View style={styles.confirmPasswordContainer}>
+                                        <TextInput
+                                            style={styles.inputContra}
+                                            placeholder="Contraseña"
+                                            secureTextEntry={true}
+                                            keyboardType="password"
+                                            onChangeText={text => setPassword(text)}
+                                        />
+                                        <TextInput
+                                            style={styles.inputContra}
+                                            placeholder="Confirmar contraseña"
+                                            keyboardType="password"
+                                            secureTextEntry={true}
+                                            onChangeText={text => setConfirmPassword(text)}
+                                        />
+                                        {okPasswordIguales ? null : <Text style={styles.wrongPass}>Contraseña incorrecta</Text>}
+                                        </View>
+                                        <Button style={styles.button} title="Generar contraseña" onPress={handleGenerarPass} />
+                                    </View>
+                                </View>
+                            </View>
+                        </Modal>
+
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={emailModalVisible}
+                            onRequestClose={() => {
+                                setEmailModalVisible(!emailModalVisible);
+                                setSolicitudEnviada(false);
+                            }}
+                        >
+                            <View style={solicitudEnviada ? styles.centeredViewBlue : styles.centeredView}>
+                                <View style={solicitudEnviada ? styles.modalViewLarge : styles.modalView}>
+                                    <TouchableOpacity
+                                        style={styles.closeButton}
+                                        onPress={() => setEmailModalVisible(!emailModalVisible)}
+                                    >
+                                        <Ionicons name="arrow-back-circle-outline" size={35} />
+                                    </TouchableOpacity>
+                                    {solicitudEnviada ? (
+                                        <>
+                                            <Ionicons name="checkmark-circle" size={50} color="#0A36D3" />
+                                            <Text style={styles.tituloAviso}>Solicitud enviada</Text>
+                                        </>
+                                    ) : verificado === false ? (
+                                        <>
+                                            <Text style={styles.tituloAviso}>Solicitar generar clave</Text>
+                                            <Text style={styles.mindescAviso}>Para poder utilizar “LaApp” es necesario
+                                                que genere su clave. El municipio
+                                                corroborará que esté habilitado para generarlo.
+                                                En breve recibirá un mail informando
+                                                su aprobación o desaprobación al mismo.</Text>
+                                            <TextInput
+                                                style={styles.inputEmail}
+                                                placeholder="Correo electrónico"
+                                                keyboardType="email-address"
+                                                onChangeText={text => setEmail(text)}
+                                            />
+                                            <Button style={styles.button} title="Enviar solicitud" onPress={handleSolicitud} />
+                                        </>
+                                    ) : null}
+                                </View>
+                            </View>
+                        </Modal>
+                    </View>
+                </ImageBackground>
+            </View>
         </KeyboardAvoidingView>
     );
 };
