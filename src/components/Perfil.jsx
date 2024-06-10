@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Modal, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import cambiarPass from '../controllers/cambiarPass';
+
 
 const Card = ({ title }) => (
     <View style={styles.card}>
@@ -15,9 +18,16 @@ const Card = ({ title }) => (
     const [modalVisible, setModalVisible] = useState(false);
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
+    const [storedValue, setStoredValue] = useState('');
+
+    const getData = async () => { try { const value = await AsyncStorage.getItem('documento'); if (value !== null) { setStoredValue(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+    useEffect(() => { getData(); }, []);
   
-    const handleChangePassword = () => {
-      onPasswordChange(oldPassword, newPassword);
+    const handleChangePassword = async () => {
+
+      const reponse = await cambiarPass(storedValue, oldPassword, newPassword)
+      onPasswordChange(storedValue, oldPassword, newPassword);
+      
       setModalVisible(false);
     };
     return (

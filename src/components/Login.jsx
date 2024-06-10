@@ -313,7 +313,7 @@ const Login = ({ onLogin }) => {
         const response = await recuperarPass(dni, email)
         console.log('respuesta', response)
         setOkPasswordIguales(true);
-        setModalCrearPassVisible(false);
+        setModalRecuperarPassVisible(false);
     }
 
     return (
