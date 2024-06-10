@@ -12,6 +12,7 @@ import habilitado from "../controllers/habilitado";
 import solicitarClave from "../controllers/solicitarClave";
 import checkPass from "../controllers/checkPass";
 import generarClave from "../controllers/generarClave";
+import recuperarPass from "../controllers/recuperarPass";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 
@@ -243,6 +244,7 @@ const Login = ({ onLogin }) => {
     const [okPassword, setOkPassword] = useState(true);
     const [ModalCrearPassVisible, setModalCrearPassVisible] = useState(false);
     const [okPasswordIguales, setOkPasswordIguales] = useState(true);
+    const [modalRecuperarPassVisible, setModalRecuperarPassVisible] = useState(false);
 
     const handleLogin = async () => {
         setLoading(true);
@@ -307,6 +309,13 @@ const Login = ({ onLogin }) => {
         }
     }
 
+    const handleRecuperarPass = async () => {
+        const response = await recuperarPass(dni, email)
+        console.log('respuesta', response)
+        setOkPasswordIguales(true);
+        setModalCrearPassVisible(false);
+    }
+
     return (
         <KeyboardAvoidingView>
             <View>
@@ -362,7 +371,7 @@ const Login = ({ onLogin }) => {
                                 </View>
                             </>
                         )}
-                        <TouchableOpacity>
+                        <TouchableOpacity onClick style={styles.olvide} onPress={() => setModalRecuperarPassVisible(true)}>
                             <Text style={styles.olvide}>Olvidé mi Contraseña</Text>
                         </TouchableOpacity>
                         {/* <Button style={styles.button} title={{loading ? 'Iniciar sesión' : <ActivityIndicator size="30px" color="#4bdaa3" />}} onPress={handleLogin} /> */}
@@ -437,6 +446,40 @@ const Login = ({ onLogin }) => {
                                         </View>
                                         <Button style={styles.button} title="Generar contraseña" onPress={handleGenerarPass} />
                                     </View>
+                                </View>
+                            </View>
+                        </Modal>
+
+                        <Modal animationType="slide" 
+                        transparent={true}
+                        visible={modalRecuperarPassVisible}
+                        onRequestClose={() => {
+                            setModalRecuperarPassVisible(!modalRecuperarPassVisible);
+                        }}>
+                            <View style={styles.centeredView}>
+                                <View style={styles.modalView}>
+                                    <TouchableOpacity
+                                        style={styles.closeButton}
+                                        onPress={() => setModalRecuperarPassVisible(!modalRecuperarPassVisible)}
+                                    >
+                                        <Ionicons name="arrow-back-circle-outline" size={35} />
+                                    </TouchableOpacity>
+                                    <Text style={styles.tituloAviso}>Recuperar contraseña</Text>
+                                    <Text style={styles.mindescAviso}>Ingrese su DNI y correo electrónico para recuperar su contraseña</Text>
+                                    <TextInput
+                                        style={styles.inputContra}
+                                        placeholder="DNI"
+                                        keyboardType="numeric"
+                                        onChangeText={text => setDni(text)}
+                                    />
+                                    <TextInput
+                                        style={styles.inputContra}
+                                        placeholder="Correo electrónico"
+                                        keyboardType="email-address"
+                                        onChangeText={text => setEmail(text)}
+                                    />
+
+                                    <Button style={styles.button} title="Recuperar contraseña" onPress={() => handleRecuperarPass()} />
                                 </View>
                             </View>
                         </Modal>

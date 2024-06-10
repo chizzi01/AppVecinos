@@ -25,6 +25,7 @@ const Comercios = (logueado) => {
     const [storedValue, setStoredValue] = useState('');
     const [image, setImage] = useState(null);
     const [contacto, setContacto] = useState('');
+    // const [imagenPrincipal, setImagenPrincipal] = useState(selectedComercio?.imagenes[0]);
     // const comercios = [
     //     { id: '1', imagen: require('../img/comercio.jpg'), nombreComercio: 'Lavanderia', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
     //     { id: '2', imagen: require('../img/comercio.jpg'), nombreComercio: 'Peluqueria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
@@ -41,14 +42,14 @@ const Comercios = (logueado) => {
     const [comercios, setComercios] = useState([])
     useEffect(() => {
         getComercios(setComercios).then(() => setLoading(false));
-      }, []);
+    }, []);
 
-    
-      const getData = async () => { try { const value = await AsyncStorage.getItem('documento'); if (value !== null) { setStoredValue(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
 
-      useEffect(() => { getData(); }, []);
+    const getData = async () => { try { const value = await AsyncStorage.getItem('documento'); if (value !== null) { setStoredValue(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
 
-      const handleSave = async () => {
+    useEffect(() => { getData(); }, []);
+
+    const handleSave = async () => {
         console.log(image)
         const response = await postComercio(image, storedValue, nombreComercio, descripcion, direccion, contacto)
             .then(() => {
@@ -94,27 +95,27 @@ const Comercios = (logueado) => {
                 />
             </View>
             <ScrollView>
-            {loading ? (
-                // Muestra el spinner si los datos aún se están cargando
-                <ActivityIndicator size="large" color="#03A9F4" style={{marginTop:20}} />
-            ) : (
-                filteredComercios.map((comercio, index) => (
-                    <TouchableOpacity key={comercio.idComercio} onPress={() => { setSelectedComercio(comercio); setModalComercioVisible(true); }}>
-                        <CardComercio
-                            key={comercio.idComercio}
-                            idComercio={comercio.idComercio}
-                            nombreComercio={comercio.nombreComercio}
-                            proveedor={comercio.vecinos.nombre + " " + comercio.vecinos.apellido}
-                            horario={comercio.horario}
-                        />
-                    </TouchableOpacity>
-                ))
-            )}
+                {loading ? (
+                    // Muestra el spinner si los datos aún se están cargando
+                    <ActivityIndicator size="large" color="#03A9F4" style={{ marginTop: 20 }} />
+                ) : (
+                    filteredComercios.map((comercio, index) => (
+                        <TouchableOpacity key={comercio.idComercio} onPress={() => { setSelectedComercio(comercio); setModalComercioVisible(true); }}>
+                            <CardComercio
+                                key={comercio.idComercio}
+                                idComercio={comercio.idComercio}
+                                nombreComercio={comercio.nombreComercio}
+                                proveedor={comercio.vecinos.nombre + " " + comercio.vecinos.apellido}
+                                horario={comercio.horario}
+                            />
+                        </TouchableOpacity>
+                    ))
+                )}
             </ScrollView>
             {logueado.logueado === true ? (
-            <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
-                <Ionicons name="add" size={30} color="white" />
-            </TouchableOpacity>
+                <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+                    <Ionicons name="add" size={30} color="white" />
+                </TouchableOpacity>
             ) : null}
             <Modal
                 animationType="slide"
@@ -163,11 +164,23 @@ const Comercios = (logueado) => {
                                     style={styles.carouselImage}
                                     onError={(error) => console.log(error)}
                                 />
+                                {/* <Image
+                                    source={{ uri: imagenPrincipal }}
+                                    style={styles.carouselImage}
+                                    onError={(error) => console.log(error)}
+                                /> */}
+                                {/* <View style={styles.miniaturasContenedor}>
+                                    {selectedComercio.imagenes.map((imagen, index) => (
+                                        <TouchableOpacity key={index} onPress={() => setImagenPrincipal(imagen)}>
+                                            <Image source={{ uri: imagen }} style={styles.miniaturaImagen} />
+                                        </TouchableOpacity>
+                                    ))}
+                                </View> */}
                                 <Text style={styles.comercioTitulo}>{selectedComercio.nombreComercio}</Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Ionicons name="person" size={20} color="#7E7E7E" />
-                                        <Text style={styles.comercioProveedor}>{selectedComercio.vecinos.nombre + " " + selectedComercio.vecinos.apellido}</Text>
-                                    </View>
+                                    <Ionicons name="person" size={20} color="#7E7E7E" />
+                                    <Text style={styles.comercioProveedor}>{selectedComercio.vecinos.nombre + " " + selectedComercio.vecinos.apellido}</Text>
+                                </View>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Ionicons name="location" size={20} color="#7E7E7E" />
                                     <Text style={styles.comercioDireccion}>{selectedComercio.direccion}</Text>
@@ -363,6 +376,18 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: '#888',
         marginLeft: 5,
+    },
+    miniaturasContenedor: {
+        // Estilos para el contenedor de miniaturas
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 10,
+    },
+    miniaturaImagen: {
+        // Estilos para las miniaturas
+        width: 50,
+        height: 50,
+        marginRight: 5,
     },
 });
 
