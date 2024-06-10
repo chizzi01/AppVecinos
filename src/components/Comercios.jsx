@@ -6,20 +6,25 @@ import * as MediaLibrary from 'expo-media-library';
 import CardServicio from './CardServicio';
 import { Picker } from '@react-native-picker/picker';
 import getComercios from '../controllers/comercios';
+import postComercio from '../controllers/postComercio';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Comercios = (logueado) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalComercioVisible, setModalComercioVisible] = useState(false);
     const [selectedComercio, setSelectedComercio] = useState(null);
-    const [nombreServicio, setNombreServicio] = useState('');
-    const [proveedor, setProveedor] = useState('');
+    const [nombreComercio, setNombreComercio] = useState('');
+    const [direccion, setDireccion] = useState('');
     const [horaInicio, setHoraInicio] = useState('Apertura');
     const [horaFin, setHoraFin] = useState('Cierre');
     const [telefono, setTelefono] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
+    const [storedValue, setStoredValue] = useState('');
+    const [image, setImage] = useState(null);
+    const [contacto, setContacto] = useState('');
     // const comercios = [
     //     { id: '1', imagen: require('../img/comercio.jpg'), nombreComercio: 'Lavanderia', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
     //     { id: '2', imagen: require('../img/comercio.jpg'), nombreComercio: 'Peluqueria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
@@ -38,12 +43,20 @@ const Comercios = (logueado) => {
         getComercios(setComercios).then(() => setLoading(false));
       }, []);
 
+    
+      const getData = async () => { try { const value = await AsyncStorage.getItem('documento'); if (value !== null) { setStoredValue(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
 
-    const handleSave = () => {
-        // Save the new service
-        console.log(nombreServicio, proveedor, telefono, descripcion);
-        setModalVisible(false);
+      useEffect(() => { getData(); }, []);
+
+      const handleSave = async () => {
+        console.log(image)
+        const response = await postComercio(image, storedValue, nombreComercio, descripcion, direccion, contacto)
+            .then(() => {
+                setModalVisible(false);
+
+            });
     };
+
 
     const pickImage = async () => {
         const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -58,8 +71,8 @@ const Comercios = (logueado) => {
             console.log(result);
 
             if (!result.cancelled) {
-                // setImage(result.uri);
-                console.log(result.uri);
+                setImage(result.assets[0].uri);
+                console.log(result.assets[0].uri);
             }
         } else {
             console.error('Camera roll permission not granted');
@@ -114,65 +127,9 @@ const Comercios = (logueado) => {
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <Text style={styles.titulo}>Agregar comercio</Text>
-                        <TextInput style={styles.input} placeholder="Nombre del comercio" onChangeText={setNombreServicio} selectionColor="#03A9F4" />
-                        <TextInput style={styles.input} placeholder="Dirección" onChangeText={setTelefono} selectionColor="#03A9F4" />
-                        <Picker style={styles.input} selectedValue={horaInicio} onValueChange={(itemValue, itemIndex) => setHoraInicio(itemValue)}>
-                            <Picker.Item label="Apertura" value="" />
-                            <Picker.Item label="00am" value="00am" />
-                            <Picker.Item label="1am" value="1am" />
-                            <Picker.Item label="2am" value="2am" />
-                            <Picker.Item label="3am" value="3am" />
-                            <Picker.Item label="4am" value="4am" />
-                            <Picker.Item label="5am" value="5am" />
-                            <Picker.Item label="6am" value="6am" />
-                            <Picker.Item label="7am" value="7am" />
-                            <Picker.Item label="8am" value="8am" />
-                            <Picker.Item label="9am" value="9am" />
-                            <Picker.Item label="10am" value="10am" />
-                            <Picker.Item label="11am" value="11am" />
-                            <Picker.Item label="12pm" value="12pm" />
-                            <Picker.Item label="13pm" value="13pm" />
-                            <Picker.Item label="14pm" value="14pm" />
-                            <Picker.Item label="15pm" value="15pm" />
-                            <Picker.Item label="16pm" value="16pm" />
-                            <Picker.Item label="17pm" value="17pm" />
-                            <Picker.Item label="18pm" value="18pm" />
-                            <Picker.Item label="19pm" value="19pm" />
-                            <Picker.Item label="20pm" value="20pm" />
-                            <Picker.Item label="21pm" value="21pm" />
-                            <Picker.Item label="22pm" value="22pm" />
-                            <Picker.Item label="23pm" value="23pm" />
-                        </Picker>
-
-                        <Picker style={styles.input} selectedValue={horaFin} onValueChange={(itemValue, itemIndex) => setHoraFin(itemValue)}>
-                            <Picker.Item label="Cierre" value="" />
-                            <Picker.Item label="00am" value="00am" />
-                            <Picker.Item label="1am" value="1am" />
-                            <Picker.Item label="2am" value="2am" />
-                            <Picker.Item label="3am" value="3am" />
-                            <Picker.Item label="4am" value="4am" />
-                            <Picker.Item label="5am" value="5am" />
-                            <Picker.Item label="6am" value="6am" />
-                            <Picker.Item label="7am" value="7am" />
-                            <Picker.Item label="8am" value="8am" />
-                            <Picker.Item label="9am" value="9am" />
-                            <Picker.Item label="10am" value="10am" />
-                            <Picker.Item label="11am" value="11am" />
-                            <Picker.Item label="12pm" value="12pm" />
-                            <Picker.Item label="13pm" value="13pm" />
-                            <Picker.Item label="14pm" value="14pm" />
-                            <Picker.Item label="15pm" value="15pm" />
-                            <Picker.Item label="16pm" value="16pm" />
-                            <Picker.Item label="17pm" value="17pm" />
-                            <Picker.Item label="18pm" value="18pm" />
-                            <Picker.Item label="19pm" value="19pm" />
-                            <Picker.Item label="20pm" value="20pm" />
-                            <Picker.Item label="21pm" value="21pm" />
-                            <Picker.Item label="22pm" value="22pm" />
-                            <Picker.Item label="23pm" value="23pm" />
-                        </Picker>
-
-                        <TextInput style={styles.input} placeholder="Telefono" onChangeText={setTelefono} selectionColor="#03A9F4" keyboardType="numeric" />
+                        <TextInput style={styles.input} placeholder="Nombre del comercio" onChangeText={setNombreComercio} selectionColor="#03A9F4" />
+                        <TextInput style={styles.input} placeholder="Dirección" onChangeText={setDireccion} selectionColor="#03A9F4" />
+                        <TextInput style={styles.input} placeholder="Telefono" onChangeText={setContacto} selectionColor="#03A9F4" keyboardType="numeric" />
                         <TextInput style={styles.input} placeholder="Descripcion" multiline={true}
                             numberOfLines={4} onChangeText={setDescripcion} selectionColor="#03A9F4" />
                         <TouchableOpacity style={styles.addImg} onPress={pickImage}>
@@ -202,22 +159,26 @@ const Comercios = (logueado) => {
                         {selectedComercio && (
                             <>
                                 <Image
-                                    source={selectedComercio.imagen}
+                                    source={{ uri: `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/comercios/getPrimerImagen/${selectedComercio.idComercio}` }}
                                     style={styles.carouselImage}
                                     onError={(error) => console.log(error)}
                                 />
                                 <Text style={styles.comercioTitulo}>{selectedComercio.nombreComercio}</Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="person" size={20} color="#7E7E7E" />
+                                        <Text style={styles.comercioProveedor}>{selectedComercio.vecinos.nombre + " " + selectedComercio.vecinos.apellido}</Text>
+                                    </View>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Ionicons name="location" size={20} color="#7E7E7E" />
                                     <Text style={styles.comercioDireccion}>{selectedComercio.direccion}</Text>
                                 </View>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Ionicons name="time" size={20} color="#7E7E7E" />
                                     <Text style={styles.comercioHorario}>{selectedComercio.horario}</Text>
-                                </View>
+                                </View> */}
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Ionicons name="call" size={20} color="#7E7E7E" />
-                                    <Text style={styles.comercioTelefono}>{selectedComercio.telefono}</Text>
+                                    <Text style={styles.comercioTelefono}>{selectedComercio.contacto}</Text>
                                 </View>
                                 <Text style={styles.comercioDescripcion}>{selectedComercio.descripcion}</Text>
                             </>
@@ -397,6 +358,11 @@ const styles = StyleSheet.create({
         paddingLeft: 0,
         backgroundColor: '#fff',
         color: '#424242',
+    },
+    comercioProveedor: {
+        fontSize: 18,
+        color: '#888',
+        marginLeft: 5,
     },
 });
 

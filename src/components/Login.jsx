@@ -265,9 +265,10 @@ const Login = ({ onLogin }) => {
                     try {
                         await AsyncStorage.setItem('logueado', 'true');
                         await AsyncStorage.setItem('token', responseLogin.data.token);
+                        await AsyncStorage.setItem('documento', dni);
                         // console.log('response', responseLogin.data.token);
                         alert('Inició sesión correctamente');
-                        navigate('/comercios');
+                        navigate('/servicios');
                         onLogin();
 
 

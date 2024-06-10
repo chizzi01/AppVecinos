@@ -27,6 +27,7 @@ const Servicios = (logueado) => {
     const [direccion, setDireccion] = useState('');
     const [storedValue, setStoredValue] = useState('');
     const [rubro, setRubro] = useState('');
+    const [image, setImage] = useState(null);
 
     const [servicios, setServicios] = useState([])
     useEffect(() => {
@@ -39,12 +40,13 @@ const Servicios = (logueado) => {
     useEffect(() => { getData(); }, []);
 
     const handleSave = async () => {
-        const response = await postServicios(storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion)
+        console.log(image)
+        const response = await postServicios(image, storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion)
             .then(() => {
                 setModalVisible(false);
 
             });
-            // console.log(storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion)
+             console.log(storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion)
     };
 
 
@@ -61,8 +63,8 @@ const Servicios = (logueado) => {
             console.log(result);
 
             if (!result.cancelled) {
-                // setImage(result.uri);
-                console.log(result.uri);
+                setImage(result.assets[0].uri);
+                console.log(result.assets[0].uri);
             }
         } else {
             console.error('Camera roll permission not granted');
@@ -159,11 +161,11 @@ const Servicios = (logueado) => {
                                     <Picker.Item label="Internet" value="4" />
                                 </Picker>
                                 <TextInput style={styles.input} placeholder="Descripcion" onChangeText={setDescripcion} selectionColor="#ff834e" />
-{/* 
+
                                 <TouchableOpacity style={styles.addImg} onPress={pickImage}>
                                     <Ionicons name="attach" size={20} color="grey" />
                                     <Text style={styles.colorText}>Adjuntar imagenes</Text>
-                                </TouchableOpacity> */}
+                                </TouchableOpacity>
                                 <View style={styles.lineAlign}>
                                     <Button title="Guardar" onPress={handleSave} />
                                     <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
