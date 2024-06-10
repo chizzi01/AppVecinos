@@ -3,11 +3,11 @@ import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, 
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
-import CardServicio from './CardServicio';
 import { Picker } from '@react-native-picker/picker';
 import getComercios from '../controllers/comercios';
 import postComercio from '../controllers/postComercio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CardComercio from './CardComercio';
 
 
 const Comercios = (logueado) => {
@@ -98,13 +98,13 @@ const Comercios = (logueado) => {
                 // Muestra el spinner si los datos aún se están cargando
                 <ActivityIndicator size="large" color="#03A9F4" style={{marginTop:20}} />
             ) : (
-                filteredComercios.map((comercio) => (
-                    <TouchableOpacity key={comercio.id} onPress={() => { setSelectedComercio(comercio); setModalComercioVisible(true); }}>
-                        <CardServicio
-                            key={comercio.id}
-                            imagen={comercio.imagen}
-                            nombreServicio={comercio.nombreComercio}
-                            proveedor={comercio.proveedor}
+                filteredComercios.map((comercio, index) => (
+                    <TouchableOpacity key={comercio.idComercio} onPress={() => { setSelectedComercio(comercio); setModalComercioVisible(true); }}>
+                        <CardComercio
+                            key={comercio.idComercio}
+                            idComercio={comercio.idComercio}
+                            nombreComercio={comercio.nombreComercio}
+                            proveedor={comercio.vecinos.nombre + " " + comercio.vecinos.apellido}
                             horario={comercio.horario}
                         />
                     </TouchableOpacity>
