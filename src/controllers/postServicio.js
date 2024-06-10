@@ -29,6 +29,7 @@ const postServicios = async (imagen, token, titulo, direccion, telefono, horaApe
           mode: 'cors'
       };
 
+
       let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/servicios/post", requestOptions);
       console.log(response);
       return response;
