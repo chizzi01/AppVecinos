@@ -9,7 +9,9 @@ import getServicios from '../controllers/servicios';
 import { Picker } from '@react-native-picker/picker';
 import postServicios from '../controllers/postServicio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ServicioImagenes from './ServicioImagenes';
+import CarousellImagenes from './CarousellImagenes';
+import { he } from 'date-fns/locale';
+import { height, width } from 'deprecated-react-native-prop-types/DeprecatedImagePropType';
 
 const Servicios = (logueado) => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -29,6 +31,8 @@ const Servicios = (logueado) => {
     const [storedValue, setStoredValue] = useState('');
     const [rubro, setRubro] = useState('');
     const [image, setImage] = useState(null);
+    const [imagenes, setImagenes] = useState([]);
+    const [vistasPrevia, setVistasPrevia] = useState([]);
 
     const [servicios, setServicios] = useState([])
     useEffect(() => {
@@ -50,26 +54,39 @@ const Servicios = (logueado) => {
         console.log(storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion)
     };
 
-
     const pickImage = async () => {
-        const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status === 'granted') {
-            let result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.All,
-                allowsEditing: true,
-                aspect: [4, 3],
-                quality: 1,
-            });
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsMultipleSelection: true, // Asegúrate de que tu versión de expo-image-picker soporte esta opción
+            quality: 1,
+        });
 
-            console.log(result);
-
-            if (!result.cancelled) {
-                setImage(result.assets[0].uri);
-                console.log(result.assets[0].uri);
+        if (!result.cancelled && result.assets) {
+            if (result.assets.length > 7) {
+                alert('No puedes seleccionar más de 7 imágenes.');
+                return;
             }
-        } else {
-            console.error('Camera roll permission not granted');
+            setImagenes(result.assets);
+            const vistasPreviaUrls = result.assets.map((img) => img.uri);
+            setVistasPrevia(vistasPreviaUrls);
         }
+        // console.log(result);
+        // console.log(imagenes);
+        // console.log(vistasPrevia);
+    };
+
+    const eliminarImagen = (index) => {
+        // Crea una copia del estado actual de imágenes y vistas previas
+        const nuevasImagenes = [...imagenes];
+        const nuevasVistasPrevia = [...vistasPrevia];
+
+        // Elimina la imagen y su vista previa correspondiente
+        nuevasImagenes.splice(index, 1);
+        nuevasVistasPrevia.splice(index, 1);
+
+        // Actualiza el estado con las nuevas listas
+        setImagenes(nuevasImagenes);
+        setVistasPrevia(nuevasVistasPrevia);
     };
 
     const filteredServicios = servicios.filter(servicio =>
@@ -162,11 +179,23 @@ const Servicios = (logueado) => {
                                     <Picker.Item label="Internet" value="4" />
                                 </Picker>
                                 <TextInput style={styles.input} placeholder="Descripcion" onChangeText={setDescripcion} selectionColor="#ff834e" />
-
                                 <TouchableOpacity style={styles.addImg} onPress={pickImage}>
                                     <Ionicons name="attach" size={20} color="grey" />
-                                    <Text style={styles.colorText}>Adjuntar imagenes</Text>
+                                    <Text style={styles.colorText}>Adjuntar imágenes</Text>
                                 </TouchableOpacity>
+                                <View style={styles.previewContainer}>
+                                    {vistasPrevia.map((imgUri, index) => (
+                                        <View key={index} style={styles.imageContainer}>
+                                            <Image source={{ uri: imgUri }} style={styles.previewImage} />
+                                            <TouchableOpacity
+                                                style={styles.closeButton}
+                                                onPress={() => eliminarImagen(index)}
+                                            >
+                                                <Ionicons name="close" size={15} color="white" />
+                                            </TouchableOpacity>
+                                        </View>
+                                    ))}
+                                </View>
                                 <View style={styles.lineAlign}>
                                     <Button title="Guardar" onPress={handleSave} />
                                     <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
@@ -190,26 +219,28 @@ const Servicios = (logueado) => {
                         <View style={styles.comercioView}>
                             {selectedServicio && (
                                 <>
-                                    <View style={{ maxWidth: '100%', overflow: 'hidden' }}>
-                                        <ServicioImagenes idServicio={selectedServicio.idServicio} />
+                                    <View style={{ maxWidth: '100%', overflow: 'hidden', borderTopLeftRadius: 15, borderTopRightRadius: 15 }}>
+                                        <CarousellImagenes idServicio={selectedServicio.idServicio} tipo={"servicios"} />
                                     </View>
-                                    <Text style={styles.comercioTitulo}>{selectedServicio.tituloServicio}</Text>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Ionicons name="person" size={20} color="#7E7E7E" />
-                                        <Text style={styles.comercioProveedor}>{selectedServicio.vecinos.nombre + " " + selectedServicio.vecinos.apellido}</Text>
+                                    <View style={styles.contentView}>
+                                        <Text style={styles.comercioTitulo}>{selectedServicio.tituloServicio}</Text>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <Ionicons name="person" size={20} color="#7E7E7E" />
+                                            <Text style={styles.comercioProveedor}>{selectedServicio.vecinos.nombre + " " + selectedServicio.vecinos.apellido}</Text>
+                                        </View>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <Ionicons name="call" size={20} color="#7E7E7E" />
+                                            <Text style={styles.comercioTelefono}>{selectedServicio.telefono}</Text>
+                                        </View>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <Ionicons name="time" size={20} color="#7E7E7E" />
+                                            <Text style={styles.comercioTelefono}>{selectedServicio.horaApertura + ":" + selectedServicio.minutoApertura} a {selectedServicio.horaCierre + ":" + selectedServicio.minutoCierre}</Text>
+                                        </View>
+                                        <Text style={styles.comercioDescripcion}>{selectedServicio.descripcion}</Text>
                                     </View>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Ionicons name="call" size={20} color="#7E7E7E" />
-                                        <Text style={styles.comercioTelefono}>{selectedServicio.telefono}</Text>
-                                    </View>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Ionicons name="time" size={20} color="#7E7E7E" />
-                                        <Text style={styles.comercioTelefono}>{selectedServicio.horaApertura + ":" + selectedServicio.minutoApertura} a {selectedServicio.horaCierre + ":" + selectedServicio.minutoCierre}</Text>
-                                    </View>
-                                    <Text style={styles.comercioDescripcion}>{selectedServicio.descripcion}</Text>
                                 </>
                             )}
-                            <Button title="Cerrar" style={{ backgroundColor: 'red' }} onPress={() => setModalServicioVisible(false)} />
+                            <Button title="Cerrar" style={{ borderRadius: 15 }} onPress={() => setModalServicioVisible(false)} />
                         </View>
                     </View>
                 </Modal>
@@ -245,13 +276,22 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginTop: 22
     },
+    contentView: {
+        padding: 20,
+        width: '100%',
+        alignItems: 'left',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+        height: 300
+    },
     modalView: {
         margin: 20,
         backgroundColor: "#f0f0f0", // Light gray background
         borderRadius: 30, // Larger border radius
         padding: 20, // More padding
         alignItems: "center",
-        justifyContent: "space-evenly",
+        justifyContent: "space-between",
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -306,12 +346,12 @@ const styles = StyleSheet.create({
         color: '#7E7E7E' // Gray text
     },
     comercioView: {
-        // margin: 20,
+        margin: 0,
         backgroundColor: "#f0f0f0",
-        borderRadius: 30,
-        padding: 20,
+        borderRadius: 15,
+        padding: 0,
         alignItems: "left",
-        justifyContent: "space-evenly",
+        justifyContent: "space-between",
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -334,6 +374,7 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#888',
         marginLeft: 5,
+        paddingLeft: 5,
     },
     comercioDescripcion: {
         fontSize: 15,
@@ -409,6 +450,27 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         color: '#333',
         borderColor: '#4bdaa3',
+    },
+    previewContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+    },
+    previewImage: {
+        width: 50,
+        height: 50,
+        margin: 5,
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: 25, // Adjust size as needed
+        height: 25, // Adjust size as needed
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'grey', // Customize as needed
+        borderRadius: 25, // Adjust size as needed
     },
 });
 

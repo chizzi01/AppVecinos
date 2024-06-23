@@ -8,6 +8,7 @@ import getComercios from '../controllers/comercios';
 import postComercio from '../controllers/postComercio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CardComercio from './CardComercio';
+import CarousellImagenes from './CarousellImagenes';
 
 
 const Comercios = (logueado) => {
@@ -25,19 +26,6 @@ const Comercios = (logueado) => {
     const [storedValue, setStoredValue] = useState('');
     const [image, setImage] = useState(null);
     const [contacto, setContacto] = useState('');
-    // const [imagenPrincipal, setImagenPrincipal] = useState(selectedComercio?.imagenes[0]);
-    // const comercios = [
-    //     { id: '1', imagen: require('../img/comercio.jpg'), nombreComercio: 'Lavanderia', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-    //     { id: '2', imagen: require('../img/comercio.jpg'), nombreComercio: 'Peluqueria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-    //     { id: '3', imagen: require('../img/comercio.jpg'), nombreComercio: 'Pintureria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-    //     { id: '4', imagen: require('../img/comercio.jpg'), nombreComercio: 'Veterinaria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-    //     { id: '5', imagen: require('../img/comercio.jpg'), nombreComercio: 'Ferreteria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-    //     { id: '6', imagen: require('../img/comercio.jpg'), nombreComercio: 'Supermercado', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-    //     { id: '7', imagen: require('../img/comercio.jpg'), nombreComercio: 'Kiosco', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-    //     { id: '8', imagen: require('../img/comercio.jpg'), nombreComercio: 'Panaderia', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-    //     { id: '9', imagen: require('../img/comercio.jpg'), nombreComercio: 'Carniceria', direccion: 'Amenabar 1345', telefono: '1187645281', horario: '10am - 20pm', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam odio aliquam laudantium. Itaque labore quod ad quibusdam cupiditate minus amet veniam ipsa consequuntur quam! Dolor soluta placeat rem dolorum quae.' },
-
-    // ];
 
     const [comercios, setComercios] = useState([])
     useEffect(() => {
@@ -159,41 +147,29 @@ const Comercios = (logueado) => {
                     <View style={styles.comercioView}>
                         {selectedComercio && (
                             <>
-                                <Image
-                                    source={{ uri: `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/comercios/getPrimerImagen/${selectedComercio.idComercio}` }}
-                                    style={styles.carouselImage}
-                                    onError={(error) => console.log(error)}
-                                />
-                                {/* <Image
-                                    source={{ uri: imagenPrincipal }}
-                                    style={styles.carouselImage}
-                                    onError={(error) => console.log(error)}
-                                /> */}
-                                {/* <View style={styles.miniaturasContenedor}>
-                                    {selectedComercio.imagenes.map((imagen, index) => (
-                                        <TouchableOpacity key={index} onPress={() => setImagenPrincipal(imagen)}>
-                                            <Image source={{ uri: imagen }} style={styles.miniaturaImagen} />
-                                        </TouchableOpacity>
-                                    ))}
-                                </View> */}
-                                <Text style={styles.comercioTitulo}>{selectedComercio.nombreComercio}</Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Ionicons name="person" size={20} color="#7E7E7E" />
-                                    <Text style={styles.comercioProveedor}>{selectedComercio.vecinos.nombre + " " + selectedComercio.vecinos.apellido}</Text>
+                                <View style={{ maxWidth: '100%', overflow: 'hidden', borderTopLeftRadius: 15, borderTopRightRadius: 15 }}>
+                                    <CarousellImagenes idServicio={selectedComercio.idComercio} tipo={"comercios"} />
                                 </View>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Ionicons name="location" size={20} color="#7E7E7E" />
-                                    <Text style={styles.comercioDireccion}>{selectedComercio.direccion}</Text>
-                                </View>
-                                {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <View style={styles.contentView}>
+                                    <Text style={styles.comercioTitulo}>{selectedComercio.nombreComercio}</Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="person" size={20} color="#7E7E7E" />
+                                        <Text style={styles.comercioProveedor}>{selectedComercio.vecinos.nombre + " " + selectedComercio.vecinos.apellido}</Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="location" size={20} color="#7E7E7E" />
+                                        <Text style={styles.comercioDireccion}>{selectedComercio.direccion}</Text>
+                                    </View>
+                                    {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Ionicons name="time" size={20} color="#7E7E7E" />
                                     <Text style={styles.comercioHorario}>{selectedComercio.horario}</Text>
                                 </View> */}
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Ionicons name="call" size={20} color="#7E7E7E" />
-                                    <Text style={styles.comercioTelefono}>{selectedComercio.contacto}</Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="call" size={20} color="#7E7E7E" />
+                                        <Text style={styles.comercioTelefono}>{selectedComercio.contacto}</Text>
+                                    </View>
+                                    <Text style={styles.comercioDescripcion}>{selectedComercio.descripcion}</Text>
                                 </View>
-                                <Text style={styles.comercioDescripcion}>{selectedComercio.descripcion}</Text>
                             </>
                         )}
                         <Button title="Cerrar" onPress={() => setModalComercioVisible(false)} />
@@ -296,13 +272,22 @@ const styles = StyleSheet.create({
         height: 200,
         borderRadius: 20,
     },
+    contentView: {
+        padding: 20,
+        width: '100%',
+        alignItems: 'left',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+        height: 300
+    },
     comercioView: {
-        margin: 20,
-        backgroundColor: "#f0f0f0", // Light gray background
-        borderRadius: 30, // Larger border radius
-        padding: 20, // More padding
+        margin: 0,
+        backgroundColor: "#f0f0f0",
+        borderRadius: 15,
+        padding: 0,
         alignItems: "left",
-        justifyContent: "space-evenly",
+        justifyContent: "space-between",
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -311,8 +296,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
-        height: '90%', // Larger height
-        width: '95%' // Larger width
+        height: '90%',
+        width: '95%'
     },
     comercioDireccion: {
         fontSize: 16,
