@@ -26,6 +26,9 @@ const Comercios = (logueado) => {
     const [storedValue, setStoredValue] = useState('');
     const [image, setImage] = useState(null);
     const [contacto, setContacto] = useState('');
+    const [imagenes, setImagenes] = useState([]);
+    const [vistasPrevia, setVistasPrevia] = useState([]);
+
 
     const [comercios, setComercios] = useState([])
     useEffect(() => {
@@ -48,24 +51,32 @@ const Comercios = (logueado) => {
 
 
     const pickImage = async () => {
-        const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status === 'granted') {
-            let result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.All,
-                allowsEditing: true,
-                aspect: [4, 3],
-                quality: 1,
-            });
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsMultipleSelection: true, // Asegúrate de que tu versión de expo-image-picker soporte esta opción
+            quality: 1,
+        });
 
-            console.log(result);
-
-            if (!result.cancelled) {
-                setImage(result.assets[0].uri);
-                console.log(result.assets[0].uri);
+        if (!result.cancelled && result.assets) {
+            if (result.assets.length > 7) {
+                alert('No puedes seleccionar más de 7 imágenes.');
+                return;
             }
-        } else {
-            console.error('Camera roll permission not granted');
+            setImagenes(result.assets);
+            const vistasPreviaUrls = result.assets.map((img) => img.uri);
+            setVistasPrevia(vistasPreviaUrls);
         }
+        // console.log(result);
+        // console.log(imagenes);
+        // console.log(vistasPrevia);
+    };
+
+    const eliminarImagen = (index) => {
+        const nuevasImagenes = [...imagenes];
+        nuevasImagenes.splice(index, 1);
+        setImagenes(nuevasImagenes);
+        const vistasPreviaUrls = nuevasImagenes.map((img) => img.uri);
+        setVistasPrevia(vistasPreviaUrls);
     };
 
     const filteredComercios = comercios.filter(comercio => comercio.nombreComercio.toLowerCase().includes(search.toLowerCase()));
@@ -125,6 +136,19 @@ const Comercios = (logueado) => {
                             <Ionicons name="attach" size={20} color="grey" />
                             <Text style={styles.colorText}>Adjuntar imagenes</Text>
                         </TouchableOpacity>
+                        <View style={styles.previewContainer}>
+                                    {vistasPrevia.map((imgUri, index) => (
+                                        <View key={index} style={styles.imageContainer}>
+                                            <Image source={{ uri: imgUri }} style={styles.previewImage} />
+                                            <TouchableOpacity
+                                                style={styles.closeButton}
+                                                onPress={() => eliminarImagen(index)}
+                                            >
+                                                <Ionicons name="close" size={15} color="white" />
+                                            </TouchableOpacity>
+                                        </View>
+                                    ))}
+                                </View>
                         <View style={styles.lineAlign}>
                             <Button title="Guardar" onPress={handleSave} />
                             <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
@@ -374,6 +398,38 @@ const styles = StyleSheet.create({
         height: 50,
         marginRight: 5,
     },
+    miniaturaSeleccionada: {
+        // Estilos para la miniatura seleccionada
+        borderWidth: 2,
+        borderColor: '#03A9F4',
+    },
+    imageContainer: {
+        position: 'relative',
+        marginRight: 10,
+    },
+    previewContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+    },
+    previewImage: {
+        width: 50,
+        height: 50,
+        margin: 5,
+        borderRadius: 5,
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: 25, // Adjust size as needed
+        height: 25, // Adjust size as needed
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'grey', // Customize as needed
+        borderRadius: 25, // Adjust size as needed
+    },
+
 });
 
 

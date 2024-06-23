@@ -161,15 +161,15 @@ const App = () => {
     </View>
   );
 
-  const usuario = {
-    nombre: 'Juan',
-    apellido: 'Perez',
-    email: 'juanperez@gmail.com',
-    password: '123',
-    dni: '12345678',
-    tipo: 'vecino',
-    validado: true,
-  };
+  // const usuario = {
+  //   nombre: 'Juan',
+  //   apellido: 'Perez',
+  //   email: 'juanperez@gmail.com',
+  //   password: '123',
+  //   dni: '12345678',
+  //   tipo: 'vecino',
+  //   validado: true,
+  // };
 
   const notificacionesEjemplo = [
     { title: 'Notificación 1', date: '2022-04-29', type: 'Reclamo', description: 'Descripción de la notificación 1' },
@@ -209,7 +209,7 @@ const App = () => {
         break;
       case '/perfil':
         appBarColor = '#57B27E';
-        titulo = 'Bienvenido/a ' + usuario.nombre;
+        titulo = 'Bienvenido/a ';
         break;
         case '/notificaciones':
           appBarColor = '#decf35';
@@ -251,8 +251,8 @@ const App = () => {
               <Route path="/servicios" element={<Servicios logueado={logueado} />} />
               <Route path="/reclamos" element={<Reclamos />} /> // Asegúrate de que el componente Reclamos está correctamente definido y exportado
               <Route path="/denuncias" element={<Denuncias />} />
-              <Route path="/perfil" element={<Perfil nombre={usuario.nombre} apellido={usuario.apellido} email={usuario.email} onPasswordChange={() => console.log('Cambiando contraseña')} />} />
-              <Route path="/login" element={<Login user={usuario} onLogin={handleLogin} />} />
+              <Route path="/perfil" element={<Perfil />} />
+              <Route path="/login" element={<Login onLogin={handleLogin} />} />
               <Route path="/notificaciones" element={<Notificaciones notificaciones={notificacionesEjemplo}/>} />
             </Routes>
           </View>

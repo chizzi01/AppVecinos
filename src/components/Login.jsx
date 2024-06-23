@@ -268,6 +268,12 @@ const Login = ({ onLogin }) => {
                         await AsyncStorage.setItem('logueado', 'true');
                         await AsyncStorage.setItem('token', responseLogin.data.token);
                         await AsyncStorage.setItem('documento', dni);
+                        await AsyncStorage.setItem('nombre', responseLogin.data.userVecino.nombre);
+                        await AsyncStorage.setItem('apellido', responseLogin.data.userVecino.apellido);
+                        await AsyncStorage.setItem('mail', responseLogin.data.user.mail);
+                        // console.log(responseLogin.data.userVecino.nombre)
+                        // console.log(responseLogin.data.userVecino.apellido)
+                        // console.log(responseLogin.data.user.mail)
                         // console.log('response', responseLogin.data.token);
                         alert('Inició sesión correctamente');
                         navigate('/servicios');
@@ -315,6 +321,7 @@ const Login = ({ onLogin }) => {
         setOkPasswordIguales(true);
         setModalRecuperarPassVisible(false);
     }
+
 
     return (
         <KeyboardAvoidingView>
@@ -428,21 +435,21 @@ const Login = ({ onLogin }) => {
                                         </TouchableOpacity>
                                         <Text style={styles.tituloAviso}>Generar contraseña</Text>
                                         <View style={styles.confirmPasswordContainer}>
-                                        <TextInput
-                                            style={styles.inputContra}
-                                            placeholder="Contraseña"
-                                            secureTextEntry={true}
-                                            keyboardType="password"
-                                            onChangeText={text => setPassword(text)}
-                                        />
-                                        <TextInput
-                                            style={styles.inputContra}
-                                            placeholder="Confirmar contraseña"
-                                            keyboardType="password"
-                                            secureTextEntry={true}
-                                            onChangeText={text => setConfirmPassword(text)}
-                                        />
-                                        {okPasswordIguales ? null : <Text style={styles.wrongPass}>Contraseña incorrecta</Text>}
+                                            <TextInput
+                                                style={styles.inputContra}
+                                                placeholder="Contraseña"
+                                                secureTextEntry={true}
+                                                keyboardType="password"
+                                                onChangeText={text => setPassword(text)}
+                                            />
+                                            <TextInput
+                                                style={styles.inputContra}
+                                                placeholder="Confirmar contraseña"
+                                                keyboardType="password"
+                                                secureTextEntry={true}
+                                                onChangeText={text => setConfirmPassword(text)}
+                                            />
+                                            {okPasswordIguales ? null : <Text style={styles.wrongPass}>Contraseña incorrecta</Text>}
                                         </View>
                                         <Button style={styles.button} title="Generar contraseña" onPress={handleGenerarPass} />
                                     </View>
@@ -450,12 +457,12 @@ const Login = ({ onLogin }) => {
                             </View>
                         </Modal>
 
-                        <Modal animationType="slide" 
-                        transparent={true}
-                        visible={modalRecuperarPassVisible}
-                        onRequestClose={() => {
-                            setModalRecuperarPassVisible(!modalRecuperarPassVisible);
-                        }}>
+                        <Modal animationType="slide"
+                            transparent={true}
+                            visible={modalRecuperarPassVisible}
+                            onRequestClose={() => {
+                                setModalRecuperarPassVisible(!modalRecuperarPassVisible);
+                            }}>
                             <View style={styles.centeredView}>
                                 <View style={styles.modalView}>
                                     <TouchableOpacity

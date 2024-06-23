@@ -13,15 +13,27 @@ const Card = ({ title }) => (
 
 
 
-  const Perfil = ({ nombre, apellido, email, onPasswordChange }) => {
+  const Perfil = ({onPasswordChange }) => {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [storedValue, setStoredValue] = useState('');
+    const [nombre, setNombre] = useState('');
+    const [apellido, setApellido] = useState('');
+    const [mail, setMail] = useState('');
 
     const getData = async () => { try { const value = await AsyncStorage.getItem('documento'); if (value !== null) { setStoredValue(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
-    useEffect(() => { getData(); }, []);
+    const getData1 = async () => { try { const value = await AsyncStorage.getItem('nombre'); if (value !== null) { setNombre(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+    const getData2 = async () => { try { const value = await AsyncStorage.getItem('apellido'); if (value !== null) { setApellido(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+    const getData3 = async () => { try { const value = await AsyncStorage.getItem('mail'); if (value !== null) { setMail(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+
+
+    useEffect(() => { getData();
+                      getData1()
+                      getData2()
+                      getData3()
+     }, []);
   
     const handleChangePassword = async () => {
 
@@ -36,7 +48,7 @@ const Card = ({ title }) => (
           <Ionicons name="person-circle" size={100} color="#4bdaa3" />
         </View>
         <Text style={styles.name}>{nombre} {apellido}</Text>
-        <Text style={styles.mail}>{email}</Text>
+        <Text style={styles.mail}>{mail}</Text>
         <Card title="Mi comercio" />
         <Card title="Mi servicio" />
         <Card title="Mis denuncias" />
