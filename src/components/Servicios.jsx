@@ -9,6 +9,7 @@ import getServicios from '../controllers/servicios';
 import { Picker } from '@react-native-picker/picker';
 import postServicios from '../controllers/postServicio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ServicioImagenes from './ServicioImagenes';
 
 const Servicios = (logueado) => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -46,7 +47,7 @@ const Servicios = (logueado) => {
                 setModalVisible(false);
 
             });
-             console.log(storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion)
+        console.log(storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion)
     };
 
 
@@ -189,11 +190,9 @@ const Servicios = (logueado) => {
                         <View style={styles.comercioView}>
                             {selectedServicio && (
                                 <>
-                                    <Image
-                                        source={{ uri: `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/servicios/getPrimerImagen/${selectedServicio.idServicio}` }}
-                                        style={styles.carouselImage}
-                                        onError={(error) => console.log(error)}
-                                    />
+                                    <View style={{ maxWidth: '100%', overflow: 'hidden' }}>
+                                        <ServicioImagenes idServicio={selectedServicio.idServicio} />
+                                    </View>
                                     <Text style={styles.comercioTitulo}>{selectedServicio.tituloServicio}</Text>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Ionicons name="person" size={20} color="#7E7E7E" />

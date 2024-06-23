@@ -150,7 +150,7 @@ const Reclamos = () => {
                         {selectedReclamo && (
                             <>
                                 <Image
-                                    source={{ uri: `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/reclamos/getPrimerImagen/${selectedReclamo.idServicio}` }}
+                                    source={{ uri: `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/reclamos/getPrimerImagen/${selectedReclamo.idReclamo}` }}
                                     style={styles.carouselImage}
                                     onError={(error) => console.log(error)}
                                 />
@@ -171,9 +171,9 @@ const Reclamos = () => {
             <Modal
                 animationType="slide"
                 transparent={true}
-                visible={modalVisible}
+                visible={modalReclamosVisible}
                 onRequestClose={() => {
-                    setModalVisible(!modalVisible);
+                    setModalReclamosVisible(!modalReclamosVisible);
                 }}
             >
                 <View style={styles.centeredView}>
@@ -211,7 +211,7 @@ const Reclamos = () => {
                         <Text style={styles.colorText}>*Máximo 7 fotos*</Text>
                         <View style={styles.lineAlign}>
                             <Button title="Crear reclamo" onPress={handleSave} />
-                            <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
+                            <TouchableOpacity style={styles.cancel} onPress={() => setModalReclamosVisible(false)}>
                                 <Text style={styles.colorText}>Cancelar</Text>
                             </TouchableOpacity>
                         </View>
