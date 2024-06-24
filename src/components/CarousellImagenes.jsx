@@ -19,18 +19,33 @@ const CarousellImagenes = ({ idServicio, tipo }) => {
       `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/${tipo}/getImagenes/${idServicio}/7`,
     ];
     setImagenesUrls(urls);
-    setImagenesValidas(urls);
-    // Establecer la primera imagen válida como seleccionada inicialmente
-    setImagenSeleccionada(urls[0]);
-  }, [idServicio]);
+  
+    // Simulación de validación de imágenes
+    // En un caso real, aquí se verificaría la validez de cada imagen
+    const imagenesValidas = urls.filter(url => url); // Simulación: todas las URLs son válidas
+  
+    if (imagenesValidas.length > 0) {
+      setImagenesValidas(imagenesValidas);
+      setImagenSeleccionada(imagenesValidas[0]);
+    } else {
+      // No se encontraron imágenes válidas, establecer un fondo gris
+      setImagenSeleccionada('https://via.placeholder.com/300/808080/FFFFFF?text=No+image');
+    }
+  }, [idServicio, tipo]);
 
   const handleImageError = (badUrl) => {
     // Filtrar la URL que causó error
-    const filtradas = imagenesValidas.filter(url => url !== badUrl);
-    setImagenesValidas(filtradas);
-    // Si la imagen seleccionada es la que falló, seleccionar la primera válida restante
-    if (imagenSeleccionada === badUrl && filtradas.length > 0) {
-      setImagenSeleccionada(filtradas[0]);
+    const filteredImages = imagenesValidas.filter(url => url !== badUrl);
+  
+    // Actualizar el estado de imagenesValidas
+    setImagenesValidas(filteredImages);
+  
+    // Si no quedan imágenes válidas, establecer una imagen de fondo gris
+    if (filteredImages.length === 0) {
+      setImagenSeleccionada('https://via.placeholder.com/300/808080/FFFFFF?text=No+image');
+    } else {
+      // Si aún quedan imágenes válidas, seleccionar la primera de la lista actualizada
+      setImagenSeleccionada(filteredImages[0]);
     }
   };
 

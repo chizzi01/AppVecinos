@@ -49,8 +49,8 @@ const Card = ({ title }) => (
         </View>
         <Text style={styles.name}>{nombre} {apellido}</Text>
         <Text style={styles.mail}>{mail}</Text>
-        <Card title="Mi comercio" />
-        <Card title="Mi servicio" />
+        <Card title="Mis comercios" />
+        <Card title="Mis servicios" />
         <Card title="Mis denuncias" />
         <Card title="Mis reclamos" />
         <View style={styles.buttonContainer}>

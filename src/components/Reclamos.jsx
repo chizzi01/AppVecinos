@@ -5,6 +5,8 @@ import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { Picker } from '@react-native-picker/picker';
 import getReclamos from '../controllers/reclamos';
+import CarousellImagenes from './CarousellImagenes';
+import postReclamo from '../controllers/postReclamo';
 
 
 
@@ -21,6 +23,8 @@ const Reclamos = () => {
     const [loading, setLoading] = useState(true);
     const [modalReclamosVisible, setModalReclamosVisible] = useState(false);
     const [selectedReclamo, setSelectedReclamo] = useState(null);
+    const [imagenes, setImagenes] = useState([]);
+    const [vistasPrevia, setVistasPrevia] = useState([]);
 
 
     const [reclamos, setReclamos] = useState([])
@@ -30,63 +34,69 @@ const Reclamos = () => {
 
 
     const handleSave = () => {
-        // Save the new service
-        setModalVisible(false);
+        postReclamo(imagenes[0], instalacionAfectada, tipoDesperfecto, descripcion, rubro, 'direccion').then(() => {
+            setModalReclamosVisible(false);
+            setInstalacionAfectada('');
+            setTipoDesperfecto('');
+            setDescripcion('');
+            setRubro('');
+            setImagenes([]);
+            setVistasPrevia([]);
+        }
+        );
     };
 
     const pickImage = async () => {
-        const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status === 'granted') {
-            let result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.All,
-                allowsEditing: true,
-                aspect: [4, 3],
-                quality: 1,
-            });
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsMultipleSelection: true, // Asegúrate de que tu versión de expo-image-picker soporte esta opción
+            quality: 1,
+        });
 
-            console.log(result);
-
-            if (!result.cancelled) {
-                // setImage(result.uri);
-                console.log(result.uri);
+        if (!result.cancelled && result.assets) {
+            if (result.assets.length > 7) {
+                alert('No puedes seleccionar más de 7 imágenes.');
+                return;
             }
-        } else {
-            console.error('Camera roll permission not granted');
+            setImagenes(result.assets);
+            const vistasPreviaUrls = result.assets.map((img) => img.uri);
+            setVistasPrevia(vistasPreviaUrls);
         }
+        // console.log(result);
+        // console.log(imagenes);
+        // console.log(vistasPrevia);
+    };
+
+    const eliminarImagen = (index) => {
+        const nuevasImagenes = [...imagenes];
+        nuevasImagenes.splice(index, 1);
+        setImagenes(nuevasImagenes);
+        const vistasPreviaUrls = nuevasImagenes.map((img) => img.uri);
+        setVistasPrevia(vistasPreviaUrls);
     };
 
     const takeImage = async () => {
         let result = await ImagePicker.launchCameraAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
+            allowsEditing: false,
             aspect: [4, 3],
             quality: 1,
         });
-
+    
         console.log(result);
-
-        if (!result.cancelled) {
-            // setImage(result.uri);
-            console.log(result.uri);
+    
+        if (!result.cancelled && result.assets && result.assets.length > 0) {
+            // Asegurarse de que assets existe y tiene al menos un elemento
+            const firstAsset = result.assets[0]; // Acceder al primer objeto de assets
+            const nuevasImagenes = [...imagenes, { uri: firstAsset.uri }];
+            setImagenes(nuevasImagenes);
+    
+            // Actualizar las vistas previas con las nuevas URIs
+            const vistasPreviaUrls = nuevasImagenes.map((img) => img.uri);
+            setVistasPrevia(vistasPreviaUrls);
         }
     };
 
-
-
-
-
-    // const reclamos = [
-    //     { nombre: 'Reclamo 1', direccion: 'Dirección 1', codigo: '#1288', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
-    //     { nombre: 'Reclamo 2', direccion: 'Dirección 2', codigo: '#1289', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
-    //     { nombre: 'Reclamo 3', direccion: 'Dirección 3', codigo: '#1290', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
-    //     { nombre: 'Reclamo 4', direccion: 'Dirección 4', codigo: '#1291', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
-    //     { nombre: 'Reclamo 5', direccion: 'Dirección 5', codigo: '#1292', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
-    //     { nombre: 'Reclamo 6', direccion: 'Dirección 6', codigo: '#1293', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
-    //     { nombre: 'Reclamo 7', direccion: 'Dirección 7', codigo: '#1294', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
-    //     { nombre: 'Reclamo 8', direccion: 'Dirección 8', codigo: '#1295', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
-    //     { nombre: 'Reclamo 9', direccion: 'Dirección 9', codigo: '#1296', ultActualizacion: '01/01/2021', rubro: 'carpinteria' },
-    //     { nombre: 'Reclamo 10', direccion: 'Dirección 10', codigo: '#1297', ultActualizacion: '01/01/2021', rubro: 'plomeria' },
-    // ];
 
     const filteredReclamos = reclamos.filter(reclamo =>
         (reclamo.sitios.descripcion || '').toLowerCase().includes((search || '').toLowerCase())
@@ -149,21 +159,23 @@ const Reclamos = () => {
                     <View style={styles.comercioView}>
                         {selectedReclamo && (
                             <>
-                                <Image
-                                    source={{ uri: `https://municipio-g8-servidor-production-dcd2.up.railway.app/api/reclamos/getPrimerImagen/${selectedReclamo.idReclamo}` }}
-                                    style={styles.carouselImage}
-                                    onError={(error) => console.log(error)}
-                                />
-                                <Text style={styles.reclamoId}>Reclamo #{selectedReclamo.idReclamo}</Text>
-                                <Text style={styles.reclamoEstado}>{selectedReclamo.estado}</Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Ionicons style={styles.clock} name="location" size={20} color="#7E7E7E" />
-                                    <Text style={styles.ubiReclamo}>{selectedReclamo.sitios.descripcion}</Text>
+                                <View style={{ maxWidth: '100%', overflow: 'hidden', borderTopLeftRadius: 15, borderTopRightRadius: 15 }}>
+                                    <CarousellImagenes idServicio={selectedReclamo.idReclamo} tipo={"reclamos"} />
                                 </View>
-                                <Text style={styles.comercioDescripcion}>{selectedReclamo.descripcion}</Text>
+                                <View style={styles.contentView}>
+                                    <Text style={styles.reclamoId}>Reclamo #{selectedReclamo.idReclamo}</Text>
+                                    <Text style={styles.reclamoEstado}>{selectedReclamo.estado}</Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons style={styles.clock} name="location" size={20} color="#7E7E7E" />
+                                        <Text style={styles.ubiReclamo}>{selectedReclamo.sitios.descripcion}</Text>
+                                    </View>
+                                    <Text style={styles.comercioDescripcion}>{selectedReclamo.descripcion}</Text>
+                                </View>
                             </>
                         )}
-                        <Button title="Cerrar" style={{ backgroundColor: 'red' }} onPress={() => setModalVisible(false)} />
+                        <TouchableOpacity title="Cerrar" style={styles.cerrarBtn} onPress={() => setModalVisible(false)}>
+                            <Text style={styles.cerrarBtnText}>Cerrar</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
@@ -198,6 +210,15 @@ const Reclamos = () => {
                             <Picker.Item label="Desperfecto 2" value="desp2" />
 
                         </Picker>
+                        <Picker
+                            selectedValue={rubro}
+                            onValueChange={(itemValue) => setRubro(itemValue)}
+                            style={styles.picker}
+                        >
+                            <Picker.Item label="Rubro 1" value="rubro1" />
+                            <Picker.Item label="Rubro 2" value="rubro2" />
+
+                        </Picker>
                         <TextInput style={styles.input} placeholder="Informacion adicional" onChangeText={setDescripcion} multiline={true}
                             numberOfLines={4} selectionColor="#2c3e50" />
                         <TouchableOpacity style={styles.addImg} onPress={pickImage}>
@@ -209,6 +230,22 @@ const Reclamos = () => {
                             <Text style={styles.colorText}> Tomar foto</Text>
                         </TouchableOpacity>
                         <Text style={styles.colorText}>*Máximo 7 fotos*</Text>
+                        <View style={styles.previewContainer}>
+                            {vistasPrevia.map((imgUri, index) => (
+                                <View key={index} style={styles.imageContainer}>
+                                    <Image
+                                        source={{ uri: imgUri + '?time=' + new Date() }}
+                                        style={styles.previewImage}
+                                    />
+                                    <TouchableOpacity
+                                        style={styles.closeButton}
+                                        onPress={() => eliminarImagen(index)}
+                                    >
+                                        <Ionicons name="close" size={15} color="white" />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </View>
                         <View style={styles.lineAlign}>
                             <Button title="Crear reclamo" onPress={handleSave} />
                             <TouchableOpacity style={styles.cancel} onPress={() => setModalReclamosVisible(false)}>
@@ -271,6 +308,7 @@ const styles = StyleSheet.create({
         height: '100%'
     },
     centeredView: {
+        flex: 1,
         justifyContent: "center",
         alignItems: "center",
         marginTop: 22
@@ -279,7 +317,7 @@ const styles = StyleSheet.create({
         margin: 20,
         backgroundColor: "#f0f0f0", // Light gray background
         borderRadius: 30, // Larger border radius
-        padding: 50, // More padding
+        padding: 20, // More padding
         alignItems: "center",
         justifyContent: "space-evenly",
         shadowColor: "#000",
@@ -376,13 +414,23 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         color: '#424242',
     },
-    comercioView: {
-        backgroundColor: '#f0f0f0',
-        borderRadius: 30,
-        padding: 50,
+    contentView: {
+        padding: 20,
+        width: '100%',
         alignItems: 'left',
-        justifyContent: 'space-around',
-        shadowColor: '#000',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+        height: 300
+    },
+    comercioView: {
+        margin: 0,
+        backgroundColor: "#f0f0f0",
+        borderRadius: 15,
+        padding: 0,
+        alignItems: "left",
+        justifyContent: "space-between",
+        shadowColor: "#000",
         shadowOffset: {
             width: 0,
             height: 2
@@ -433,6 +481,68 @@ const styles = StyleSheet.create({
     clock: {
         marginRight: 5,
     },
+    reclamoEstado: {
+        fontSize: 20,
+        color: '#2c3e50',
+    },
+    cerrarBtn: {
+        backgroundColor: '#2c3e50',
+        padding: 5,
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cerrarBtnText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 20,
+    },
+    comercioProveedor: {
+        fontSize: 18,
+        color: '#888',
+        marginLeft: 5,
+    },
+    miniaturasContenedor: {
+        // Estilos para el contenedor de miniaturas
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 10,
+    },
+    miniaturaImagen: {
+        // Estilos para las miniaturas
+        width: 50,
+        height: 50,
+        marginRight: 5,
+    },
+    miniaturaSeleccionada: {
+        // Estilos para la miniatura seleccionada
+        borderWidth: 2,
+        borderColor: '#03A9F4',
+    },
+    previewContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+    },
+    previewImage: {
+        width: 50,
+        height: 50,
+        margin: 5,
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: 25, // Adjust size as needed
+        height: 25, // Adjust size as needed
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'grey', // Customize as needed
+        borderRadius: 25, // Adjust size as needed
+    },
+
 });
 
 export default Reclamos;

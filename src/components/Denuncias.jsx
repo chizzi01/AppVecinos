@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text } from 'react-native';
+import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text,Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { Picker } from '@react-native-picker/picker';
 import CarousellImagenes from './CarousellImagenes';
-import CheckBox from '@react-native-community/checkbox';
-import { Switch } from 'react-native';
+import postDenuncia from '../controllers/postDenuncia';
+
 
 
 
@@ -24,32 +24,69 @@ const Denuncias = () => {
     const [comercioDenuncia, setComercioDenuncia] = useState(false);
     const [modalDenunciasVisible, setModalDenunciasVisible] = useState(false);
     const [selectedDenuncia, setSelectedDenuncia] = useState(null);
+    const [imagenes, setImagenes] = useState([]);
+    const [vistasPrevia, setVistasPrevia] = useState([]);
 
 
     const handleSave = () => {
-        // Save the new service
-        setModalVisible(false);
+        // console.log('Guardando denuncia...');
+        // console.log('Motivo:', motivo);
+        // console.log('Direccion:', direccion);
+        // console.log('Descripcion:', descripcion);
+        // console.log('Vecino:', vecinoDenuncia);
+        // console.log('Comercio:', comercioDenuncia);
+        // console.log('Imagenes:', imagenes);
+        // console.log('Términos aceptados:', termsAccepted);
+        // console.log('Generada:', generada);
+        // console.log('Search:', search);
+
+        if (!motivo || !direccion || !descripcion || !termsAccepted) {
+            alert('Por favor complete todos los campos y acepte los términos.');
+            return;
+        }
+
+        postDenuncia(imagenes, vecinoDenuncia, direccion, motivo)
+            .then(response => {
+                if (response.ok) {
+                    alert('Denuncia creada con éxito');
+                    setModalVisible(false);
+                } else {
+                    alert('Ocurrió un error al crear la denuncia');
+                }
+            })
+            .catch(error => {
+                console.error('Error al crear la denuncia:', error);
+                alert('Ocurrió un error al crear la denuncia');
+            });
     };
 
     const pickImage = async () => {
-        const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status === 'granted') {
-            let result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.All,
-                allowsEditing: true,
-                aspect: [4, 3],
-                quality: 1,
-            });
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsMultipleSelection: true, // Asegúrate de que tu versión de expo-image-picker soporte esta opción
+            quality: 1,
+        });
 
-            console.log(result);
-
-            if (!result.cancelled) {
-                // setImage(result.uri);
-                console.log(result.uri);
+        if (!result.cancelled && result.assets) {
+            if (result.assets.length > 7) {
+                alert('No puedes seleccionar más de 7 imágenes.');
+                return;
             }
-        } else {
-            console.error('Camera roll permission not granted');
+            setImagenes(result.assets);
+            const vistasPreviaUrls = result.assets.map((img) => img.uri);
+            setVistasPrevia(vistasPreviaUrls);
         }
+        // console.log(result);
+        // console.log(imagenes);
+        // console.log(vistasPrevia);
+    };
+
+    const eliminarImagen = (index) => {
+        const nuevasImagenes = [...imagenes];
+        nuevasImagenes.splice(index, 1);
+        setImagenes(nuevasImagenes);
+        const vistasPreviaUrls = nuevasImagenes.map((img) => img.uri);
+        setVistasPrevia(vistasPreviaUrls);
     };
 
 
@@ -153,6 +190,19 @@ const Denuncias = () => {
                             <Ionicons name="attach" size={20} color="grey" />
                             <Text style={styles.colorText}>Adjuntar imagenes</Text>
                         </TouchableOpacity>
+                        <View style={styles.previewContainer}>
+                            {vistasPrevia.map((imgUri, index) => (
+                                <View key={index} style={styles.imageContainer}>
+                                    <Image source={{ uri: imgUri }} style={styles.previewImage} />
+                                    <TouchableOpacity
+                                        style={styles.closeButton}
+                                        onPress={() => eliminarImagen(index)}
+                                    >
+                                        <Ionicons name="close" size={15} color="white" />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </View>
                         <TouchableOpacity
                             style={styles.checkboxContainer}
                             onPress={() => setTermsAccepted(!termsAccepted)}
@@ -446,7 +496,8 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-evenly',
-        height: 300
+        height: 300,
+        gap: 20,  
     },
     modalView: {
         margin: 20,
@@ -674,6 +725,29 @@ const styles = StyleSheet.create({
     estadoTextos: {
         width: '80%',
     },
+    previewContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+    },
+    previewImage: {
+        width: 50,
+        height: 50,
+        margin: 5,
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: 25, // Adjust size as needed
+        height: 25, // Adjust size as needed
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'grey', // Customize as needed
+        borderRadius: 25, // Adjust size as needed
+    },
+
+
 
 });
 

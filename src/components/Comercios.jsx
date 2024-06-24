@@ -138,18 +138,18 @@ const Comercios = (logueado) => {
                         </TouchableOpacity>
                         <Text style={styles.colorText}>*Máximo 7 fotos*</Text>
                         <View style={styles.previewContainer}>
-                                    {vistasPrevia.map((imgUri, index) => (
-                                        <View key={index} style={styles.imageContainer}>
-                                            <Image source={{ uri: imgUri }} style={styles.previewImage} />
-                                            <TouchableOpacity
-                                                style={styles.closeButton}
-                                                onPress={() => eliminarImagen(index)}
-                                            >
-                                                <Ionicons name="close" size={15} color="white" />
-                                            </TouchableOpacity>
-                                        </View>
-                                    ))}
+                            {vistasPrevia.map((imgUri, index) => (
+                                <View key={index} style={styles.imageContainer}>
+                                    <Image source={{ uri: imgUri }} style={styles.previewImage} />
+                                    <TouchableOpacity
+                                        style={styles.closeButton}
+                                        onPress={() => eliminarImagen(index)}
+                                    >
+                                        <Ionicons name="close" size={15} color="white" />
+                                    </TouchableOpacity>
                                 </View>
+                            ))}
+                        </View>
                         <View style={styles.lineAlign}>
                             <Button title="Guardar" onPress={handleSave} />
                             <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
@@ -197,9 +197,9 @@ const Comercios = (logueado) => {
                                 </View>
                             </>
                         )}
-                            <TouchableOpacity title="Cerrar" style={styles.cerrarBtn} onPress={() => setModalComercioVisible(false)}> 
-                                <Text style={styles.cerrarBtnText}>Cerrar</Text>
-                            </TouchableOpacity> 
+                        <TouchableOpacity title="Cerrar" style={styles.cerrarBtn} onPress={() => setModalComercioVisible(false)}>
+                            <Text style={styles.cerrarBtnText}>Cerrar</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
