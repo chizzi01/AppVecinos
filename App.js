@@ -89,7 +89,7 @@ const App = () => {
 
 
     <View style={[styles.container, styles.navigationContainer]}>
-      {logueado == "vecino" && (
+      {logueado == false && (
         <>
           <Link to="/" onPress={() => drawer.current.closeDrawer()}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
