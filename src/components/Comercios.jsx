@@ -111,7 +111,7 @@ const Comercios = (logueado) => {
                     ))
                 )}
             </ScrollView>
-            {logueado.logueado === true ? (
+            {logueado.logueado === "vecino" ? (
                 <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
                     <Ionicons name="add" size={30} color="white" />
                 </TouchableOpacity>
@@ -136,6 +136,7 @@ const Comercios = (logueado) => {
                             <Ionicons name="attach" size={20} color="grey" />
                             <Text style={styles.colorText}>Adjuntar imagenes</Text>
                         </TouchableOpacity>
+                        <Text style={styles.colorText}>*Máximo 7 fotos*</Text>
                         <View style={styles.previewContainer}>
                                     {vistasPrevia.map((imgUri, index) => (
                                         <View key={index} style={styles.imageContainer}>
@@ -196,7 +197,9 @@ const Comercios = (logueado) => {
                                 </View>
                             </>
                         )}
-                        <Button title="Cerrar" onPress={() => setModalComercioVisible(false)} />
+                            <TouchableOpacity title="Cerrar" style={styles.cerrarBtn} onPress={() => setModalComercioVisible(false)}> 
+                                <Text style={styles.cerrarBtnText}>Cerrar</Text>
+                            </TouchableOpacity> 
                     </View>
                 </View>
             </Modal>
@@ -429,6 +432,21 @@ const styles = StyleSheet.create({
         backgroundColor: 'grey', // Customize as needed
         borderRadius: 25, // Adjust size as needed
     },
+    cerrarBtn: {
+        backgroundColor: '#03A9F4',
+        padding: 5,
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cerrarBtnText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 20,
+    },
+
 
 });
 

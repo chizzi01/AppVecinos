@@ -120,7 +120,7 @@ const Reclamos = () => {
                     <ActivityIndicator size="large" color="#2c3e50" style={{ marginTop: 20 }} />
                 ) : (
                     filteredReclamos.map((reclamo, index) => (
-                        <TouchableOpacity key={reclamo.idReclamo} onPress={() => { setSelectedReclamo(reclamo); setModalReclamosVisible(true); }}>
+                        <TouchableOpacity key={reclamo.idReclamo} onPress={() => { setSelectedReclamo(reclamo); setModalVisible(true); }}>
                             <View key={reclamo.idReclamo} style={styles.reclamosCard}>
                                 <Text style={styles.titulo}>🛠 {reclamo.sitios.descripcion}</Text>
                                 <Text style={styles.codigo}>Reclamo N°: {reclamo.idReclamo}</Text>
@@ -140,9 +140,9 @@ const Reclamos = () => {
             <Modal
                 animationType="slide"
                 transparent={true}
-                visible={modalReclamosVisible}
+                visible={modalVisible}
                 onRequestClose={() => {
-                    setModalReclamosVisible(!modalReclamosVisible);
+                    setModalVisible(!modalVisible);
                 }}
             >
                 <View style={styles.centeredView}>
@@ -163,7 +163,7 @@ const Reclamos = () => {
                                 <Text style={styles.comercioDescripcion}>{selectedReclamo.descripcion}</Text>
                             </>
                         )}
-                        <Button title="Cerrar" style={{ backgroundColor: 'red' }} onPress={() => setModalReclamosVisible(false)} />
+                        <Button title="Cerrar" style={{ backgroundColor: 'red' }} onPress={() => setModalVisible(false)} />
                     </View>
                 </View>
             </Modal>

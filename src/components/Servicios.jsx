@@ -45,13 +45,15 @@ const Servicios = (logueado) => {
     useEffect(() => { getData(); }, []);
 
     const handleSave = async () => {
-        console.log(image)
-        const response = await postServicios(image, storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion)
-            .then(() => {
-                setModalVisible(false);
-
-            });
-        console.log(storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion)
+        console.log(image);
+        try {
+            const response = await postServicios(imagenes, storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion);
+            console.log(response);
+            setModalVisible(false);
+        } catch (error) {
+            console.error('Error al enviar el servicio:', error);
+            // Aquí puedes manejar el error, por ejemplo, mostrando un mensaje al usuario
+        }
     };
 
     const pickImage = async () => {
@@ -123,7 +125,7 @@ const Servicios = (logueado) => {
                     )}
 
                 </ScrollView>
-                {logueado.logueado === true ? (
+                {logueado.logueado === "vecino" ? (
                     <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
                         <Ionicons name="add" size={30} color="white" />
                     </TouchableOpacity>
@@ -183,6 +185,7 @@ const Servicios = (logueado) => {
                                     <Ionicons name="attach" size={20} color="grey" />
                                     <Text style={styles.colorText}>Adjuntar imágenes</Text>
                                 </TouchableOpacity>
+                                <Text style={styles.colorText}>*Máximo 7 fotos*</Text>
                                 <View style={styles.previewContainer}>
                                     {vistasPrevia.map((imgUri, index) => (
                                         <View key={index} style={styles.imageContainer}>
@@ -240,7 +243,9 @@ const Servicios = (logueado) => {
                                     </View>
                                 </>
                             )}
-                            <Button title="Cerrar" style={{ borderRadius: 15 }} onPress={() => setModalServicioVisible(false)} />
+                            <TouchableOpacity title="Cerrar" style={styles.cerrarBtn} onPress={() => setModalServicioVisible(false)}> 
+                                <Text style={styles.cerrarBtnText}>Cerrar</Text>
+                            </TouchableOpacity> 
                         </View>
                     </View>
                 </Modal>
@@ -472,6 +477,22 @@ const styles = StyleSheet.create({
         backgroundColor: 'grey', // Customize as needed
         borderRadius: 25, // Adjust size as needed
     },
+    cerrarBtn: {
+        backgroundColor: '#ff834e',
+        padding: 5,
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cerrarBtnText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 20,
+    },
+
+
 });
 
 

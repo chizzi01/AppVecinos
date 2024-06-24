@@ -61,8 +61,8 @@ const App = () => {
   useEffect(() => {
     const fetchLogueado = async () => {
       const value = await AsyncStorage.getItem('logueado');
-      if (value !== null && value === 'true') {
-        setLogueado(true);
+      if (value !== null && value === 'vecino') {
+        setLogueado("vecino");
         console.log('logueado');
       } else {
         setLogueado(false);
@@ -73,7 +73,7 @@ const App = () => {
   }, []);
 
   const handleLogin = () => {
-    setLogueado(true);
+    setLogueado("vecino");
   };
 
 
@@ -89,7 +89,7 @@ const App = () => {
 
 
     <View style={[styles.container, styles.navigationContainer]}>
-      {logueado === false && (
+      {logueado == "vecino" && (
         <>
           <Link to="/" onPress={() => drawer.current.closeDrawer()}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -111,7 +111,7 @@ const App = () => {
           <Text style={styles.link}>Servicios</Text>
         </View>
       </Link>
-      {logueado === true && (
+      {logueado == "vecino" && (
         <>
           <Link to="/reclamos" onPress={() => drawer.current.closeDrawer()}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -128,7 +128,7 @@ const App = () => {
         </>
       )}
       <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-        {logueado === true ? (
+        {logueado == "vecino" ? (
           <>
             <Link to="/notificaciones" onPress={() => drawer.current.closeDrawer()}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -249,7 +249,7 @@ const App = () => {
               <Route path="/home" element={<Home />} />
               <Route path="/comercios" element={<Comercios logueado={logueado} />} />
               <Route path="/servicios" element={<Servicios logueado={logueado} />} />
-              <Route path="/reclamos" element={<Reclamos />} /> // Asegúrate de que el componente Reclamos está correctamente definido y exportado
+              <Route path="/reclamos" element={<Reclamos />} />
               <Route path="/denuncias" element={<Denuncias />} />
               <Route path="/perfil" element={<Perfil />} />
               <Route path="/login" element={<Login onLogin={handleLogin} />} />

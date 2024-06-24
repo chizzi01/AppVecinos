@@ -14,6 +14,7 @@ import checkPass from "../controllers/checkPass";
 import generarClave from "../controllers/generarClave";
 import recuperarPass from "../controllers/recuperarPass";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import loginInspector from "../controllers/loginInspector";
 
 
 
@@ -265,7 +266,7 @@ const Login = ({ onLogin }) => {
                 }
                 if (responseLogin.status === 200) {
                     try {
-                        await AsyncStorage.setItem('logueado', 'true');
+                        await AsyncStorage.setItem('logueado', 'vecino');
                         await AsyncStorage.setItem('token', responseLogin.data.token);
                         await AsyncStorage.setItem('documento', dni);
                         await AsyncStorage.setItem('nombre', responseLogin.data.userVecino.nombre);
@@ -275,6 +276,7 @@ const Login = ({ onLogin }) => {
                         // console.log(responseLogin.data.userVecino.apellido)
                         // console.log(responseLogin.data.user.mail)
                         // console.log('response', responseLogin.data.token);
+                        console.log("El usuario es: ", await AsyncStorage.getItem('logueado'));
                         alert('Inició sesión correctamente');
                         navigate('/servicios');
                         onLogin();
@@ -295,6 +297,38 @@ const Login = ({ onLogin }) => {
             }
         }
     };
+
+    const handleLoginInspector = async () => {
+        setLoading(true);
+        const response = await loginInspector(legajo, password)
+        if (response.status === 200) {
+            try {
+                await AsyncStorage.setItem('logueado', 'inspector');
+                await AsyncStorage.setItem('token', response.data.token);
+                await AsyncStorage.setItem('legajo', legajo);
+                await AsyncStorage.setItem('nombre', response.data.userInspector.nombre);
+                await AsyncStorage.setItem('apellido', response.data.userInspector.apellido);
+                await AsyncStorage.setItem('mail', response.data.user.mail);
+                // console.log(response.data.userInspector.nombre)
+                // console.log(response.data.userInspector.apellido)
+                // console.log(response.data.user.mail)
+                // console.log('response', response.data.token);
+                console.log(AsyncStorage.getItem('logueado'));
+                alert('Inició sesión correctamente');
+                navigate('/servicios');
+                onLogin();
+            } catch (error) {
+                alert(error)
+                // Error saving data
+            }
+        } else {
+            if (password) {
+                setOkPassword(false);
+            }
+        }
+    };
+
+
 
 
     const handleSolicitud = async () => {
