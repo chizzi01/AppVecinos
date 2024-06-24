@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { Picker } from '@react-native-picker/picker';
+import CarousellImagenes from './CarousellImagenes';
 import CheckBox from '@react-native-community/checkbox';
 import { Switch } from 'react-native';
 
@@ -21,6 +22,8 @@ const Denuncias = () => {
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [vecinoDenuncia, setVecinoDenuncia] = useState(false);
     const [comercioDenuncia, setComercioDenuncia] = useState(false);
+    const [modalDenunciasVisible, setModalDenunciasVisible] = useState(false);
+    const [selectedDenuncia, setSelectedDenuncia] = useState(null);
 
 
     const handleSave = () => {
@@ -51,16 +54,15 @@ const Denuncias = () => {
 
 
     const denuncias = [
-        { motivo: 'Denuncia 1', direccion: 'Dirección 1', codigo: '#1288', ultActualizacion: '01/01/2021', generada: true },
-        { motivo: 'Denuncia 2', direccion: 'Dirección 2', codigo: '#1289', ultActualizacion: '01/01/2021', generada: false },
-        { motivo: 'Denuncia 3', direccion: 'Dirección 3', codigo: '#1290', ultActualizacion: '01/01/2021', generada: true },
-        { motivo: 'Denuncia 4', direccion: 'Dirección 4', codigo: '#1291', ultActualizacion: '01/01/2021', generada: false },
-        { motivo: 'Denuncia 5', direccion: 'Dirección 5', codigo: '#1292', ultActualizacion: '01/01/2021', generada: true },
-        { motivo: 'Denuncia 6', direccion: 'Dirección 6', codigo: '#1293', ultActualizacion: '01/01/2021', generada: false },
-        { motivo: 'Denuncia 7', direccion: 'Dirección 7', codigo: '#1294', ultActualizacion: '01/01/2021', generada: true },
-        { motivo: 'Denuncia 8', direccion: 'Dirección 8', codigo: '#1295', ultActualizacion: '01/01/2021', generada: false },
-        { motivo: 'Denuncia 9', direccion: 'Dirección 9', codigo: '#1296', ultActualizacion: '01/01/2021', generada: true },
-        { motivo: 'Denuncia 10', direccion: 'Dirección 10', codigo: '#1297', ultActualizacion: '01/01/2021', generada: false },
+        { motivo: 'Denuncia 1', codigo: 1, direccion: 'Calle 123', ultActualizacion: 'Hace 2 horas', generada: true, vecino: 'Juan perez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+        { motivo: 'Denuncia 2', codigo: 2, direccion: 'Calle 456', ultActualizacion: 'Hace 5 horas', generada: true, vecino: 'Maria Rodriguez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+        { motivo: 'Denuncia 3', codigo: 3, direccion: 'Calle 789', ultActualizacion: 'Hace 10 horas', generada: false, vecino: 'Pedro Gomez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+        { motivo: 'Denuncia 4', codigo: 4, direccion: 'Calle 1011', ultActualizacion: 'Hace 15 horas', generada: false, vecino: 'Ana Fernandez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+        { motivo: 'Denuncia 5', codigo: 5, direccion: 'Calle 1213', ultActualizacion: 'Hace 20 horas', generada: true, vecino: 'Carlos Lopez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+        { motivo: 'Denuncia 6', codigo: 6, direccion: 'Calle 1415', ultActualizacion: 'Hace 25 horas', generada: true, vecino: 'Silvia Martinez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+        { motivo: 'Denuncia 7', codigo: 7, direccion: 'Calle 1617', ultActualizacion: 'Hace 30 horas', generada: false, vecino: 'Roberto Perez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+        { motivo: 'Denuncia 8', codigo: 8, direccion: 'Calle 1819', ultActualizacion: 'Hace 35 horas', generada: false, vecino: 'Marta Rodriguez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+        { motivo: 'Denuncia 9', codigo: 9, direccion: 'Calle 2021', ultActualizacion: 'Hace 40 horas', generada: true, vecino: 'Juan Perez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
     ];
 
     const filteredDenuncias = denuncias.filter(denuncia =>
@@ -92,15 +94,17 @@ const Denuncias = () => {
             </View>
             <ScrollView>
                 {filteredDenuncias.map((denuncia, index) => (
-                    <View key={denuncia.codigo} style={styles.denunciasCard}>
-                        <Text style={styles.titulo}>🚨 {denuncia.motivo}</Text>
-                        <Text style={styles.codigo}>Denuncia N°: {denuncia.codigo}</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Ionicons name="location" size={15} color="#7E7E7E" />
-                            <Text style={styles.direccion}>{denuncia.direccion}</Text>
+                    <TouchableOpacity key={index} onPress={() => { setSelectedDenuncia(denuncia); setModalDenunciasVisible(true); }} >
+                        <View key={denuncia.codigo} style={styles.denunciasCard}>
+                            <Text style={styles.titulo}>🚨 {denuncia.motivo}</Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Ionicons name="location" size={15} color="#7E7E7E" />
+                                <Text style={styles.direccion}>{denuncia.direccion}</Text>
+                            </View>
+                            <Text>Última actualizacion: {denuncia.ultActualizacion}</Text>
                         </View>
-                        <Text>Última actualizacion: {denuncia.ultActualizacion}</Text>
-                    </View>
+                    </TouchableOpacity>
+
 
                 ))}
             </ScrollView>
@@ -162,6 +166,54 @@ const Denuncias = () => {
                                 <Text style={styles.colorText}>Cancelar</Text>
                             </TouchableOpacity>
                         </View>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalDenunciasVisible}
+                onRequestClose={() => {
+                    setModalVisible(!modalDenunciasVisible);
+                }}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.comercioView}>
+                        {selectedDenuncia && (
+                            <>
+                                <View style={{ maxWidth: '100%', overflow: 'hidden', borderTopLeftRadius: 15, borderTopRightRadius: 15 }}>
+                                    <CarousellImagenes idServicio={selectedDenuncia.codigo} tipo={"servicios"} />
+                                </View>
+                                <View style={styles.contentView}>
+                                    <Text style={styles.comercioTitulo}>Denuncia #{selectedDenuncia.codigo}</Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="person" size={20} color="#7E7E7E" />
+                                        <Text style={styles.comercioProveedor}>Denuncia vecinal a {selectedDenuncia.vecino}</Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="location" size={20} color="#7E7E7E" />
+                                        <Text style={styles.comercioTelefono}>{selectedDenuncia.direccion}</Text>
+                                    </View>
+                                    <Text style={styles.comercioDescripcion}>{selectedDenuncia.motivo}</Text>
+                                    <View style={{paddingTop:15}}>
+                                        <Text style={styles.titulo}>Estado</Text>
+                                        <View style={styles.estadoContainer}>
+                                            <View>
+                                                <Text style={styles.paso}>{selectedDenuncia.estado.paso}</Text>
+                                            </View>
+                                            <View style={styles.estadoTextos}>
+                                                <Text>{selectedDenuncia.estado.descripcion}</Text>
+                                                <Text style={{ color: "grey" }}>Ultima actualizacion: {selectedDenuncia.ultActualizacion}</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+                                </View>
+                            </>
+                        )}
+                        <TouchableOpacity title="Cerrar" style={styles.cerrarBtn} onPress={() => setModalDenunciasVisible(false)}>
+                            <Text style={styles.cerrarBtnText}>Cerrar</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
@@ -302,9 +354,10 @@ const styles = StyleSheet.create({
     },
     pickerRubro: {
         width: '40%',
+        height: 40,
         borderColor: 'gray',
         backgroundColor: '#FFFF',
-        borderWidth: 1,
+        borderWidth: 0,
         margin: 10,
         borderRadius: 10,
     },
@@ -360,6 +413,268 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '100%',
     },
+    fab: {
+        position: 'absolute',
+        width: 56,
+        height: 56,
+        alignItems: 'center',
+        justifyContent: 'center',
+        right: 20,
+        bottom: 20,
+        backgroundColor: '#fd746c',
+        borderRadius: 30,
+        elevation: 8
+    },
+    fabIcon: {
+        fontSize: 40,
+        color: 'white'
+    },
+    container: {
+        backgroundColor: '#D9D9D9',
+        height: '100%'
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
+    },
+    contentView: {
+        padding: 20,
+        width: '100%',
+        alignItems: 'left',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+        height: 300
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "#f0f0f0", // Light gray background
+        borderRadius: 30, // Larger border radius
+        padding: 20, // More padding
+        alignItems: "center",
+        justifyContent: "space-between",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        height: '100%', // Larger height
+        width: '95%' // Larger width
+    },
+    input: {
+        height: 40, // Adjust the height as needed
+        width: '100%', // Make the input take up the full width of the modal
+        borderColor: 'gray', // Add a border
+        borderWidth: 1, // Add a border
+        marginTop: 10, // Add some margin to the top
+        paddingLeft: 10, // Add some padding to the left
+        borderRadius: 10 // Add a border radius
+    },
+    addImg: {
+        backgroundColor: '#FFFF', // Blue background
+        padding: 10, // Add padding
+        borderRadius: 10, // Add a border radius
+        marginTop: 10, // Add some margin to the top
+        borderColor: '#D9D9D9',
+        borderStyle: 'solid',
+        borderWidth: 1,
+        flexDirection: 'row', // Align items horizontally
+        alignItems: 'center', // Center items vertically
+        justifyContent: 'center', // Center items horizontally 
+    },
+    colorText: {
+        color: '#7E7E7E', // Black text 
+    },
+    cancel: {
+        backgroundColor: '#D9D9D9',
+        padding: 10,
+        borderRadius: 10,
+
+    },
+    lineAlign: {
+        flexDirection: 'row', // Align items horizontally
+        alignItems: 'center', // Center items vertically
+        justifyContent: 'space-evenly', // Add space between the buttons
+        width: '100%' // Make the buttons take up the full width of the modal
+    },
+    titulo: {
+        fontSize: 20, // Larger font size
+        fontWeight: 'bold', // Bold font
+        marginBottom: 10, // Add some margin to the bottom
+        color: '#7E7E7E' // Gray text
+    },
+    comercioView: {
+        margin: 0,
+        backgroundColor: "#f0f0f0",
+        borderRadius: 15,
+        padding: 0,
+        alignItems: "left",
+        justifyContent: "space-between",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        height: '90%',
+        width: '95%'
+    },
+    comercioDireccion: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 5,
+        color: '#888',
+        marginLeft: 5,
+    },
+    comercioTelefono: {
+        fontSize: 15,
+        color: '#888',
+        marginLeft: 5,
+        paddingLeft: 5,
+    },
+    comercioDescripcion: {
+        fontSize: 15,
+        color: '#888',
+    },
+    comercioTitulo: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        marginBottom: 5,
+    },
+    comercioProveedor: {
+        fontSize: 18,
+        color: '#888',
+        marginLeft: 5,
+    },
+    carouselImage: {
+        width: '100%',
+        height: 200,
+        borderRadius: 20,
+    },
+    busqueda: {
+        height: 40,
+        width: '80%',
+        borderColor: 'gray',
+        borderWidth: 1,
+        margin: 10,
+        paddingLeft: 10,
+        borderRadius: 10
+    },
+    // filterAlign: {
+    //     flexDirection: 'row',
+    //     justifyContent: 'space-evenly',
+    //     alignItems: 'center',
+    //     width: '100%'
+    // },
+    // searchSection: {
+    //     flexDirection: 'row',
+    //     justifyContent: 'center',
+    //     alignItems: 'center',
+    //     backgroundColor: '#fff',
+    // },
+    searchIcon: {
+        padding: 10,
+    },
+    // inputSearch: {
+    //     flex: 1,
+    //     paddingTop: 10,
+    //     paddingRight: 10,
+    //     paddingBottom: 10,
+    //     paddingLeft: 0,
+    //     backgroundColor: '#fff',
+    //     color: '#424242',
+    // },
+    image: {
+        width: 150, // Set your desired width
+        height: '100%', // Set your desired height
+        borderTopLeftRadius: 10,
+        borderBottomLeftRadius: 10,
+        //ajustar imagen al tamaño del contenedor
+        resizeMode: 'cover',
+    },
+    horariosAlign: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        width: '100%'
+    },
+    picker: {
+        height: 40,
+        width: '40%',
+        margin: 12,
+        borderWidth: 1,
+        padding: 10,
+        borderRadius: 10,
+        color: '#333',
+        borderColor: '#4bdaa3',
+    },
+    previewContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+    },
+    previewImage: {
+        width: 50,
+        height: 50,
+        margin: 5,
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: 25, // Adjust size as needed
+        height: 25, // Adjust size as needed
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'grey', // Customize as needed
+        borderRadius: 25, // Adjust size as needed
+    },
+    cerrarBtn: {
+        backgroundColor: '#fd746c',
+        padding: 5,
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cerrarBtnText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 20,
+    },
+    estadoContainer: {
+        backgroundColor: '#ecf0f1',
+        padding: 20,
+        borderRadius: 5,
+        borderColor: '#fd746c',
+        borderWidth: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 10,
+    },
+    paso: {
+        backgroundColor: '#fd746c',
+        color: 'white',
+        borderRadius: 50,
+        padding: 5,
+        width: 30,
+        height: 30,
+        textAlign: 'center',
+
+    },
+    estadoTextos: {
+        width: '80%',
+    },
+
 });
 
 export default Denuncias;
