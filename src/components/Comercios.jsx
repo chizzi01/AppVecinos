@@ -9,6 +9,7 @@ import postComercio from '../controllers/postComercio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CardComercio from './CardComercio';
 import CarousellImagenes from './CarousellImagenes';
+import ModalEnviado from './ModalEnviado';
 
 
 const Comercios = (logueado) => {
@@ -28,6 +29,7 @@ const Comercios = (logueado) => {
     const [contacto, setContacto] = useState('');
     const [imagenes, setImagenes] = useState([]);
     const [vistasPrevia, setVistasPrevia] = useState([]);
+    const [modalEnviado, setModalEnviado] = useState(false);
 
 
     const [comercios, setComercios] = useState([])
@@ -45,7 +47,7 @@ const Comercios = (logueado) => {
         const response = await postComercio(image, storedValue, nombreComercio, descripcion, direccion, contacto)
             .then(() => {
                 setModalVisible(false);
-
+                setModalEnviado(true);
             });
     };
 
@@ -159,7 +161,7 @@ const Comercios = (logueado) => {
                     </View>
                 </View>
             </Modal>
-
+            <ModalEnviado texto="El comercio sera revisado, le avisaremos cuando esté validado" isVisible={modalEnviado} />
             <Modal
                 animationType="slide"
                 transparent={true}

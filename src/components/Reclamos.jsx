@@ -7,6 +7,7 @@ import { Picker } from '@react-native-picker/picker';
 import getReclamos from '../controllers/reclamos';
 import CarousellImagenes from './CarousellImagenes';
 import postReclamo from '../controllers/postReclamo';
+import ModalEnviado from './ModalEnviado';
 
 
 
@@ -25,6 +26,7 @@ const Reclamos = () => {
     const [selectedReclamo, setSelectedReclamo] = useState(null);
     const [imagenes, setImagenes] = useState([]);
     const [vistasPrevia, setVistasPrevia] = useState([]);
+    const [modalEnviado, setModalEnviado] = useState(false);
 
 
     const [reclamos, setReclamos] = useState([])
@@ -42,6 +44,7 @@ const Reclamos = () => {
             setRubro('');
             setImagenes([]);
             setVistasPrevia([]);
+            setModalEnviado(true);
         }
         );
     };
@@ -179,7 +182,7 @@ const Reclamos = () => {
                     </View>
                 </View>
             </Modal>
-
+            <ModalEnviado texto="Reclamo enviado" isVisible={modalEnviado} />
             <Modal
                 animationType="slide"
                 transparent={true}

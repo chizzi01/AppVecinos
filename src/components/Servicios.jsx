@@ -10,8 +10,7 @@ import { Picker } from '@react-native-picker/picker';
 import postServicios from '../controllers/postServicio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CarousellImagenes from './CarousellImagenes';
-import { he } from 'date-fns/locale';
-import { height, width } from 'deprecated-react-native-prop-types/DeprecatedImagePropType';
+import ModalEnviado  from './ModalEnviado';
 
 const Servicios = (logueado) => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -33,6 +32,7 @@ const Servicios = (logueado) => {
     const [image, setImage] = useState(null);
     const [imagenes, setImagenes] = useState([]);
     const [vistasPrevia, setVistasPrevia] = useState([]);
+    const [modalEnviado, setModalEnviado] = useState(false);
 
     const [servicios, setServicios] = useState([])
     useEffect(() => {
@@ -50,8 +50,12 @@ const Servicios = (logueado) => {
             const response = await postServicios(imagenes, storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion);
             console.log(response);
             setModalVisible(false);
+            setModalEnviado(true);
         } catch (error) {
+            alert('Error al enviar el servicio', error);
             console.error('Error al enviar el servicio:', error);
+            console.log(error.name);
+            console.log(error.message);
             // Aquí puedes manejar el error, por ejemplo, mostrando un mensaje al usuario
         }
     };
@@ -209,6 +213,8 @@ const Servicios = (logueado) => {
                         </View>
                     </ScrollView>
                 </Modal>
+
+                <ModalEnviado texto="El servicio sera revisado, le avisaremos cuando esté validado" isVisible={modalEnviado} />
 
                 <Modal
                     animationType="slide"

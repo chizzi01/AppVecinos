@@ -6,6 +6,8 @@ import * as MediaLibrary from 'expo-media-library';
 import { Picker } from '@react-native-picker/picker';
 import CarousellImagenes from './CarousellImagenes';
 import postDenuncia from '../controllers/postDenuncia';
+import ModalEnviado from './ModalEnviado';
+import { set } from 'date-fns';
 
 
 
@@ -26,6 +28,7 @@ const Denuncias = () => {
     const [selectedDenuncia, setSelectedDenuncia] = useState(null);
     const [imagenes, setImagenes] = useState([]);
     const [vistasPrevia, setVistasPrevia] = useState([]);
+    const [modalEnviado, setModalEnviado] = useState(false);
 
 
     const handleSave = () => {
@@ -48,8 +51,8 @@ const Denuncias = () => {
         postDenuncia(imagenes, vecinoDenuncia, direccion, motivo)
             .then(response => {
                 if (response.ok) {
-                    alert('Denuncia creada con éxito');
                     setModalVisible(false);
+                    setModalEnviado(true);
                 } else {
                     alert('Ocurrió un error al crear la denuncia');
                 }
@@ -219,7 +222,7 @@ const Denuncias = () => {
                     </View>
                 </View>
             </Modal>
-
+            <ModalEnviado texto="Denuncia enviada" isVisible={modalEnviado} />
             <Modal
                 animationType="slide"
                 transparent={true}
