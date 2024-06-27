@@ -1,13 +1,14 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text, Image, RefreshControl } from 'react-native';
+import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text, Image, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
+import * as DocumentPicker from 'expo-document-picker';
 import { Picker } from '@react-native-picker/picker';
 import CarousellImagenes from './CarousellImagenes';
 import postDenuncia from '../controllers/postDenuncia';
 import ModalEnviado from './ModalEnviado';
-import { set } from 'date-fns';
+import getDenuncias from '../controllers/denuncias';
 
 
 
@@ -38,6 +39,7 @@ const Denuncias = () => {
         const fetchData = async () => {
             setLoading(true);
             await getDenuncias(setDenuncias);
+            console.log(denuncias);
             setLoading(false);
         };
         fetchData();
@@ -85,25 +87,60 @@ const Denuncias = () => {
             });
     };
 
-    const pickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsMultipleSelection: true, // Asegúrate de que tu versión de expo-image-picker soporte esta opción
-            quality: 1,
-        });
 
-        if (!result.cancelled && result.assets) {
-            if (result.assets.length > 7) {
-                alert('No puedes seleccionar más de 7 imágenes.');
-                return;
+    const pickDocument = async () => {
+        let documentosSeleccionados = [];
+
+        const solicitarOtroDocumento = async () => {
+            return new Promise((resolve) => {
+                Alert.alert(
+                    "Seleccionar más documentos",
+                    "¿Deseas seleccionar otro documento?",
+                    [
+                        {
+                            text: "No",
+                            onPress: () => resolve(false),
+                            style: "cancel"
+                        },
+                        { text: "Sí", onPress: () => resolve(true) }
+                    ]
+                );
+            });
+        };
+
+        while (documentosSeleccionados.length < 7) {
+            const result = await DocumentPicker.getDocumentAsync({});
+
+            if (result.type === 'cancel') {
+                break;
             }
-            setImagenes(result.assets);
-            const vistasPreviaUrls = result.assets.map((img) => img.uri);
-            setVistasPrevia(vistasPreviaUrls);
+
+            documentosSeleccionados.push(result);
+
+            if (documentosSeleccionados.length < 7) {
+                const continuarSeleccionando = await solicitarOtroDocumento();
+                if (!continuarSeleccionando) break;
+            }
         }
-        // console.log(result);
-        // console.log(imagenes);
-        // console.log(vistasPrevia);
+
+        // Actualizar el estado con los documentos seleccionados
+        setImagenes(documentosSeleccionados);
+
+        const vistasPreviaUrls = documentosSeleccionados.map((doc) => {
+            // Asumiendo que siempre quieres el primer objeto dentro de 'assets'
+            const primerAsset = doc.assets && doc.assets[0] ? doc.assets[0] : null;
+        
+            return {
+                // Usa un valor predeterminado si 'primerAsset' es null
+                uri: primerAsset ? primerAsset.uri : 'about:blank',
+                type: primerAsset && primerAsset.mimeType ? primerAsset.mimeType : 'application/pdf', // Asumiendo un tipo por defecto
+            };
+        });
+        
+        console.log('Vistas previas:', vistasPreviaUrls);
+        setVistasPrevia(vistasPreviaUrls);
+
+        // Si necesitas hacer algo más con los documentos seleccionados, hazlo aquí
     };
 
     const eliminarImagen = (index) => {
@@ -115,21 +152,10 @@ const Denuncias = () => {
     };
 
 
-    // const denuncias = [
-    //     { motivo: 'Denuncia 1', codigo: 1, direccion: 'Calle 123', ultActualizacion: 'Hace 2 horas', generada: true, vecino: 'Juan perez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-    //     { motivo: 'Denuncia 2', codigo: 2, direccion: 'Calle 456', ultActualizacion: 'Hace 5 horas', generada: true, vecino: 'Maria Rodriguez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-    //     { motivo: 'Denuncia 3', codigo: 3, direccion: 'Calle 789', ultActualizacion: 'Hace 10 horas', generada: false, vecino: 'Pedro Gomez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-    //     { motivo: 'Denuncia 4', codigo: 4, direccion: 'Calle 1011', ultActualizacion: 'Hace 15 horas', generada: false, vecino: 'Ana Fernandez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-    //     { motivo: 'Denuncia 5', codigo: 5, direccion: 'Calle 1213', ultActualizacion: 'Hace 20 horas', generada: true, vecino: 'Carlos Lopez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-    //     { motivo: 'Denuncia 6', codigo: 6, direccion: 'Calle 1415', ultActualizacion: 'Hace 25 horas', generada: true, vecino: 'Silvia Martinez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-    //     { motivo: 'Denuncia 7', codigo: 7, direccion: 'Calle 1617', ultActualizacion: 'Hace 30 horas', generada: false, vecino: 'Roberto Perez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-    //     { motivo: 'Denuncia 8', codigo: 8, direccion: 'Calle 1819', ultActualizacion: 'Hace 35 horas', generada: false, vecino: 'Marta Rodriguez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-    //     { motivo: 'Denuncia 9', codigo: 9, direccion: 'Calle 2021', ultActualizacion: 'Hace 40 horas', generada: true, vecino: 'Juan Perez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-    // ];
-
     const filteredDenuncias = denuncias.filter(denuncia =>
-        denuncia.motivo.toLowerCase().includes(search.toLowerCase()) &&
-        (generada === "" || denuncia.generada === generada)
+        denuncia.idDenuncias.toString().includes(search.toString().toLowerCase())
+        // &&
+        // (generada === "" || denuncia.generada === generada)
     );
 
     return (
@@ -160,20 +186,25 @@ const Denuncias = () => {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
             >
-                {filteredDenuncias.map((denuncia, index) => (
-                    <TouchableOpacity key={index} onPress={() => { setSelectedDenuncia(denuncia); setModalDenunciasVisible(true); }} >
-                        <View key={denuncia.codigo} style={styles.denunciasCard}>
-                            <Text style={styles.titulo}>🚨 {denuncia.motivo}</Text>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Ionicons name="location" size={15} color="#7E7E7E" />
-                                <Text style={styles.direccion}>{denuncia.direccion}</Text>
+                {loading ? (
+                    // Muestra el spinner si los datos aún se están cargando
+                    <ActivityIndicator size="large" color="#ff834e" style={{ marginTop: 20 }} />
+                ) : (
+                    filteredDenuncias.map((denuncia, index) => (
+                        <TouchableOpacity key={index} onPress={() => { setSelectedDenuncia(denuncia); setModalDenunciasVisible(true); }} >
+                            <View key={denuncia.codigo} style={styles.denunciasCard}>
+                                <Text style={styles.titulo}>🚨 {denuncia.sitios.descripcion}</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Ionicons name="location" size={15} color="#7E7E7E" />
+                                    <Text style={styles.direccion}>{denuncia.sitios.descripcion}</Text>
+                                </View>
+                                <Text>Última actualizacion: {denuncia.ultActualizacion}</Text>
                             </View>
-                            <Text>Última actualizacion: {denuncia.ultActualizacion}</Text>
-                        </View>
-                    </TouchableOpacity>
+                        </TouchableOpacity>
 
 
-                ))}
+                    ))
+                )}
             </ScrollView>
             <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
                 <Ionicons name="add" size={30} color="white" />
@@ -216,14 +247,22 @@ const Denuncias = () => {
                         <TextInput style={styles.input} placeholder="Dirección" onChangeText={setDireccion} selectionColor="#fd746c" />
                         <TextInput style={styles.input} placeholder="Informacion adicional" onChangeText={setDescripcion} multiline={true}
                             numberOfLines={4} selectionColor="#fd746c" />
-                        <TouchableOpacity style={styles.addImg} onPress={pickImage}>
+                        <TouchableOpacity style={styles.addImg} onPress={pickDocument}>
                             <Ionicons name="attach" size={20} color="grey" />
-                            <Text style={styles.colorText}>Adjuntar imagenes</Text>
+                            <Text style={styles.colorText}>Adjuntar documentos</Text>
                         </TouchableOpacity>
                         <View style={styles.previewContainer}>
-                            {vistasPrevia.map((imgUri, index) => (
+                            {vistasPrevia.map((file, index) => (
                                 <View key={index} style={styles.imageContainer}>
-                                    <Image source={{ uri: imgUri }} style={styles.previewImage} />
+                                    {file.type.includes('image/') ? (
+                                        <Image source={{ uri: file.uri }} style={styles.previewImage} />
+                                    ) : (
+                                        // Aquí puedes usar un componente o imagen genérica para representar documentos no-imagen
+                                        <View style={styles.genericFileContainer}>
+                                            <Ionicons name="document" size={50} color="#fd746c" />
+                                            {/* Opcionalmente, usa un ícono basado en el tipo de archivo */}
+                                        </View>
+                                    )}
                                     <TouchableOpacity
                                         style={styles.closeButton}
                                         onPress={() => eliminarImagen(index)}
