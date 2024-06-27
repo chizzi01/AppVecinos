@@ -36,7 +36,7 @@ const Reclamos = () => {
 
 
     const handleSave = () => {
-        postReclamo(imagenes[0], instalacionAfectada, tipoDesperfecto, descripcion, rubro, 'direccion').then(() => {
+        postReclamo(imagenes, instalacionAfectada, tipoDesperfecto, descripcion, rubro).then(() => {
             setModalReclamosVisible(false);
             setInstalacionAfectada('');
             setTipoDesperfecto('');

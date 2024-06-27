@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text } from 'react-native';
 import CardServicio from './CardServicio';
-import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, Image, ActivityIndicator, KeyboardAvoidingView, KeyboardAvoidingViewComponent } from 'react-native';
+import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, Image, ActivityIndicator, KeyboardAvoidingView, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
@@ -10,7 +10,7 @@ import { Picker } from '@react-native-picker/picker';
 import postServicios from '../controllers/postServicio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CarousellImagenes from './CarousellImagenes';
-import ModalEnviado  from './ModalEnviado';
+import ModalEnviado from './ModalEnviado';
 
 const Servicios = (logueado) => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -33,11 +33,36 @@ const Servicios = (logueado) => {
     const [imagenes, setImagenes] = useState([]);
     const [vistasPrevia, setVistasPrevia] = useState([]);
     const [modalEnviado, setModalEnviado] = useState(false);
-
+    const [refreshing, setRefreshing] = useState(false);
     const [servicios, setServicios] = useState([])
+
+
     useEffect(() => {
-        getServicios(setServicios).then(() => setLoading(false));
+        const fetchData = async () => {
+            setLoading(true);
+            await getServicios(setServicios);
+            setLoading(false);
+        };
+        fetchData();
+        const getData = async () => {
+            try {
+                const value = await AsyncStorage.getItem('documento');
+                if (value !== null) {
+                    setStoredValue(value);
+                }
+            } catch (e) {
+                console.error('Failed to fetch the data from storage', e);
+            }
+        };
+        getData();
     }, []);
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await getServicios(setServicios);
+        setRefreshing(false);
+    }, []);
+
 
 
     const getData = async () => { try { const value = await AsyncStorage.getItem('token'); if (value !== null) { setStoredValue(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
@@ -45,20 +70,19 @@ const Servicios = (logueado) => {
     useEffect(() => { getData(); }, []);
 
     const handleSave = async () => {
-        console.log(image);
         try {
             const response = await postServicios(imagenes, storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion);
-            console.log(response);
+            console.log('Response from postServicios:', response);
             setModalVisible(false);
             setModalEnviado(true);
         } catch (error) {
-            alert('Error al enviar el servicio', error);
+            alert('Error al enviar el servicio: ' + error.message);
             console.error('Error al enviar el servicio:', error);
-            console.log(error.name);
-            console.log(error.message);
-            // Aquí puedes manejar el error, por ejemplo, mostrando un mensaje al usuario
         }
     };
+
+
+
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -76,9 +100,6 @@ const Servicios = (logueado) => {
             const vistasPreviaUrls = result.assets.map((img) => img.uri);
             setVistasPrevia(vistasPreviaUrls);
         }
-        // console.log(result);
-        // console.log(imagenes);
-        // console.log(vistasPrevia);
     };
 
     const eliminarImagen = (index) => {
@@ -111,7 +132,12 @@ const Servicios = (logueado) => {
                         onChangeText={text => setSearch(text)}
                     />
                 </View>
-                <ScrollView>
+                <ScrollView
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
+                >
                     {loading ? (
                         // Muestra el spinner si los datos aún se están cargando
                         <ActivityIndicator size="large" color="#ff834e" style={{ marginTop: 20 }} />
@@ -249,9 +275,9 @@ const Servicios = (logueado) => {
                                     </View>
                                 </>
                             )}
-                            <TouchableOpacity title="Cerrar" style={styles.cerrarBtn} onPress={() => setModalServicioVisible(false)}> 
+                            <TouchableOpacity title="Cerrar" style={styles.cerrarBtn} onPress={() => setModalServicioVisible(false)}>
                                 <Text style={styles.cerrarBtnText}>Cerrar</Text>
-                            </TouchableOpacity> 
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>

@@ -1,25 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text, Image, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text, Image, ActivityIndicator, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibrary from 'expo-media-library';
-import { Picker } from '@react-native-picker/picker';
-import getComercios from '../controllers/comercios';
-import postComercio from '../controllers/postComercio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CardComercio from './CardComercio';
 import CarousellImagenes from './CarousellImagenes';
 import ModalEnviado from './ModalEnviado';
+import getComercios from '../controllers/comercios';
+import postComercio from '../controllers/postComercio';
 
-
-const Comercios = (logueado) => {
+const Comercios = ( logueado ) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalComercioVisible, setModalComercioVisible] = useState(false);
     const [selectedComercio, setSelectedComercio] = useState(null);
     const [nombreComercio, setNombreComercio] = useState('');
     const [direccion, setDireccion] = useState('');
-    const [horaInicio, setHoraInicio] = useState('Apertura');
-    const [horaFin, setHoraFin] = useState('Cierre');
     const [telefono, setTelefono] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [search, setSearch] = useState('');
@@ -30,32 +25,47 @@ const Comercios = (logueado) => {
     const [imagenes, setImagenes] = useState([]);
     const [vistasPrevia, setVistasPrevia] = useState([]);
     const [modalEnviado, setModalEnviado] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [comercios, setComercios] = useState([]);
 
-
-    const [comercios, setComercios] = useState([])
     useEffect(() => {
-        getComercios(setComercios).then(() => setLoading(false));
+        const fetchData = async () => {
+            setLoading(true);
+            await getComercios(setComercios);
+            setLoading(false);
+        };
+        fetchData();
+        const getData = async () => {
+            try {
+                const value = await AsyncStorage.getItem('documento');
+                if (value !== null) {
+                    setStoredValue(value);
+                }
+            } catch (e) {
+                console.error('Failed to fetch the data from storage', e);
+            }
+        };
+        getData();
     }, []);
 
-
-    const getData = async () => { try { const value = await AsyncStorage.getItem('documento'); if (value !== null) { setStoredValue(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
-
-    useEffect(() => { getData(); }, []);
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await getComercios(setComercios);
+        setRefreshing(false);
+    }, []);
 
     const handleSave = async () => {
-        console.log(image)
-        const response = await postComercio(image, storedValue, nombreComercio, descripcion, direccion, contacto)
+        await postComercio(imagenes, storedValue, nombreComercio, descripcion, direccion, contacto)
             .then(() => {
                 setModalVisible(false);
                 setModalEnviado(true);
             });
     };
 
-
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsMultipleSelection: true, // Asegúrate de que tu versión de expo-image-picker soporte esta opción
+            allowsMultipleSelection: true,
             quality: 1,
         });
 
@@ -64,25 +74,20 @@ const Comercios = (logueado) => {
                 alert('No puedes seleccionar más de 7 imágenes.');
                 return;
             }
+            const newImages = result.assets.map((img) => img.uri);
             setImagenes(result.assets);
-            const vistasPreviaUrls = result.assets.map((img) => img.uri);
-            setVistasPrevia(vistasPreviaUrls);
+            setVistasPrevia(newImages);
         }
-        // console.log(result);
-        // console.log(imagenes);
-        // console.log(vistasPrevia);
     };
 
     const eliminarImagen = (index) => {
-        const nuevasImagenes = [...imagenes];
-        nuevasImagenes.splice(index, 1);
+        const nuevasImagenes = imagenes.filter((_, i) => i !== index);
+        const nuevasVistasPrevia = nuevasImagenes.map((img) => img.uri);
         setImagenes(nuevasImagenes);
-        const vistasPreviaUrls = nuevasImagenes.map((img) => img.uri);
-        setVistasPrevia(vistasPreviaUrls);
+        setVistasPrevia(nuevasVistasPrevia);
     };
 
     const filteredComercios = comercios.filter(comercio => comercio.nombreComercio.toLowerCase().includes(search.toLowerCase()));
-    const horario = horaInicio + ' - ' + horaFin;
 
     return (
         <SafeAreaView style={styles.container}>
@@ -95,7 +100,12 @@ const Comercios = (logueado) => {
                     onChangeText={text => setSearch(text)}
                 />
             </View>
-            <ScrollView>
+            <ScrollView
+                contentContainerStyle={{ flexGrow: 1 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+            >
                 {loading ? (
                     // Muestra el spinner si los datos aún se están cargando
                     <ActivityIndicator size="large" color="#03A9F4" style={{ marginTop: 20 }} />
