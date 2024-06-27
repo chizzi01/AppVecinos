@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text,Image } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text, Image, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
@@ -29,6 +29,28 @@ const Denuncias = () => {
     const [imagenes, setImagenes] = useState([]);
     const [vistasPrevia, setVistasPrevia] = useState([]);
     const [modalEnviado, setModalEnviado] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [denuncias, setDenuncias] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            await getDenuncias(setDenuncias);
+            setLoading(false);
+        };
+        fetchData();
+    }, []);
+
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await getDenuncias(setDenuncias);
+        setRefreshing(false);
+    }, []);
+
+
 
 
     const handleSave = () => {
@@ -93,17 +115,17 @@ const Denuncias = () => {
     };
 
 
-    const denuncias = [
-        { motivo: 'Denuncia 1', codigo: 1, direccion: 'Calle 123', ultActualizacion: 'Hace 2 horas', generada: true, vecino: 'Juan perez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-        { motivo: 'Denuncia 2', codigo: 2, direccion: 'Calle 456', ultActualizacion: 'Hace 5 horas', generada: true, vecino: 'Maria Rodriguez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-        { motivo: 'Denuncia 3', codigo: 3, direccion: 'Calle 789', ultActualizacion: 'Hace 10 horas', generada: false, vecino: 'Pedro Gomez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-        { motivo: 'Denuncia 4', codigo: 4, direccion: 'Calle 1011', ultActualizacion: 'Hace 15 horas', generada: false, vecino: 'Ana Fernandez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-        { motivo: 'Denuncia 5', codigo: 5, direccion: 'Calle 1213', ultActualizacion: 'Hace 20 horas', generada: true, vecino: 'Carlos Lopez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-        { motivo: 'Denuncia 6', codigo: 6, direccion: 'Calle 1415', ultActualizacion: 'Hace 25 horas', generada: true, vecino: 'Silvia Martinez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-        { motivo: 'Denuncia 7', codigo: 7, direccion: 'Calle 1617', ultActualizacion: 'Hace 30 horas', generada: false, vecino: 'Roberto Perez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-        { motivo: 'Denuncia 8', codigo: 8, direccion: 'Calle 1819', ultActualizacion: 'Hace 35 horas', generada: false, vecino: 'Marta Rodriguez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-        { motivo: 'Denuncia 9', codigo: 9, direccion: 'Calle 2021', ultActualizacion: 'Hace 40 horas', generada: true, vecino: 'Juan Perez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
-    ];
+    // const denuncias = [
+    //     { motivo: 'Denuncia 1', codigo: 1, direccion: 'Calle 123', ultActualizacion: 'Hace 2 horas', generada: true, vecino: 'Juan perez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+    //     { motivo: 'Denuncia 2', codigo: 2, direccion: 'Calle 456', ultActualizacion: 'Hace 5 horas', generada: true, vecino: 'Maria Rodriguez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+    //     { motivo: 'Denuncia 3', codigo: 3, direccion: 'Calle 789', ultActualizacion: 'Hace 10 horas', generada: false, vecino: 'Pedro Gomez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+    //     { motivo: 'Denuncia 4', codigo: 4, direccion: 'Calle 1011', ultActualizacion: 'Hace 15 horas', generada: false, vecino: 'Ana Fernandez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+    //     { motivo: 'Denuncia 5', codigo: 5, direccion: 'Calle 1213', ultActualizacion: 'Hace 20 horas', generada: true, vecino: 'Carlos Lopez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+    //     { motivo: 'Denuncia 6', codigo: 6, direccion: 'Calle 1415', ultActualizacion: 'Hace 25 horas', generada: true, vecino: 'Silvia Martinez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+    //     { motivo: 'Denuncia 7', codigo: 7, direccion: 'Calle 1617', ultActualizacion: 'Hace 30 horas', generada: false, vecino: 'Roberto Perez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+    //     { motivo: 'Denuncia 8', codigo: 8, direccion: 'Calle 1819', ultActualizacion: 'Hace 35 horas', generada: false, vecino: 'Marta Rodriguez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+    //     { motivo: 'Denuncia 9', codigo: 9, direccion: 'Calle 2021', ultActualizacion: 'Hace 40 horas', generada: true, vecino: 'Juan Perez', estado: { descripcion: 'La denuncia fue derivada al Dpto municipal', paso: 1 } },
+    // ];
 
     const filteredDenuncias = denuncias.filter(denuncia =>
         denuncia.motivo.toLowerCase().includes(search.toLowerCase()) &&
@@ -132,7 +154,12 @@ const Denuncias = () => {
                     <Picker.Item label="Recibidas" value={false} />
                 </Picker>
             </View>
-            <ScrollView>
+            <ScrollView
+                contentContainerStyle={{ flexGrow: 1 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+            >
                 {filteredDenuncias.map((denuncia, index) => (
                     <TouchableOpacity key={index} onPress={() => { setSelectedDenuncia(denuncia); setModalDenunciasVisible(true); }} >
                         <View key={denuncia.codigo} style={styles.denunciasCard}>
@@ -249,7 +276,7 @@ const Denuncias = () => {
                                         <Text style={styles.comercioTelefono}>{selectedDenuncia.direccion}</Text>
                                     </View>
                                     <Text style={styles.comercioDescripcion}>{selectedDenuncia.motivo}</Text>
-                                    <View style={{paddingTop:15}}>
+                                    <View style={{ paddingTop: 15 }}>
                                         <Text style={styles.titulo}>Estado</Text>
                                         <View style={styles.estadoContainer}>
                                             <View>
@@ -500,7 +527,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'space-evenly',
         height: 300,
-        gap: 20,  
+        gap: 20,
     },
     modalView: {
         margin: 20,

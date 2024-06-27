@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text, ActivityIndicator, Image } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Button, TextInput, View, Text, ActivityIndicator, Image, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
@@ -27,11 +27,23 @@ const Reclamos = () => {
     const [imagenes, setImagenes] = useState([]);
     const [vistasPrevia, setVistasPrevia] = useState([]);
     const [modalEnviado, setModalEnviado] = useState(false);
-
-
+    const [refreshing, setRefreshing] = useState(false);
     const [reclamos, setReclamos] = useState([])
+
     useEffect(() => {
-        getReclamos(setReclamos).then(() => setLoading(false));
+        const fetchData = async () => {
+            setLoading(true);
+            await getReclamos(setReclamos);
+            setLoading(false);
+        };
+        fetchData();
+    }, []);
+
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await getReclamos(setReclamos);
+        setRefreshing(false);
     }, []);
 
 
@@ -85,15 +97,15 @@ const Reclamos = () => {
             aspect: [4, 3],
             quality: 1,
         });
-    
+
         console.log(result);
-    
+
         if (!result.cancelled && result.assets && result.assets.length > 0) {
             // Asegurarse de que assets existe y tiene al menos un elemento
             const firstAsset = result.assets[0]; // Acceder al primer objeto de assets
             const nuevasImagenes = [...imagenes, { uri: firstAsset.uri }];
             setImagenes(nuevasImagenes);
-    
+
             // Actualizar las vistas previas con las nuevas URIs
             const vistasPreviaUrls = nuevasImagenes.map((img) => img.uri);
             setVistasPrevia(vistasPreviaUrls);
@@ -127,7 +139,12 @@ const Reclamos = () => {
                     <Picker.Item label="Carpinteria" value="carpinteria" />
                 </Picker>
             </View>
-            <ScrollView>
+            <ScrollView
+                contentContainerStyle={{ flexGrow: 1 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+            >
                 {loading ? (
                     // Muestra el spinner si los datos aún se están cargando
                     <ActivityIndicator size="large" color="#2c3e50" style={{ marginTop: 20 }} />
