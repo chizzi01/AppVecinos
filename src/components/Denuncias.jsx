@@ -319,11 +319,11 @@ const Denuncias = () => {
                                         <Text style={styles.titulo}>Estado</Text>
                                         <View style={styles.estadoContainer}>
                                             <View>
-                                                <Text style={styles.paso}>{selectedDenuncia.estado.paso}</Text>
+                                            <Text style={styles.paso}>{selectedDenuncia.estado?.paso || '1'}</Text>
                                             </View>
                                             <View style={styles.estadoTextos}>
-                                                <Text>{selectedDenuncia.estado.descripcion}</Text>
-                                                <Text style={{ color: "grey" }}>Ultima actualizacion: {selectedDenuncia.ultActualizacion}</Text>
+                                            <Text>{selectedDenuncia.estado?.descripcion || 'Descripción no disponible'}</Text>
+                                            <Text style={{ color: "grey" }}>Ultima actualizacion: {selectedDenuncia.ultActualizacion || 'No disponible'}</Text>
                                             </View>
                                         </View>
                                     </View>
