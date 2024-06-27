@@ -163,7 +163,7 @@ const Reclamos = () => {
                         {selectedReclamo && (
                             <>
                                 <View style={{ maxWidth: '100%', overflow: 'hidden', borderTopLeftRadius: 15, borderTopRightRadius: 15 }}>
-                                    <CarousellImagenes idServicio={selectedReclamo.idReclamoImagen} tipo={"reclamos"} />
+                                    <CarousellImagenes idServicio={selectedReclamo.idReclamo} tipo={"reclamos"} />
                                 </View>
                                 <View style={styles.contentView}>
                                     <Text style={styles.reclamoId}>Reclamo #{selectedReclamo.idReclamo}</Text>
