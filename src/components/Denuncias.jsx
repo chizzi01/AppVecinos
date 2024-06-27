@@ -129,27 +129,26 @@ const Denuncias = () => {
         const vistasPreviaUrls = documentosSeleccionados.map((doc) => {
             // Asumiendo que siempre quieres el primer objeto dentro de 'assets'
             const primerAsset = doc.assets && doc.assets[0] ? doc.assets[0] : null;
-        
+
             return {
                 // Usa un valor predeterminado si 'primerAsset' es null
                 uri: primerAsset ? primerAsset.uri : 'about:blank',
                 type: primerAsset && primerAsset.mimeType ? primerAsset.mimeType : 'application/pdf', // Asumiendo un tipo por defecto
             };
         });
-        
+
         console.log('Vistas previas:', vistasPreviaUrls);
         setVistasPrevia(vistasPreviaUrls);
 
         // Si necesitas hacer algo más con los documentos seleccionados, hazlo aquí
     };
 
-    const eliminarImagen = (index) => {
-        const nuevasImagenes = [...imagenes];
-        nuevasImagenes.splice(index, 1);
-        setImagenes(nuevasImagenes);
-        const vistasPreviaUrls = nuevasImagenes.map((img) => img.uri);
-        setVistasPrevia(vistasPreviaUrls);
-    };
+    function eliminarImagen(index) {
+        // Crea una copia del array sin el elemento en el índice especificado
+        const newArray = vistasPrevia.filter((_, i) => i !== index);
+        // Actualiza el estado o la variable que contiene las vistas previas con el nuevo array
+        setVistasPrevia(newArray);
+    }
 
 
     const filteredDenuncias = denuncias.filter(denuncia =>
@@ -252,25 +251,26 @@ const Denuncias = () => {
                             <Text style={styles.colorText}>Adjuntar documentos</Text>
                         </TouchableOpacity>
                         <View style={styles.previewContainer}>
-                            {vistasPrevia.map((file, index) => (
-                                <View key={index} style={styles.imageContainer}>
-                                    {file.type.includes('image/') ? (
-                                        <Image source={{ uri: file.uri }} style={styles.previewImage} />
-                                    ) : (
-                                        // Aquí puedes usar un componente o imagen genérica para representar documentos no-imagen
-                                        <View style={styles.genericFileContainer}>
-                                            <Ionicons name="document" size={50} color="#fd746c" />
-                                            {/* Opcionalmente, usa un ícono basado en el tipo de archivo */}
-                                        </View>
-                                    )}
-                                    <TouchableOpacity
-                                        style={styles.closeButton}
-                                        onPress={() => eliminarImagen(index)}
-                                    >
-                                        <Ionicons name="close" size={15} color="white" />
-                                    </TouchableOpacity>
-                                </View>
-                            ))}
+                            {vistasPrevia.map((file, index) => {
+                                if (!file) return null; // Skip rendering for undefined or null items
+                                return (
+                                    <View key={index} style={styles.imageContainer}>
+                                        {file.type.includes('image/') ? (
+                                            <Image source={{ uri: file.uri }} style={styles.previewImage} />
+                                        ) : (
+                                            <View style={styles.genericFileContainer}>
+                                                <Ionicons name="document-text-outline" size={55} color="grey" />
+                                            </View>
+                                        )}
+                                        <TouchableOpacity
+                                            style={styles.closeButton}
+                                            onPress={() => eliminarImagen(index)}
+                                        >
+                                            <Ionicons name="close" size={15} color="white" />
+                                        </TouchableOpacity>
+                                    </View>
+                                );
+                            })}
                         </View>
                         <TouchableOpacity
                             style={styles.checkboxContainer}
