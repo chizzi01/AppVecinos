@@ -40,6 +40,14 @@ const App = () => {
   const [logueado, setLogueado] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(true);
+  const [nombre, setNombre] = useState('');
+
+
+  const getData1 = async () => { try { const value = await AsyncStorage.getItem('nombre'); if (value !== null) { setNombre(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+
+  useEffect(() => {
+    getData1()
+  }, []);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -209,7 +217,7 @@ const App = () => {
         break;
       case '/perfil':
         appBarColor = '#57B27E';
-        titulo = 'Bienvenido/a ';
+        titulo = 'Bienvenido/a ' + nombre;
         break;
         case '/notificaciones':
           appBarColor = '#decf35';

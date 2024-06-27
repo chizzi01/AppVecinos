@@ -6,54 +6,55 @@ import cambiarPass from '../controllers/cambiarPass';
 
 
 const Card = ({ title }) => (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>{title}</Text>
-    </View>
-  );
+  <View style={styles.card}>
+    <Text style={styles.cardTitle}>{title}</Text>
+  </View>
+);
 
 
 
-  const Perfil = ({onPasswordChange }) => {
+const Perfil = ({ onPasswordChange }) => {
 
-    const [modalVisible, setModalVisible] = useState(false);
-    const [oldPassword, setOldPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [storedValue, setStoredValue] = useState('');
-    const [nombre, setNombre] = useState('');
-    const [apellido, setApellido] = useState('');
-    const [mail, setMail] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [storedValue, setStoredValue] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [apellido, setApellido] = useState('');
+  const [mail, setMail] = useState('');
 
-    const getData = async () => { try { const value = await AsyncStorage.getItem('documento'); if (value !== null) { setStoredValue(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
-    const getData1 = async () => { try { const value = await AsyncStorage.getItem('nombre'); if (value !== null) { setNombre(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
-    const getData2 = async () => { try { const value = await AsyncStorage.getItem('apellido'); if (value !== null) { setApellido(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
-    const getData3 = async () => { try { const value = await AsyncStorage.getItem('mail'); if (value !== null) { setMail(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+  const getData = async () => { try { const value = await AsyncStorage.getItem('documento'); if (value !== null) { setStoredValue(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+  const getData1 = async () => { try { const value = await AsyncStorage.getItem('nombre'); if (value !== null) { setNombre(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+  const getData2 = async () => { try { const value = await AsyncStorage.getItem('apellido'); if (value !== null) { setApellido(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+  const getData3 = async () => { try { const value = await AsyncStorage.getItem('mail'); if (value !== null) { setMail(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
 
 
-    useEffect(() => { getData();
-                      getData1()
-                      getData2()
-                      getData3()
-     }, []);
-  
-    const handleChangePassword = async () => {
+  useEffect(() => {
+    getData();
+    getData1()
+    getData2()
+    getData3()
+  }, []);
 
-      const reponse = await cambiarPass(storedValue, oldPassword, newPassword)
-      onPasswordChange(storedValue, oldPassword, newPassword);
-      
-      setModalVisible(false);
-    };
-    return (
-      <View style={styles.container}>
-        <View style={styles.profileIcon}>
-          <Ionicons name="person-circle" size={100} color="#4bdaa3" />
-        </View>
-        <Text style={styles.name}>{nombre} {apellido}</Text>
-        <Text style={styles.mail}>{mail}</Text>
-        <Card title="Mis comercios" />
-        <Card title="Mis servicios" />
-        <Card title="Mis denuncias" />
-        <Card title="Mis reclamos" />
-        <View style={styles.buttonContainer}>
+  const handleChangePassword = async () => {
+
+    const reponse = await cambiarPass(storedValue, oldPassword, newPassword)
+    onPasswordChange(storedValue, oldPassword, newPassword);
+
+    setModalVisible(false);
+  };
+  return (
+    <View style={styles.container}>
+      <View style={styles.profileIcon}>
+        <Ionicons name="person-circle" size={100} color="#4bdaa3" />
+      </View>
+      <Text style={styles.name}>{nombre} {apellido}</Text>
+      <Text style={styles.mail}>{mail}</Text>
+      <Card title="Mis comercios" />
+      <Card title="Mis servicios" />
+      <Card title="Mis denuncias" />
+      <Card title="Mis reclamos" />
+      <View style={styles.buttonContainer}>
         <Button title="Cambiar contraseña" onPress={() => setModalVisible(true)} color="#4bdaa3" />
       </View>
       <Modal
@@ -82,9 +83,9 @@ const Card = ({ title }) => (
           </View>
         </View>
       </Modal>
-      </View>
-    );
-  };
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
