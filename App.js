@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   Modal,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigate } from 'react-router-native';
 
 
 import Comercios from './src/components/Comercios';
@@ -41,6 +41,7 @@ const App = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(true);
   const [nombre, setNombre] = useState('');
+  // const navigate = useNavigate();
 
 
   const getData1 = async () => { try { const value = await AsyncStorage.getItem('nombre'); if (value !== null) { setNombre(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
@@ -89,7 +90,6 @@ const App = () => {
     await AsyncStorage.setItem('logueado', 'false');
     setLogueado(false);
     setModalVisible(false);
-    navigation.navigate('Login');
   };
 
 

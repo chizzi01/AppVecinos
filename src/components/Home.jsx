@@ -1,12 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
 import imagen from '../img/home.png';
 import { useNavigate } from 'react-router-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Home = () => {
   const [userType, setUserType] = useState('');
   const navigate = useNavigate();
+  const [logueado, setLogueado] = useState(false);
+
+  useEffect(() => {
+    const fetchLogueado = async () => {
+      const value = await AsyncStorage.getItem('logueado');
+      if (value !== null && value === 'vecino') {
+        setLogueado("vecino");
+        console.log('logueado');
+      } else {
+        setLogueado(false);
+      }
+    };
+
+    fetchLogueado();
+  }, []);
+
+  useEffect(() => {
+    if (logueado) {
+      navigate('/comercios');
+    }
+  }, [logueado]);
+
+
+  
   return (
     <ImageBackground source={imagen} style={styles.backgroundImage}>
       <View style={styles.loginView}>
