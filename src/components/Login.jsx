@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Modal, ImageBackground, ActivityIndicator, KeyboardAvoidingView } from "react-native";
 import theme from "../theme";
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +16,8 @@ import recuperarPass from "../controllers/recuperarPass";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import loginInspector from "../controllers/loginInspector";
 import recuperarPassInspector from "../controllers/recuperarPassInspector";
+import * as Notifications from 'expo-notifications';
+
 
 
 
@@ -285,7 +287,6 @@ const Login = ({ onLogin }) => {
                         navigate('/servicios');
                         onLogin();
 
-
                     } catch (error) {
                         alert(error)
                         // Error saving data
@@ -312,9 +313,9 @@ const Login = ({ onLogin }) => {
                 await AsyncStorage.setItem('legajo', legajo);
                 await AsyncStorage.setItem('nombre', response.data.user.nombre);
                 await AsyncStorage.setItem('apellido', response.data.user.apellido);
-                //await AsyncStorage.setItem('mail', response.data.user.mail);
-                // console.log(response.data.userInspector.nombre)
-                // console.log(response.data.userInspector.apellido)
+                await AsyncStorage.setItem('mail', '');
+                // console.log(response.data.user.nombre)
+                // console.log(response.data.user.apellido)
                 // console.log(response.data.user.mail)
                 // console.log('response', response.data.token);
                 console.log(await AsyncStorage.getItem('logueado'));
