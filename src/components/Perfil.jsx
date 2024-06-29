@@ -3,6 +3,7 @@ import { View, Text, Button, StyleSheet, Modal, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import cambiarPass from '../controllers/cambiarPass';
+import cambiarPassInspector from '../controllers/cambiarPassInspector';
 
 
 const Card = ({ title }) => (
@@ -19,28 +20,39 @@ const Perfil = ({ onPasswordChange }) => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [storedValue, setStoredValue] = useState('');
+  const [legajo, setLegajo] = useState('');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [mail, setMail] = useState('');
+  const [rol, setRol] = useState('');
 
   const getData = async () => { try { const value = await AsyncStorage.getItem('documento'); if (value !== null) { setStoredValue(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
   const getData1 = async () => { try { const value = await AsyncStorage.getItem('nombre'); if (value !== null) { setNombre(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
   const getData2 = async () => { try { const value = await AsyncStorage.getItem('apellido'); if (value !== null) { setApellido(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
   const getData3 = async () => { try { const value = await AsyncStorage.getItem('mail'); if (value !== null) { setMail(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+  const getData4 = async () => { try { const value = await AsyncStorage.getItem('legajo'); if (value !== null) { setLegajo(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+  const getData5 = async () => { try { const value = await AsyncStorage.getItem('logueado'); if (value !== null) { setRol(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
 
 
   useEffect(() => {
+    getData5();
     getData();
     getData1()
     getData2()
     getData3()
+    getData4()
   }, []);
 
   const handleChangePassword = async () => {
-
-    const reponse = await cambiarPass(storedValue, oldPassword, newPassword)
-    onPasswordChange(storedValue, oldPassword, newPassword);
-
+    console.log(rol)
+    if (rol === 'vecino'){
+      const reponse = await cambiarPass(storedValue, oldPassword, newPassword)
+      //onPasswordChange(storedValue, oldPassword, newPassword);
+    } else{
+      const response = await cambiarPassInspector(legajo, oldPassword, newPassword)
+      //onPasswordChange(legajo, oldPassword, newPassword);
+    }
+    
     setModalVisible(false);
   };
   return (

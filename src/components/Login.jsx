@@ -15,6 +15,7 @@ import generarClave from "../controllers/generarClave";
 import recuperarPass from "../controllers/recuperarPass";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import loginInspector from "../controllers/loginInspector";
+import recuperarPassInspector from "../controllers/recuperarPassInspector";
 
 
 
@@ -330,38 +331,6 @@ const Login = ({ onLogin }) => {
         
     };
 
-    const handleLoginInspector = async () => {
-        setLoading(true);
-        const response = await loginInspector(legajo, password)
-        if (response.status === 200) {
-            try {
-                await AsyncStorage.setItem('logueado', 'inspector');
-                await AsyncStorage.setItem('token', response.data.token);
-                await AsyncStorage.setItem('legajo', legajo);
-                await AsyncStorage.setItem('nombre', response.data.userInspector.nombre);
-                await AsyncStorage.setItem('apellido', response.data.userInspector.apellido);
-                await AsyncStorage.setItem('mail', response.data.user.mail);
-                // console.log(response.data.userInspector.nombre)
-                // console.log(response.data.userInspector.apellido)
-                // console.log(response.data.user.mail)
-                // console.log('response', response.data.token);
-                console.log(AsyncStorage.getItem('logueado'));
-                alert('Inició sesión correctamente');
-                navigate('/servicios');
-                onLogin();
-            } catch (error) {
-                alert(error)
-                // Error saving data
-            }
-        } else {
-            if (password) {
-                setOkPassword(false);
-            }
-        }
-    };
-
-
-
 
     const handleSolicitud = async () => {
         const response = await solicitarClave(dni, email)
@@ -382,8 +351,11 @@ const Login = ({ onLogin }) => {
     }
 
     const handleRecuperarPass = async () => {
-        const response = await recuperarPass(dni, email)
-        console.log('respuesta', response)
+        if (userType === 'vecino' ){
+            const response = await recuperarPass(dni, email)
+        }else {
+            const response = await recuperarPassInspector(dni, email) //en verdad es el legajo pero lo toma como dni en el input
+        }
         setOkPasswordIguales(true);
         setModalRecuperarPassVisible(false);
     }
@@ -538,10 +510,10 @@ const Login = ({ onLogin }) => {
                                         <Ionicons name="arrow-back-circle-outline" size={35} />
                                     </TouchableOpacity>
                                     <Text style={styles.tituloAviso}>Recuperar contraseña</Text>
-                                    <Text style={styles.mindescAviso}>Ingrese su DNI y correo electrónico para recuperar su contraseña</Text>
+                                    <Text style={styles.mindescAviso}>Ingrese su DNI o legajo y correo electrónico para recuperar su contraseña</Text>
                                     <TextInput
                                         style={styles.inputContra}
-                                        placeholder="DNI"
+                                        placeholder="DNI o legajo"
                                         keyboardType="numeric"
                                         onChangeText={text => setDni(text)}
                                     />
