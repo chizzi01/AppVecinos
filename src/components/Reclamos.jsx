@@ -208,72 +208,74 @@ const Reclamos = () => {
                     setModalReclamosVisible(!modalReclamosVisible);
                 }}
             >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.tituloModal}>Nuevo reclamo</Text>
-                        <Picker
-                            selectedValue={instalacionAfectada}
-                            onValueChange={(itemValue) => setInstalacionAfectada(itemValue)}
-                            style={styles.picker}
-                        >
-                            <Picker.Item label="Instalacion 1" value="inst1" />
-                            <Picker.Item label="Instalacion 2" value="inst2" />
+                <ScrollView>
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <Text style={styles.tituloModal}>Nuevo reclamo</Text>
+                            <Picker
+                                selectedValue={instalacionAfectada}
+                                onValueChange={(itemValue) => setInstalacionAfectada(itemValue)}
+                                style={styles.picker}
+                            >
+                                <Picker.Item label="Instalacion 1" value="inst1" />
+                                <Picker.Item label="Instalacion 2" value="inst2" />
 
-                        </Picker>
+                            </Picker>
 
-                        <Picker
-                            selectedValue={tipoDesperfecto}
-                            onValueChange={(itemValue) => setTipoDesperfecto(itemValue)}
-                            style={styles.picker}
-                        >
-                            <Picker.Item label="Desperfecto 1" value="desp1" />
-                            <Picker.Item label="Desperfecto 2" value="desp2" />
+                            <Picker
+                                selectedValue={tipoDesperfecto}
+                                onValueChange={(itemValue) => setTipoDesperfecto(itemValue)}
+                                style={styles.picker}
+                            >
+                                <Picker.Item label="Desperfecto 1" value="desp1" />
+                                <Picker.Item label="Desperfecto 2" value="desp2" />
 
-                        </Picker>
-                        <Picker
-                            selectedValue={rubro}
-                            onValueChange={(itemValue) => setRubro(itemValue)}
-                            style={styles.picker}
-                        >
-                            <Picker.Item label="Rubro 1" value="rubro1" />
-                            <Picker.Item label="Rubro 2" value="rubro2" />
+                            </Picker>
+                            <Picker
+                                selectedValue={rubro}
+                                onValueChange={(itemValue) => setRubro(itemValue)}
+                                style={styles.picker}
+                            >
+                                <Picker.Item label="Rubro 1" value="rubro1" />
+                                <Picker.Item label="Rubro 2" value="rubro2" />
 
-                        </Picker>
-                        <TextInput style={styles.input} placeholder="Informacion adicional" onChangeText={setDescripcion} multiline={true}
-                            numberOfLines={4} selectionColor="#2c3e50" />
-                        <TouchableOpacity style={styles.addImg} onPress={pickImage}>
-                            <Ionicons name="attach" size={20} color="grey" />
-                            <Text style={styles.colorText}>Adjuntar imagenes</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.addImg} onPress={takeImage}>
-                            <Ionicons name="camera" size={20} color="grey" />
-                            <Text style={styles.colorText}> Tomar foto</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.colorText}>*Máximo 7 fotos*</Text>
-                        <View style={styles.previewContainer}>
-                            {vistasPrevia.map((imgUri, index) => (
-                                <View key={index} style={styles.imageContainer}>
-                                    <Image
-                                        source={{ uri: imgUri + '?time=' + new Date() }}
-                                        style={styles.previewImage}
-                                    />
-                                    <TouchableOpacity
-                                        style={styles.closeButton}
-                                        onPress={() => eliminarImagen(index)}
-                                    >
-                                        <Ionicons name="close" size={15} color="white" />
-                                    </TouchableOpacity>
-                                </View>
-                            ))}
-                        </View>
-                        <View style={styles.lineAlign}>
-                            <Button title="Crear reclamo" onPress={handleSave} />
-                            <TouchableOpacity style={styles.cancel} onPress={() => setModalReclamosVisible(false)}>
-                                <Text style={styles.colorText}>Cancelar</Text>
+                            </Picker>
+                            <TextInput style={styles.input} placeholder="Informacion adicional" onChangeText={setDescripcion} multiline={true}
+                                numberOfLines={4} selectionColor="#2c3e50" />
+                            <TouchableOpacity style={styles.addImg} onPress={pickImage}>
+                                <Ionicons name="attach" size={20} color="grey" />
+                                <Text style={styles.colorText}>Adjuntar imagenes</Text>
                             </TouchableOpacity>
+                            <TouchableOpacity style={styles.addImg} onPress={takeImage}>
+                                <Ionicons name="camera" size={20} color="grey" />
+                                <Text style={styles.colorText}> Tomar foto</Text>
+                            </TouchableOpacity>
+                            <Text style={styles.colorText}>*Máximo 7 fotos*</Text>
+                            <View style={styles.previewContainer}>
+                                {vistasPrevia.map((imgUri, index) => (
+                                    <View key={index} style={styles.imageContainer}>
+                                        <Image
+                                            source={{ uri: imgUri + '?time=' + new Date() }}
+                                            style={styles.previewImage}
+                                        />
+                                        <TouchableOpacity
+                                            style={styles.closeButton}
+                                            onPress={() => eliminarImagen(index)}
+                                        >
+                                            <Ionicons name="close" size={15} color="white" />
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
+                            </View>
+                            <View style={styles.lineAlign}>
+                                <Button title="Crear reclamo" onPress={handleSave} />
+                                <TouchableOpacity style={styles.cancel} onPress={() => setModalReclamosVisible(false)}>
+                                    <Text style={styles.colorText}>Cancelar</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
-                </View>
+                </ScrollView>
             </Modal>
         </SafeAreaView>
     );
@@ -333,13 +335,22 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginTop: 22
     },
+    contentView: {
+        padding: 20,
+        width: '100%',
+        alignItems: 'left',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+        height: 300
+    },
     modalView: {
         margin: 20,
         backgroundColor: "#f0f0f0", // Light gray background
         borderRadius: 30, // Larger border radius
         padding: 20, // More padding
         alignItems: "center",
-        justifyContent: "space-evenly",
+        justifyContent: "space-between",
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -348,7 +359,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
-        height: '90%', // Larger height
+        height: '100%', // Larger height
         width: '95%' // Larger width
     },
     input: {// Adjust the height as needed

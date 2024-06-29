@@ -217,6 +217,7 @@ const Denuncias = () => {
                     setModalVisible(!modalVisible);
                 }}
             >
+                <ScrollView>
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <Text style={styles.tituloModal}>Nueva denuncia</Text>
@@ -287,6 +288,7 @@ const Denuncias = () => {
                         </View>
                     </View>
                 </View>
+                </ScrollView>
             </Modal>
             <ModalEnviado texto="Denuncia enviada" isVisible={modalEnviado} />
             <Modal
@@ -390,17 +392,27 @@ const styles = StyleSheet.create({
         height: '100%'
     },
     centeredView: {
+        flex: 1,
         justifyContent: "center",
         alignItems: "center",
         marginTop: 22
+    },
+    contentView: {
+        padding: 20,
+        width: '100%',
+        alignItems: 'left',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+        height: 300
     },
     modalView: {
         margin: 20,
         backgroundColor: "#f0f0f0", // Light gray background
         borderRadius: 30, // Larger border radius
-        padding: 50, // More padding
+        padding: 20, // More padding
         alignItems: "center",
-        justifyContent: "space-evenly",
+        justifyContent: "space-between",
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -409,7 +421,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
-        height: '90%', // Larger height
+        height: '100%', // Larger height
         width: '95%' // Larger width
     },
     input: {// Adjust the height as needed

@@ -71,6 +71,15 @@ const Servicios = (logueado) => {
 
     const handleSave = async () => {
         try {
+            console.log("Nombre servicio" , nombreServicio)
+            console.log("Direccion" , direccion)
+            console.log("Telefono" , telefono)
+            console.log("Hora inicio" , horaInicio)
+            console.log("Minuto inicio" , minutoInicio)
+            console.log("Hora cierre" , horaCierre)
+            console.log("Minuto cierre" , minutoCierre)
+            console.log("Rubro" , rubro)
+            console.log("Descripcion" , descripcion)
             const response = await postServicios(imagenes, storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion);
             console.log('Response from postServicios:', response);
             setModalVisible(false);

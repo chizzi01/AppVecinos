@@ -20,18 +20,19 @@ const postComercio = async (imagenes, documentoVecino, nombreComercio, descripci
         formData.append("descripcion", descripcion);
         formData.append("direccion", direccion);
         formData.append("contacto", contacto);
-
-        console.log("imagensss",imagenes);
-
-
-        // Opciones de la solicitud
-        const requestOptions = {
+  
+  
+        var myHeaders = new Headers();
+        
+  
+  
+        var requestOptions = {
             method: 'POST',
             body: formData,
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+            redirect: 'follow',
+            mode: 'cors'
         };
+  
 
         // Enviar la solicitud
         let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/comercios/post", requestOptions);

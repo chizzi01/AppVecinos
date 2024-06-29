@@ -1,6 +1,7 @@
-const postServicio = async (imagenes, storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion) => {
+const postServicios = async (imagenes, token, tituloServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion) => {
+    
     try {
-        const formData = new FormData();
+    const formData = new FormData();
 
         // Adjuntar imágenes si están presentes
         if (imagenes && imagenes.length > 0) {
@@ -14,22 +15,28 @@ const postServicio = async (imagenes, storedValue, nombreServicio, direccion, te
         }
 
         // Adjuntar otros datos
-        formData.append("storedValue", storedValue);
-        formData.append("nombreServicio", nombreServicio);
+        formData.append("tituloServicio", tituloServicio);
         formData.append("direccion", direccion);
         formData.append("telefono", telefono);
-        formData.append("horaInicio", `${horaInicio}:${minutoInicio}`);
-        formData.append("horaCierre", `${horaCierre}:${minutoCierre}`);
+        formData.append("horaApertura", horaInicio);
+        formData.append("minutoApertura", minutoInicio);
+        formData.append("horaCierre", horaCierre);
+        formData.append("minutoCierre", minutoCierre);
         formData.append("rubro", rubro);
         formData.append("descripcion", descripcion);
 
-        const requestOptions = {
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", `Bearer ${token}`);
+
+
+        var requestOptions = {
             method: 'POST',
             body: formData,
-            headers: {
-                // No establecer 'Content-Type' aquí, dejar que el navegador lo haga automáticamente
-            },
+            redirect: 'follow',
+            mode: 'cors',
+            headers: myHeaders,
         };
+  
 
         // Enviar la solicitud
         const response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/servicios/post", requestOptions);
