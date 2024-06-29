@@ -6,8 +6,10 @@ import * as MediaLibrary from 'expo-media-library';
 import { Picker } from '@react-native-picker/picker';
 import getReclamos from '../controllers/reclamos';
 import CarousellImagenes from './CarousellImagenes';
-import postReclamo from '../controllers/postReclamo';
+import postReclamoInspector from '../controllers/postReclamoInspector';
+import postReclamoVecino from '../controllers/postReclamoVecino';
 import ModalEnviado from './ModalEnviado';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -29,8 +31,19 @@ const Reclamos = () => {
     const [modalEnviado, setModalEnviado] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [reclamos, setReclamos] = useState([])
+    const [rol, setRol] = useState('');
+    const [documentoVecino, setDocumentoVecino] = useState('');
+    const [legajo, setLegajo] = useState('');
+
+    const getData = async () => { try { const value = await AsyncStorage.getItem('logueado'); if (value !== null) { setRol(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+    const getData2 = async () => { try { const value = await AsyncStorage.getItem('legajo'); if (value !== null) { setLegajo(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+    const getData3 = async () => { try { const value = await AsyncStorage.getItem('documento'); if (value !== null) { setDocumentoVecino(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+
 
     useEffect(() => {
+        getData()
+        getData2()
+        getData3()
         const fetchData = async () => {
             setLoading(true);
             await getReclamos(setReclamos);
@@ -47,8 +60,16 @@ const Reclamos = () => {
     }, []);
 
 
-    const handleSave = () => {
-        postReclamo(imagenes, instalacionAfectada, tipoDesperfecto, descripcion, rubro).then(() => {
+    const handleSave = async () => {
+        if (rol === 'vecino'){
+            console.log(imagenes, documentoVecino, instalacionAfectada, tipoDesperfecto, descripcion)
+            const response = await postReclamoVecino(imagenes, documentoVecino, instalacionAfectada, tipoDesperfecto, descripcion)
+            
+                
+            }else {
+            
+            const response = await postReclamoInspector(imagenes, legajo, instalacionAfectada, tipoDesperfecto, descripcion)
+            }
             setModalReclamosVisible(false);
             setInstalacionAfectada('');
             setTipoDesperfecto('');
@@ -57,9 +78,7 @@ const Reclamos = () => {
             setImagenes([]);
             setVistasPrevia([]);
             setModalEnviado(true);
-        }
-        );
-    };
+    }
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -217,8 +236,8 @@ const Reclamos = () => {
                                 onValueChange={(itemValue) => setInstalacionAfectada(itemValue)}
                                 style={styles.picker}
                             >
-                                <Picker.Item label="Instalacion 1" value="inst1" />
-                                <Picker.Item label="Instalacion 2" value="inst2" />
+                                <Picker.Item label="Instalacion 1" value="1" />
+                                <Picker.Item label="Instalacion 2" value="2" />
 
                             </Picker>
 
@@ -227,8 +246,8 @@ const Reclamos = () => {
                                 onValueChange={(itemValue) => setTipoDesperfecto(itemValue)}
                                 style={styles.picker}
                             >
-                                <Picker.Item label="Desperfecto 1" value="desp1" />
-                                <Picker.Item label="Desperfecto 2" value="desp2" />
+                                <Picker.Item label="Desperfecto 1" value="1" />
+                                <Picker.Item label="Desperfecto 2" value="2" />
 
                             </Picker>
                             <Picker
