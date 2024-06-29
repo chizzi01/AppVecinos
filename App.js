@@ -3,7 +3,8 @@ import { Link } from 'react-router-native';
 import { NativeRouter as Router, Route, Routes } from 'react-router-native';
 import React, { useRef, useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Ionicons from '@expo/vector-icons/Ionicons'
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { Badge } from 'react-native-elements';
 import {
   Button,
   DrawerLayoutAndroid,
@@ -109,6 +110,15 @@ const App = () => {
     setModalVisible(false);
   };
 
+  const NotificacionesIcono = ({ notificaciones }) => {
+    return (
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Ionicons name="notifications" size={30} color="#decf35" />
+        <Badge value={notificaciones.length} status="error" containerStyle={{ position: 'absolute', top: -4, right: -4 }} />
+      </View>
+    );
+  };
+
 
   const navigationView = () => (
 
@@ -161,7 +171,7 @@ const App = () => {
           <>
             <Link to="/notificaciones" onPress={() => drawer.current.closeDrawer()}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="notifications" size={30} color="#d6c833" />
+              <NotificacionesIcono notificaciones={notificacionesEjemplo} />
                 <Text style={styles.link}>Notificaciones</Text>
               </View>
             </Link>
@@ -203,6 +213,21 @@ const App = () => {
   const notificacionesEjemplo = [
     { title: 'Notificación 1', date: '2022-04-29', type: 'Reclamo', description: 'Descripción de la notificación 1' },
     { title: 'Notificación 2', date: '2022-04-20', type: 'Denuncia', description: 'Descripción de la notificación 2' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
+    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
     { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
   ];
 

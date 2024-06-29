@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import format from 'date-fns/format';
+
 
 
 const Notificacion = ({ title, date, type, description }) => {
@@ -21,6 +22,7 @@ const Notificacion = ({ title, date, type, description }) => {
 const Notificaciones = ({ notificaciones }) => {
   return (
     <SafeAreaView >
+      <ScrollView>
       <View style={styles.container}>
         {notificaciones.map((notificacion, index) => (
           <Notificacion
@@ -32,6 +34,7 @@ const Notificaciones = ({ notificaciones }) => {
           />
         ))}
       </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

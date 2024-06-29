@@ -16,7 +16,6 @@ import recuperarPass from "../controllers/recuperarPass";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import loginInspector from "../controllers/loginInspector";
 import recuperarPassInspector from "../controllers/recuperarPassInspector";
-import * as Notifications from 'expo-notifications';
 
 
 
