@@ -8,7 +8,7 @@ const postComercio = async (imagenes, documentoVecino, nombreComercio, descripci
                 formData.append('imagenes', {
                     uri: imagen.uri,
                     name: `imagen${index}.jpg`,
-                    type: 'image/jpeg', // Asegúrate de que el tipo MIME es correcto
+                    type: 'image/jpeg',
                 });
             });
         }

@@ -80,6 +80,7 @@ const Servicios = (logueado) => {
             console.log("Minuto cierre" , minutoCierre)
             console.log("Rubro" , rubro)
             console.log("Descripcion" , descripcion)
+            console.log("Value" , storedValue)
             const response = await postServicios(imagenes, storedValue, nombreServicio, direccion, telefono, horaInicio, minutoInicio, horaCierre, minutoCierre, rubro, descripcion);
             console.log('Response from postServicios:', response);
             setModalVisible(false);

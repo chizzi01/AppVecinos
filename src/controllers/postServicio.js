@@ -62,4 +62,4 @@ const postServicios = async (imagenes, token, tituloServicio, direccion, telefon
     }
 };
 
-export default postServicio;
+export default postServicios;

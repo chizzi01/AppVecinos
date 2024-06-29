@@ -55,6 +55,12 @@ const Comercios = ( logueado ) => {
     }, []);
 
     const handleSave = async () => {
+        console.log(imagenes);
+        console.log(storedValue);
+        console.log(nombreComercio);
+        console.log(descripcion);
+        console.log(direccion);
+        console.log(contacto);
         await postComercio(imagenes, storedValue, nombreComercio, descripcion, direccion, contacto)
             .then(() => {
                 setModalVisible(false);
@@ -136,6 +142,7 @@ const Comercios = ( logueado ) => {
                     setModalVisible(!modalVisible);
                 }}
             >
+                <ScrollView>
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <Text style={styles.titulo}>Agregar comercio</Text>
@@ -170,6 +177,7 @@ const Comercios = ( logueado ) => {
                         </View>
                     </View>
                 </View>
+                </ScrollView>
             </Modal>
             <ModalEnviado texto="El comercio sera revisado, le avisaremos cuando esté validado" isVisible={modalEnviado} />
             <Modal
