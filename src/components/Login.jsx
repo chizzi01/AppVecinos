@@ -267,7 +267,9 @@ const Login = ({ onLogin }) => {
                     setModalCrearPassVisible(true);
                 }
                 if (responseLogin.status === 200) {
+                    console.log("Entro en vecino")
                     try {
+                    
                         await AsyncStorage.setItem('logueado', 'vecino');
                         await AsyncStorage.setItem('token', responseLogin.data.token);
                         await AsyncStorage.setItem('documento', dni);
@@ -298,11 +300,12 @@ const Login = ({ onLogin }) => {
                 setEmailModalVisible(true);
             }
         }
-    } else {
+    } else if (userType === 'inspector'){
         setLoading(true);
         const response = await loginInspector(legajo, password)
         console.log(response)
         if (response.status === 200) {
+            console.log("Entro en inspector")
             try {
                 await AsyncStorage.setItem('logueado', 'inspector');
                 await AsyncStorage.setItem('token', response.data.token);
@@ -314,9 +317,9 @@ const Login = ({ onLogin }) => {
                 // console.log(response.data.userInspector.apellido)
                 // console.log(response.data.user.mail)
                 // console.log('response', response.data.token);
-                console.log(AsyncStorage.getItem('logueado'));
+                console.log(await AsyncStorage.getItem('logueado'));
                 alert('Inició sesión correctamente');
-                navigate('/servicios');
+                navigate('/comercios');
                 onLogin();
             } catch (error) {
                 alert(error)

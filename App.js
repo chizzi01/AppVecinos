@@ -70,11 +70,19 @@ const App = () => {
   useEffect(() => {
     const fetchLogueado = async () => {
       const value = await AsyncStorage.getItem('logueado');
-      if (value !== null && value === 'vecino') {
+      console.log("Este es el valor que ingresa:",value);
+      if (value == 'vecino') {
         setLogueado("vecino");
-        console.log('logueado');
-      } else {
+        console.log('entra en veinooo');
+      } 
+      if ( value == 'inspector') {
+        setLogueado("inspector");
+        console.log('Entro aca');
+      }
+
+      if (value == null || value === 'false') {
         setLogueado(false);
+        console.log('no logueado');
       }
     };
 
@@ -82,7 +90,16 @@ const App = () => {
   }, []);
 
   const handleLogin = () => {
-    setLogueado("vecino");
+    AsyncStorage.getItem('logueado').then((value) => {
+      if (value == 'vecino') {
+        setLogueado('vecino');
+      } else if (value == 'inspector') {
+        setLogueado('inspector');
+      } else {
+        setLogueado(false);
+      }
+    }
+    );
   };
 
 
@@ -119,7 +136,7 @@ const App = () => {
           <Text style={styles.link}>Servicios</Text>
         </View>
       </Link>
-      {logueado == "vecino" && (
+      {((logueado == "vecino") || (logueado == "inspector")) && (
         <>
           <Link to="/reclamos" onPress={() => drawer.current.closeDrawer()}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -127,6 +144,10 @@ const App = () => {
               <Text style={styles.link}>Reclamos</Text>
             </View>
           </Link>
+        </>
+      )}
+      {logueado == "vecino" && (
+        <>
           <Link to="/denuncias" onPress={() => drawer.current.closeDrawer()}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Ionicons name="alert-circle" size={30} color="#fd746c" />
@@ -136,7 +157,7 @@ const App = () => {
         </>
       )}
       <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-        {logueado == "vecino" ? (
+      {logueado === "vecino" || logueado === "inspector" ? (
           <>
             <Link to="/notificaciones" onPress={() => drawer.current.closeDrawer()}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
