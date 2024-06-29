@@ -1,7 +1,7 @@
 const login = async(legajo, contrasena) => {
-
+  try {
     var raw = JSON.stringify({
-      "legajo": legajo,
+      "legajo": parseInt(legajo),
       "password": contrasena
     });
 
@@ -12,15 +12,15 @@ const login = async(legajo, contrasena) => {
         method: 'POST',
         headers: myHeaders,
         body: raw,
-        redirect: 'follow',
-        mode:'cors'
+        redirect: 'follow'
       };
     
       
       let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/userInspector/login", requestOptions);
       let data = await response.json()
-      console.log(data)
       return {status: response.status, data: data}
-      //hjolahghg
+  } catch (error) {
+    console.log(error)
+  }
 }
 export default login;

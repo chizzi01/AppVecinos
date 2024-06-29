@@ -248,7 +248,8 @@ const Login = ({ onLogin }) => {
     const [modalRecuperarPassVisible, setModalRecuperarPassVisible] = useState(false);
 
     const handleLogin = async () => {
-        setLoading(true);
+        if (userType === 'vecino' ){
+            setLoading(true);
         const esUnVecino = await esVecino(dni)
         if (!esUnVecino) {
             setModalVisible(true);
@@ -296,6 +297,37 @@ const Login = ({ onLogin }) => {
                 setEmailModalVisible(true);
             }
         }
+    } else {
+        setLoading(true);
+        const response = await loginInspector(legajo, password)
+        console.log(response)
+        if (response.status === 200) {
+            try {
+                await AsyncStorage.setItem('logueado', 'inspector');
+                await AsyncStorage.setItem('token', response.data.token);
+                await AsyncStorage.setItem('legajo', legajo);
+                await AsyncStorage.setItem('nombre', response.data.user.nombre);
+                await AsyncStorage.setItem('apellido', response.data.user.apellido);
+                //await AsyncStorage.setItem('mail', response.data.user.mail);
+                // console.log(response.data.userInspector.nombre)
+                // console.log(response.data.userInspector.apellido)
+                // console.log(response.data.user.mail)
+                // console.log('response', response.data.token);
+                console.log(AsyncStorage.getItem('logueado'));
+                alert('Inició sesión correctamente');
+                navigate('/servicios');
+                onLogin();
+            } catch (error) {
+                alert(error)
+                // Error saving data
+            }
+        } else {
+            if (password) {
+                setOkPassword(false);
+            }
+        }
+    }
+        
     };
 
     const handleLoginInspector = async () => {
