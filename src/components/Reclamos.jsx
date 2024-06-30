@@ -34,16 +34,22 @@ const Reclamos = () => {
     const [rol, setRol] = useState('');
     const [documentoVecino, setDocumentoVecino] = useState('');
     const [legajo, setLegajo] = useState('');
+    const [token, setToken] = useState('');
+    const [idReclamoCreado, setIdReclamoCreado] = useState('')
+
+
 
     const getData = async () => { try { const value = await AsyncStorage.getItem('logueado'); if (value !== null) { setRol(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
     const getData2 = async () => { try { const value = await AsyncStorage.getItem('legajo'); if (value !== null) { setLegajo(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
-    const getData3 = async () => { try { const value = await AsyncStorage.getItem('documento'); if (value !== null) { setDocumentoVecino(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+    const getData3 = async () => { try { const value =  await AsyncStorage.getItem('documento'); if (value !== null) { setDocumentoVecino(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+    const getData4 = async () => { try { const value = await AsyncStorage.getItem('token'); if (value !== null) { setToken(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
 
 
     useEffect(() => {
         getData()
         getData2()
         getData3()
+        getData4()
         const fetchData = async () => {
             setLoading(true);
             await getReclamos(setReclamos);
@@ -64,13 +70,15 @@ const Reclamos = () => {
         console.log(rol)
         if (rol === 'vecino') {
             // console.log(imagenes, documentoVecino, instalacionAfectada, tipoDesperfecto, descripcion)
-            const response = await postReclamoVecino(imagenes, documentoVecino, parseInt(instalacionAfectada), parseInt(tipoDesperfecto), descripcion)
-            console.log(response)
+            const response = await postReclamoVecino(imagenes, documentoVecino, parseInt(instalacionAfectada), parseInt(tipoDesperfecto), descripcion, token)
+            setIdReclamoCreado(response)
 
         } else {
 
-            const response = await postReclamoInspector(imagenes, legajo, instalacionAfectada, tipoDesperfecto, descripcion)
+            const response = await postReclamoInspector(imagenes, legajo, instalacionAfectada, tipoDesperfecto, descripcion, token)
+            setIdReclamoCreado(response)
         }
+        
         setModalReclamosVisible(false);
         setInstalacionAfectada('');
         setTipoDesperfecto('');
@@ -219,7 +227,7 @@ const Reclamos = () => {
                     </View>
                 </View>
             </Modal>
-            <ModalEnviado texto="Reclamo enviado" isVisible={modalEnviado} />
+            <ModalEnviado texto={`Se ha creado tu reclamo con el id ${idReclamoCreado}`} isVisible={modalEnviado} />
             <Modal
                 animationType="slide"
                 transparent={true}

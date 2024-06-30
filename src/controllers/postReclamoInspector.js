@@ -1,4 +1,4 @@
-const postReclamoInspector = async (imagenes, legajoInspector, idSitio, idDesperfecto, descripcion) => {
+const postReclamoInspector = async (imagenes, legajoInspector, idSitio, idDesperfecto, descripcion, token) => {
     try {
         const formData = new FormData();
 
@@ -20,12 +20,17 @@ const postReclamoInspector = async (imagenes, legajoInspector, idSitio, idDesper
         formData.append("idDesperfecto", idDesperfecto);
         formData.append("descripcion", descripcion);
 
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", `Bearer ${token}`);
+
         var requestOptions = {
             method: 'POST',
             body: formData,
             redirect: 'follow',
-            mode: 'cors'
+            mode: 'cors',
+            headers: myHeaders
         };
+
 
         // Enviar la solicitud
         let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/reclamos/post", requestOptions);
@@ -35,7 +40,7 @@ const postReclamoInspector = async (imagenes, legajoInspector, idSitio, idDesper
 
         if (response.ok) {
             console.log('Reclamo de inspector creado:', result);
-            return result.idComercio;
+            return result.idReclamo;
         } else {
             console.error('Error en la respuesta del servidor:', result);
             throw new Error(result.message || 'Error en la creación del reclamo del inspector');
