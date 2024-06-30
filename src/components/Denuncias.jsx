@@ -6,9 +6,12 @@ import * as MediaLibrary from 'expo-media-library';
 import * as DocumentPicker from 'expo-document-picker';
 import { Picker } from '@react-native-picker/picker';
 import CarousellImagenes from './CarousellImagenes';
-import postDenuncia from '../controllers/postDenuncia';
+import postDenunciaComercio from '../controllers/postDenunciaComercio';
+import postDenunciaVecino from '../controllers/postDenunciaVecino';
 import ModalEnviado from './ModalEnviado';
 import getDenuncias from '../controllers/denuncias';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { formatDate } from 'date-fns';
 
 
 
@@ -18,6 +21,7 @@ import getDenuncias from '../controllers/denuncias';
 const Denuncias = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [descripcion, setDescripcion] = useState('');
+    const [ubicacion, setUbicacion] = useState('');
     const [motivo, setMotivo] = useState('');
     const [direccion, setDireccion] = useState('');
     const [generada, setGenerada] = useState(''); // o cualquier valor inicial que necesites
@@ -33,6 +37,7 @@ const Denuncias = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [denuncias, setDenuncias] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [storedValue, setStoredValue] = useState('');
 
 
     useEffect(() => {
@@ -43,6 +48,17 @@ const Denuncias = () => {
             setLoading(false);
         };
         fetchData();
+        const getData = async () => {
+            try {
+                const value = await AsyncStorage.getItem('documento');
+                if (value !== null) {
+                    setStoredValue(value);
+                }
+            } catch (e) {
+                console.error('Failed to fetch the data from storage', e);
+            }
+        };
+        getData();
     }, []);
 
 
@@ -72,20 +88,35 @@ const Denuncias = () => {
             return;
         }
 
-        postDenuncia(imagenes, vecinoDenuncia, direccion, motivo)
-            .then(response => {
-                if (response.ok) {
+        if (!vecinoDenuncia && !comercioDenuncia) {
+            alert('Por favor seleccione si la denuncia es de un vecino o un comercio.');
+            return;
+        }
+
+        if (vecinoDenuncia) {
+            postDenunciaVecino(imagenes, storedValue, motivo, direccion, ubicacion, descripcion, termsAccepted, generada)
+                .then(() => {
                     setModalVisible(false);
                     setModalEnviado(true);
-                } else {
-                    alert('Ocurrió un error al crear la denuncia');
-                }
-            })
-            .catch(error => {
-                console.error('Error al crear la denuncia:', error);
-                alert('Ocurrió un error al crear la denuncia');
-            });
+                })
+                .catch((error) => {
+                    console.error('Error al enviar la denuncia:', error);
+                    alert('Error al enviar la denuncia. Por favor, inténtelo de nuevo.');
+                });
+        } else {
+            postDenunciaComercio(imagenes, storedValue, motivo, direccion, descripcion, termsAccepted, generada)
+                .then(() => {
+                    setModalVisible(false);
+                    setModalEnviado(true);
+                })
+                .catch((error) => {
+                    console.error('Error al enviar la denuncia:', error);
+                    alert('Error al enviar la denuncia. Por favor, inténtelo de nuevo.');
+                });
+        }
     };
+
+
 
 
     const pickDocument = async () => {
@@ -153,8 +184,9 @@ const Denuncias = () => {
 
     const filteredDenuncias = denuncias.filter(denuncia =>
         denuncia.denunciaDenunciado[0]?.nombre.toLowerCase().includes(search.toLowerCase())
-        // &&
-        // (generada === "" || denuncia.generada === generada)
+        &&
+        (generada === "" || denuncia.denunciaDenunciado.generada === generada)
+
     );
 
     return (
@@ -176,7 +208,6 @@ const Denuncias = () => {
                 >
                     <Picker.Item label="Todas" value="" />
                     <Picker.Item label="Generadas" value={true} />
-                    <Picker.Item label="Recibidas" value={false} />
                 </Picker>
             </View>
             <ScrollView
@@ -197,7 +228,7 @@ const Denuncias = () => {
                                     <Ionicons name="location" size={15} color="#7E7E7E" />
                                     <Text style={styles.direccion}>{denuncia.denunciaDenunciado[0]?.direccion}</Text>
                                 </View>
-                                <Text>Última actualizacion: {denuncia.ultActualizacion}</Text>
+                                <Text>Última actualizacion: {denuncia.movimientosDenuncia[denuncia.movimientosDenuncia.length - 1]?.fecha|| 'No disponible'}</Text>
                             </View>
                         </TouchableOpacity>
 
@@ -218,78 +249,91 @@ const Denuncias = () => {
                 }}
             >
                 <ScrollView>
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.tituloModal}>Nueva denuncia</Text>
-                        <View style={styles.inRowAlign}>
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <Text style={styles.tituloModal}>Nueva denuncia</Text>
+                            <View style={styles.inRowAlign}>
+                                <TouchableOpacity
+                                    style={styles.checkboxContainer}
+                                    onPress={() => {
+                                        setVecinoDenuncia(!vecinoDenuncia);
+                                        setComercioDenuncia(vecinoDenuncia);
+                                    }}
+                                >
+                                    <Text style={[styles.checkbox, vecinoDenuncia ? styles.checkboxSelected : null]}>{vecinoDenuncia ? '✓' : ''}</Text>
+                                    <Text style={styles.checkboxText}>Vecino</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.checkboxContainer}
+                                    onPress={() => {
+                                        setComercioDenuncia(!comercioDenuncia);
+                                        setVecinoDenuncia(comercioDenuncia);
+                                    }}
+                                >
+                                    <Text style={[styles.checkbox, comercioDenuncia ? styles.checkboxSelected : null]}>{comercioDenuncia ? '✓' : ''}</Text>
+                                    <Text style={styles.checkboxText}>Comercio</Text>
+                                </TouchableOpacity>
+                            </View>
+                            {vecinoDenuncia ? (
+                                <>
+                                    <TextInput style={styles.input} placeholder="Nombre del denunciado" onChangeText={setMotivo} selectionColor="#fd746c" />
+                                    <TextInput style={styles.input} placeholder="Dirección del denunciado" onChangeText={setDireccion} selectionColor="#fd746c" />
+                                    <TextInput style={styles.input} placeholder="Ubicacion del hecho" onChangeText={setUbicacion} selectionColor="#fd746c" />
+                                    <TextInput style={styles.input} placeholder="Detalle de la causa" onChangeText={setDescripcion} multiline={true}
+                                        numberOfLines={4} selectionColor="#fd746c" />
+                                </>
+                            ) : (
+                                <>
+                                    <TextInput style={styles.input} placeholder="Nombre del comercio" onChangeText={setMotivo} selectionColor="#fd746c" />
+                                    <TextInput style={styles.input} placeholder="Dirección del comercio" onChangeText={setDireccion} selectionColor="#fd746c" />
+                                    <TextInput style={styles.input} placeholder="Detalle de la causa" onChangeText={setDescripcion} multiline={true} numberOfLines={4} selectionColor="#fd746c" />
+                                </>
+                            )}
+
+
+                            <TouchableOpacity style={styles.addImg} onPress={pickDocument}>
+                                <Ionicons name="attach" size={20} color="grey" />
+                                <Text style={styles.colorText}>Adjuntar documentos</Text>
+                            </TouchableOpacity>
+                            <View style={styles.previewContainer}>
+                                {vistasPrevia.map((file, index) => {
+                                    if (!file) return null; // Skip rendering for undefined or null items
+                                    return (
+                                        <View key={index} style={styles.imageContainer}>
+                                            {file.type.includes('image/') ? (
+                                                <Image source={{ uri: file.uri }} style={styles.previewImage} />
+                                            ) : (
+                                                <View style={styles.genericFileContainer}>
+                                                    <Ionicons name="document-text-outline" size={55} color="grey" />
+                                                </View>
+                                            )}
+                                            <TouchableOpacity
+                                                style={styles.closeButton}
+                                                onPress={() => eliminarImagen(index)}
+                                            >
+                                                <Ionicons name="close" size={15} color="white" />
+                                            </TouchableOpacity>
+                                        </View>
+                                    );
+                                })}
+                            </View>
                             <TouchableOpacity
                                 style={styles.checkboxContainer}
-                                onPress={() => {
-                                    setVecinoDenuncia(!vecinoDenuncia);
-                                    setComercioDenuncia(vecinoDenuncia);
-                                }}
+                                onPress={() => setTermsAccepted(!termsAccepted)}
                             >
-                                <Text style={[styles.checkbox, vecinoDenuncia ? styles.checkboxSelected : null]}>{vecinoDenuncia ? '✓' : ''}</Text>
-                                <Text style={styles.checkboxText}>Vecino</Text>
+                                <Text style={[styles.checkbox, termsAccepted ? styles.checkboxSelected : null]}>{termsAccepted ? '✓' : ''}</Text>
+                                <Text style={styles.checkboxText}>Confirmo autenticidad del hecho</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.checkboxContainer}
-                                onPress={() => {
-                                    setComercioDenuncia(!comercioDenuncia);
-                                    setVecinoDenuncia(comercioDenuncia);
-                                }}
-                            >
-                                <Text style={[styles.checkbox, comercioDenuncia ? styles.checkboxSelected : null]}>{comercioDenuncia ? '✓' : ''}</Text>
-                                <Text style={styles.checkboxText}>Comercio</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <TextInput style={styles.input} placeholder="Motivo" onChangeText={setMotivo} selectionColor="#fd746c" />
-                        <TextInput style={styles.input} placeholder="Dirección" onChangeText={setDireccion} selectionColor="#fd746c" />
-                        <TextInput style={styles.input} placeholder="Informacion adicional" onChangeText={setDescripcion} multiline={true}
-                            numberOfLines={4} selectionColor="#fd746c" />
-                        <TouchableOpacity style={styles.addImg} onPress={pickDocument}>
-                            <Ionicons name="attach" size={20} color="grey" />
-                            <Text style={styles.colorText}>Adjuntar documentos</Text>
-                        </TouchableOpacity>
-                        <View style={styles.previewContainer}>
-                            {vistasPrevia.map((file, index) => {
-                                if (!file) return null; // Skip rendering for undefined or null items
-                                return (
-                                    <View key={index} style={styles.imageContainer}>
-                                        {file.type.includes('image/') ? (
-                                            <Image source={{ uri: file.uri }} style={styles.previewImage} />
-                                        ) : (
-                                            <View style={styles.genericFileContainer}>
-                                                <Ionicons name="document-text-outline" size={55} color="grey" />
-                                            </View>
-                                        )}
-                                        <TouchableOpacity
-                                            style={styles.closeButton}
-                                            onPress={() => eliminarImagen(index)}
-                                        >
-                                            <Ionicons name="close" size={15} color="white" />
-                                        </TouchableOpacity>
-                                    </View>
-                                );
-                            })}
-                        </View>
-                        <TouchableOpacity
-                            style={styles.checkboxContainer}
-                            onPress={() => setTermsAccepted(!termsAccepted)}
-                        >
-                            <Text style={[styles.checkbox, termsAccepted ? styles.checkboxSelected : null]}>{termsAccepted ? '✓' : ''}</Text>
-                            <Text style={styles.checkboxText}>Confirmo autenticidad del hecho</Text>
-                        </TouchableOpacity>
-                        <View style={styles.lineAlign}>
-                        <TouchableOpacity style={styles.save} onPress={handleSave}>
-                                        <Text style={{color:"white"}}>Enviar Denunia</Text>
-                                    </TouchableOpacity>
-                            <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
-                                <Text style={styles.colorText}>Cancelar</Text>
-                            </TouchableOpacity>
+                            <View style={styles.lineAlign}>
+                                <TouchableOpacity style={styles.save} onPress={handleSave}>
+                                    <Text style={{ color: "white" }}>Enviar Denunia</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
+                                    <Text style={styles.colorText}>Cancelar</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
-                </View>
                 </ScrollView>
             </Modal>
             <ModalEnviado texto="Denuncia enviada" isVisible={modalEnviado} />
@@ -306,7 +350,7 @@ const Denuncias = () => {
                         {selectedDenuncia && (
                             <>
                                 <View style={{ maxWidth: '100%', overflow: 'hidden', borderTopLeftRadius: 15, borderTopRightRadius: 15 }}>
-                                <CarousellImagenes idServicio={selectedDenuncia.idDenuncias} tipo={"denuncias"} />
+                                    <CarousellImagenes idServicio={selectedDenuncia.idDenuncias} tipo={"denuncias"} />
                                 </View>
                                 <View style={styles.contentView}>
                                     <Text style={styles.comercioTitulo}>Denuncia #{selectedDenuncia.idDenuncias}</Text>
@@ -321,15 +365,19 @@ const Denuncias = () => {
                                     <Text style={styles.comercioDescripcion}>{selectedDenuncia.descripcion}</Text>
                                     <View style={{ paddingTop: 15 }}>
                                         <Text style={styles.titulo}>Estado</Text>
+                                        <ScrollView>
                                         <View style={styles.estadoContainer}>
                                             <View>
-                                            <Text style={styles.paso}>{selectedDenuncia.estado?.paso || '1'}</Text>
+                                                <Text style={styles.paso}>{selectedDenuncia.estado?.paso || '1'}</Text>
                                             </View>
                                             <View style={styles.estadoTextos}>
-                                            <Text>{selectedDenuncia.estado?.descripcion || 'Descripción no disponible'}</Text>
-                                            <Text style={{ color: "grey" }}>Ultima actualizacion: {selectedDenuncia.ultActualizacion || 'No disponible'}</Text>
+                                                <Text>{selectedDenuncia.estado || 'Descripción no disponible'}</Text>
+                                                <Text style={{ color: "grey" }}>Responsable: {selectedDenuncia.movimientosDenuncia[selectedDenuncia.movimientosDenuncia.length - 1]?.responsable|| 'No disponible'}</Text>
+                                                <Text style={{ color: "grey" }}>Causa: {selectedDenuncia.movimientosDenuncia[selectedDenuncia.movimientosDenuncia.length - 1]?.causa|| 'No disponible'}</Text>
+                                                <Text style={{ color: "grey" }}>Ultima actualizacion: {formatDate(new Date(selectedDenuncia.movimientosDenuncia[selectedDenuncia.movimientosDenuncia.length - 1]?.fecha), 'dd/MM/yyyy HH:mm')|| 'No disponible'}</Text>
                                             </View>
                                         </View>
+                                        </ScrollView>
                                     </View>
                                 </View>
                             </>
@@ -601,7 +649,7 @@ const styles = StyleSheet.create({
         width: '95%' // Larger width
     },
     input: {
-        height: 40, // Adjust the height as needed
+        maxHeight: 80, // Adjust the height as needed
         width: '100%', // Make the input take up the full width of the modal
         borderColor: 'gray', // Add a border
         borderWidth: 1, // Add a border
@@ -785,7 +833,7 @@ const styles = StyleSheet.create({
     },
     estadoContainer: {
         backgroundColor: '#ecf0f1',
-        padding: 20,
+        padding: 10,
         borderRadius: 5,
         borderColor: '#fd746c',
         borderWidth: 1,
@@ -793,7 +841,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: 10,
+        gap: 5,
     },
     paso: {
         backgroundColor: '#fd746c',
