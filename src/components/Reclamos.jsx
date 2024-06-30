@@ -43,6 +43,7 @@ const Reclamos = () => {
     const [rubros, setRubros] = useState([]);
     const [desperfectos, setDesperfectos] = useState([]);
     const [sitios, setSitios] = useState([]);
+    const [idDesperfecto, setIdDesperfecto] = useState('')
 
 
 
@@ -118,7 +119,7 @@ const Reclamos = () => {
         console.log(rol)
         if (rol === 'vecino') {
             // console.log(imagenes, documentoVecino, instalacionAfectada, tipoDesperfecto, descripcion)
-            const response = await postReclamoVecino(imagenes, documentoVecino, parseInt(instalacionAfectada), parseInt(tipoDesperfecto), descripcion, token)
+            const response = await postReclamoVecino(imagenes, documentoVecino, parseInt(instalacionAfectada), parseInt(idDesperfecto), descripcion, token)
             setIdReclamoCreado(response)
 
         } else {
@@ -330,15 +331,16 @@ const Reclamos = () => {
 
                             <Picker
                                 selectedValue={tipoDesperfecto}
-                                onValueChange={(itemValue) => setTipoDesperfecto(itemValue)}
+                                onValueChange={(itemValue) => {
+                                    setTipoDesperfecto(itemValue);
+                                    setIdDesperfecto(itemValue);
+                                }}
                                 style={styles.picker}
                             >
                                 <Picker.Item label="Desperfecto" value="" enabled={false} />
                                 {desperfectos.map((desperfecto, index) => (
-                                    <Picker.Item key={index} label={desperfecto.descripcion} value={desperfecto.idTipoDesperfecto} />
-                                ))
-                                }
-
+                                    <Picker.Item key={index} label={desperfecto.descripcion} value={desperfecto.idDesperfecto} />
+                                ))}
                             </Picker>
                             <Picker
                                 selectedValue={rubro}
@@ -700,16 +702,16 @@ const styles = StyleSheet.create({
         height: 20,
         borderRadius: 50,
         marginRight: 5,
-      },
-      pendiente: {
+    },
+    pendiente: {
         backgroundColor: '#DED14B',
-      },
-      enviado: {
+    },
+    enviado: {
         backgroundColor: '#4E90DE',
-      },
-      finalizado: {
+    },
+    finalizado: {
         backgroundColor: '#7EDE4E',
-      },
+    },
 
 });
 

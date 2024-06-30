@@ -15,11 +15,6 @@ const postReclamoVecino = async (imagenes, documentoVecino, idSitio, idDesperfec
     
 
         // Adjuntar otros campos
-        console.log("imagenes",imagenes);
-        console.log("documentoVecino",documentoVecino);
-        console.log("idSitio",idSitio);
-        console.log("idDesperfecto",idDesperfecto);
-        console.log("descripcion",descripcion);
         formData.append("documentoVecino", documentoVecino);
         formData.append("idSitio", idSitio);
         formData.append("idDesperfecto", idDesperfecto);
