@@ -152,7 +152,7 @@ const Denuncias = () => {
 
 
     const filteredDenuncias = denuncias.filter(denuncia =>
-        denuncia.idDenuncias.toString().includes(search.toString().toLowerCase())
+        denuncia.denunciaDenunciado[0]?.nombre.toLowerCase().includes(search.toLowerCase())
         // &&
         // (generada === "" || denuncia.generada === generada)
     );
@@ -191,11 +191,11 @@ const Denuncias = () => {
                 ) : (
                     filteredDenuncias.map((denuncia, index) => (
                         <TouchableOpacity key={index} onPress={() => { setSelectedDenuncia(denuncia); setModalDenunciasVisible(true); }} >
-                            <View key={denuncia.codigo} style={styles.denunciasCard}>
-                                <Text style={styles.titulo}>🚨 {denuncia.sitios.descripcion}</Text>
+                            <View key={denuncia.idDenuncias} style={styles.denunciasCard}>
+                                <Text style={styles.titulo}>🚨 {denuncia.denunciaDenunciado[0]?.nombre}</Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Ionicons name="location" size={15} color="#7E7E7E" />
-                                    <Text style={styles.direccion}>{denuncia.sitios.descripcion}</Text>
+                                    <Text style={styles.direccion}>{denuncia.denunciaDenunciado[0]?.direccion}</Text>
                                 </View>
                                 <Text>Última actualizacion: {denuncia.ultActualizacion}</Text>
                             </View>
@@ -309,16 +309,16 @@ const Denuncias = () => {
                                 <CarousellImagenes idServicio={selectedDenuncia.idDenuncias} tipo={"denuncias"} />
                                 </View>
                                 <View style={styles.contentView}>
-                                    <Text style={styles.comercioTitulo}>Denuncia #{selectedDenuncia.codigo}</Text>
+                                    <Text style={styles.comercioTitulo}>Denuncia #{selectedDenuncia.idDenuncias}</Text>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Ionicons name="person" size={20} color="#7E7E7E" />
-                                        <Text style={styles.comercioProveedor}>Denuncia vecinal a {selectedDenuncia.vecino}</Text>
+                                        <Text style={styles.comercioProveedor}>Denuncia vecinal a {selectedDenuncia.denunciaDenunciado[0]?.nombre}</Text>
                                     </View>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Ionicons name="location" size={20} color="#7E7E7E" />
-                                        <Text style={styles.comercioTelefono}>{selectedDenuncia.direccion}</Text>
+                                        <Text style={styles.comercioTelefono}>{selectedDenuncia.denunciaDenunciado[0]?.direccion}</Text>
                                     </View>
-                                    <Text style={styles.comercioDescripcion}>{selectedDenuncia.motivo}</Text>
+                                    <Text style={styles.comercioDescripcion}>{selectedDenuncia.descripcion}</Text>
                                     <View style={{ paddingTop: 15 }}>
                                         <Text style={styles.titulo}>Estado</Text>
                                         <View style={styles.estadoContainer}>
