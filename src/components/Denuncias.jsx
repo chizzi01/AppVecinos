@@ -94,7 +94,7 @@ const Denuncias = () => {
         }
 
         if (vecinoDenuncia) {
-            postDenunciaVecino(imagenes, storedValue, motivo, direccion, ubicacion, descripcion, termsAccepted, generada)
+            postDenunciaVecino(imagenes, storedValue, motivo, descripcion ,termsAccepted,direccion, ubicacion )
                 .then(() => {
                     setModalVisible(false);
                     setModalEnviado(true);
@@ -104,7 +104,7 @@ const Denuncias = () => {
                     alert('Error al enviar la denuncia. Por favor, inténtelo de nuevo.');
                 });
         } else {
-            postDenunciaComercio(imagenes, storedValue, motivo, direccion, descripcion, termsAccepted, generada)
+            postDenunciaComercio(imagenes, storedValue, motivo, direccion, descripcion, termsAccepted)
                 .then(() => {
                     setModalVisible(false);
                     setModalEnviado(true);
