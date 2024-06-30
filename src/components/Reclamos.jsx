@@ -10,6 +10,7 @@ import postReclamoInspector from '../controllers/postReclamoInspector';
 import postReclamoVecino from '../controllers/postReclamoVecino';
 import ModalEnviado from './ModalEnviado';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { formatDate } from 'date-fns';
 
 
 
@@ -41,7 +42,7 @@ const Reclamos = () => {
 
     const getData = async () => { try { const value = await AsyncStorage.getItem('logueado'); if (value !== null) { setRol(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
     const getData2 = async () => { try { const value = await AsyncStorage.getItem('legajo'); if (value !== null) { setLegajo(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
-    const getData3 = async () => { try { const value =  await AsyncStorage.getItem('documento'); if (value !== null) { setDocumentoVecino(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
+    const getData3 = async () => { try { const value = await AsyncStorage.getItem('documento'); if (value !== null) { setDocumentoVecino(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
     const getData4 = async () => { try { const value = await AsyncStorage.getItem('token'); if (value !== null) { setToken(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
 
 
@@ -78,7 +79,7 @@ const Reclamos = () => {
             const response = await postReclamoInspector(imagenes, legajo, instalacionAfectada, tipoDesperfecto, descripcion, token)
             setIdReclamoCreado(response)
         }
-        
+
         setModalReclamosVisible(false);
         setInstalacionAfectada('');
         setTipoDesperfecto('');
@@ -184,7 +185,7 @@ const Reclamos = () => {
                                 <Text style={styles.codigo}>Reclamo N°: {reclamo.idReclamo}</Text>
                                 <Text style={styles.direccion}>Dirección: {reclamo.direccion}</Text>
                                 <Text style={styles.direccion}>Rubro: {reclamo.rubro}</Text>
-                                <Text>Última actualizacion: {reclamo.ultActualizacion}</Text>
+                                <Text>Última actualizacion: {reclamo.movimientosReclamo.length > 0 && !isNaN(new Date(reclamo.movimientosReclamo[reclamo.movimientosReclamo.length - 1]?.fecha).getTime()) ? formatDate(new Date(reclamo.movimientosReclamo[reclamo.movimientosReclamo.length - 1]?.fecha), 'dd/MM/yyyy HH:mm') : 'No disponible'}</Text>
                             </View>
                         </TouchableOpacity>
 
@@ -218,6 +219,17 @@ const Reclamos = () => {
                                         <Text style={styles.ubiReclamo}>{selectedReclamo.sitios.descripcion}</Text>
                                     </View>
                                     <Text style={styles.comercioDescripcion}>{selectedReclamo.descripcion}</Text>
+
+                                    <View style={{ paddingTop: 15 }}>
+                                        <Text style={styles.titulo}>Movimiento del reclamo</Text>
+                                        <View style={styles.estadoContainer}>
+                                            <View style={styles.estadoTextos}>
+                                                <Text style={{ color: "grey" }}>Responsable: {selectedReclamo.movimientosReclamo[selectedReclamo.movimientosReclamo.length - 1]?.responsable || 'No disponible'}</Text>
+                                                <Text style={{ color: "grey" }}>Causa: {selectedReclamo.movimientosReclamo[selectedReclamo.movimientosReclamo.length - 1]?.causa || 'No disponible'}</Text>
+                                                <Text style={{ color: "grey" }}>Ultima actualizacion: {formatDate(new Date(selectedReclamo.movimientosReclamo[selectedReclamo.movimientosReclamo.length - 1]?.fecha), 'dd/MM/yyyy HH:mm')}</Text>
+                                            </View>
+                                        </View>
+                                    </View>
                                 </View>
                             </>
                         )}

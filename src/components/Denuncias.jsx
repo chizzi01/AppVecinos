@@ -228,7 +228,7 @@ const Denuncias = () => {
                                     <Ionicons name="location" size={15} color="#7E7E7E" />
                                     <Text style={styles.direccion}>{denuncia.denunciaDenunciado[0]?.direccion}</Text>
                                 </View>
-                                <Text>Última actualizacion: {denuncia.movimientosDenuncia[denuncia.movimientosDenuncia.length - 1]?.fecha|| 'No disponible'}</Text>
+                                <Text>Última actualizacion: {denuncia.movimientosDenuncia.length > 0 && !isNaN(new Date(denuncia.movimientosDenuncia[denuncia.movimientosDenuncia.length - 1]?.fecha).getTime()) ? formatDate(new Date(denuncia.movimientosDenuncia[denuncia.movimientosDenuncia.length - 1]?.fecha), 'dd/MM/yyyy HH:mm') : 'No disponible'}</Text>
                             </View>
                         </TouchableOpacity>
 
