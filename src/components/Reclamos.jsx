@@ -53,16 +53,49 @@ const Reclamos = () => {
 
 
     useEffect(() => {
-        getData()
-        getData2()
-        getData3()
-        getData4()
         const fetchData = async () => {
             setLoading(true);
-            await getReclamos(setReclamos);
-            await getRubros(setRubros)
-            await getDesperfectos(setDesperfectos)
-            await getSitios(setSitios)
+            try {
+                // Fetch 'logueado' from AsyncStorage and set it
+                const logueadoValue = await AsyncStorage.getItem('logueado');
+                if (logueadoValue !== null) {
+                    setRol(logueadoValue);
+                } else {
+                    console.error('Logueado is null');
+                }
+
+                // Fetch 'legajo' from AsyncStorage and set it
+                const legajoValue = await AsyncStorage.getItem('legajo');
+                if (legajoValue !== null) {
+                    setLegajo(legajoValue);
+                } else {
+                    console.error('Legajo is null');
+                }
+
+                // Fetch 'documento' from AsyncStorage and set it
+                const documentoValue = await AsyncStorage.getItem('documento');
+                if (documentoValue !== null) {
+                    setDocumentoVecino(documentoValue);
+                } else {
+                    console.error('Documento is null');
+                }
+
+                // Fetch 'token' from AsyncStorage and set it
+                const tokenValue = await AsyncStorage.getItem('token');
+                if (tokenValue !== null) {
+                    setToken(tokenValue);
+                } else {
+                    console.error('Token is null');
+                }
+
+                // Fetch additional data
+                await getReclamos(setReclamos);
+                await getRubros(setRubros);
+                await getDesperfectos(setDesperfectos);
+                await getSitios(setSitios);
+            } catch (e) {
+                console.error('Failed to fetch the data from storage or get additional data', e);
+            }
             setLoading(false);
         };
         fetchData();
@@ -157,7 +190,8 @@ const Reclamos = () => {
 
     console.log("lista de reclamos", reclamos)
     const filteredReclamos = reclamos.filter(reclamo =>
-        reclamo.descripcion.toLowerCase().includes(search.toLowerCase())
+        reclamo.descripcion.toLowerCase().includes(search.toLowerCase()) &&
+        (rubro === '' || reclamo.desperfectos.rubro.idRubro === rubro)
     );
 
     return (
@@ -198,8 +232,7 @@ const Reclamos = () => {
                             <View key={reclamo.idReclamo} style={styles.reclamosCard}>
                                 <Text style={styles.titulo}>🛠 {reclamo.sitios.descripcion}</Text>
                                 <Text style={styles.codigo}>Reclamo N°: {reclamo.idReclamo}</Text>
-                                <Text style={styles.direccion}>Dirección: {reclamo.direccion}</Text>
-                                <Text style={styles.direccion}>Rubro: {reclamo.rubro}</Text>
+                                <Text style={styles.direccion}>Rubro: {reclamo.desperfectos.rubro.descripcion}</Text>
                                 <Text>Última actualizacion: {reclamo.movimientosReclamo.length > 0 && !isNaN(new Date(reclamo.movimientosReclamo[reclamo.movimientosReclamo.length - 1]?.fecha).getTime()) ? formatDate(new Date(reclamo.movimientosReclamo[reclamo.movimientosReclamo.length - 1]?.fecha), 'dd/MM/yyyy HH:mm') : 'No disponible'}</Text>
                             </View>
                         </TouchableOpacity>
@@ -228,7 +261,17 @@ const Reclamos = () => {
                                 </View>
                                 <View style={styles.contentView}>
                                     <Text style={styles.reclamoId}>Reclamo #{selectedReclamo.idReclamo}</Text>
-                                    <Text style={styles.reclamoEstado}>{selectedReclamo.estado}</Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <View
+                                            style={[
+                                                styles.estadoCirculo,
+                                                selectedReclamo.estado === 'Pendiente' && styles.pendiente,
+                                                selectedReclamo.estado === 'Enviado' && styles.enviado,
+                                                selectedReclamo.estado === 'Finalizado' && styles.finalizado,
+                                            ]}
+                                        />
+                                        <Text style={styles.reclamoEstado}>{selectedReclamo.estado}</Text>
+                                    </View>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Ionicons style={styles.clock} name="location" size={20} color="#7E7E7E" />
                                         <Text style={styles.ubiReclamo}>{selectedReclamo.sitios.descripcion}</Text>
@@ -278,6 +321,7 @@ const Reclamos = () => {
                                 onValueChange={(itemValue) => setInstalacionAfectada(itemValue)}
                                 style={styles.picker}
                             >
+                                <Picker.Item label="Sitio" value="" enabled={false} />
                                 {sitios.map((sitio, index) => (
                                     <Picker.Item key={index} label={sitio.descripcion} value={sitio.idSitio} />
                                 ))}
@@ -289,6 +333,7 @@ const Reclamos = () => {
                                 onValueChange={(itemValue) => setTipoDesperfecto(itemValue)}
                                 style={styles.picker}
                             >
+                                <Picker.Item label="Desperfecto" value="" enabled={false} />
                                 {desperfectos.map((desperfecto, index) => (
                                     <Picker.Item key={index} label={desperfecto.descripcion} value={desperfecto.idTipoDesperfecto} />
                                 ))
@@ -300,7 +345,7 @@ const Reclamos = () => {
                                 onValueChange={(itemValue) => setRubro(itemValue)}
                                 style={styles.picker}
                             >
-
+                                <Picker.Item label="Rubro" value="" enabled={false} />
                                 {rubros.map((rubro, index) => (
                                     <Picker.Item key={index} label={rubro.descripcion} value={rubro.idRubro} />
                                 ))}
@@ -650,6 +695,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    estadoCirculo: {
+        width: 20,
+        height: 20,
+        borderRadius: 50,
+        marginRight: 5,
+      },
+      pendiente: {
+        backgroundColor: '#DED14B',
+      },
+      enviado: {
+        backgroundColor: '#4E90DE',
+      },
+      finalizado: {
+        backgroundColor: '#7EDE4E',
+      },
 
 });
 
