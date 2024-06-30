@@ -94,7 +94,7 @@ const Denuncias = () => {
         }
 
         if (vecinoDenuncia) {
-            postDenunciaVecino(imagenes, storedValue, motivo, descripcion ,termsAccepted,direccion, ubicacion )
+            postDenunciaVecino(imagenes, storedValue, motivo, descripcion, termsAccepted, direccion, ubicacion)
                 .then(() => {
                     setModalVisible(false);
                     setModalEnviado(true);
@@ -366,17 +366,23 @@ const Denuncias = () => {
                                     <View style={{ paddingTop: 15 }}>
                                         <Text style={styles.titulo}>Estado</Text>
                                         <ScrollView>
-                                        <View style={styles.estadoContainer}>
-                                            <View>
-                                                <Text style={styles.paso}>{selectedDenuncia.estado?.paso || '1'}</Text>
+                                            <View style={styles.estadoContainer}>
+                                                <View>
+                                                    <Text style={styles.paso}>{selectedDenuncia.estado?.paso || '1'}</Text>
+                                                </View>
+                                                <View style={styles.estadoTextos}>
+                                                    <Text>{selectedDenuncia.estado || 'Descripción no disponible'}</Text>
+                                                    <Text style={{ color: "grey" }}>Responsable: {selectedDenuncia.movimientosDenuncia[selectedDenuncia.movimientosDenuncia.length - 1]?.responsable || 'No disponible'}</Text>
+                                                    <Text style={{ color: "grey" }}>Causa: {selectedDenuncia.movimientosDenuncia[selectedDenuncia.movimientosDenuncia.length - 1]?.causa || 'No disponible'}</Text>
+                                                    <Text style={{ color: "grey" }}>
+                                                        Ultima actualizacion: {
+                                                            selectedDenuncia.movimientosDenuncia.length > 0 && !isNaN(new Date(selectedDenuncia.movimientosDenuncia[selectedDenuncia.movimientosDenuncia.length - 1]?.fecha).getTime())
+                                                                ? formatDate(new Date(selectedDenuncia.movimientosDenuncia[selectedDenuncia.movimientosDenuncia.length - 1]?.fecha), 'dd/MM/yyyy HH:mm')
+                                                                : 'No disponible'
+                                                        }
+                                                    </Text>                                            
+                                                    </View>
                                             </View>
-                                            <View style={styles.estadoTextos}>
-                                                <Text>{selectedDenuncia.estado || 'Descripción no disponible'}</Text>
-                                                <Text style={{ color: "grey" }}>Responsable: {selectedDenuncia.movimientosDenuncia[selectedDenuncia.movimientosDenuncia.length - 1]?.responsable|| 'No disponible'}</Text>
-                                                <Text style={{ color: "grey" }}>Causa: {selectedDenuncia.movimientosDenuncia[selectedDenuncia.movimientosDenuncia.length - 1]?.causa|| 'No disponible'}</Text>
-                                                <Text style={{ color: "grey" }}>Ultima actualizacion: {formatDate(new Date(selectedDenuncia.movimientosDenuncia[selectedDenuncia.movimientosDenuncia.length - 1]?.fecha), 'dd/MM/yyyy HH:mm')|| 'No disponible'}</Text>
-                                            </View>
-                                        </View>
                                         </ScrollView>
                                     </View>
                                 </View>

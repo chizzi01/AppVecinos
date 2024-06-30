@@ -12,7 +12,8 @@ const getReclamos = async(setReclamos) => {
       
       let response = await fetch("https://municipio-g8-servidor-production-dcd2.up.railway.app/api/reclamos/getReclamos", requestOptions);
       let jsonData = await response.json();
-      console.log(jsonData)
+      console.log("reclamossssss",jsonData)
+      console.log(response)
       setReclamos(jsonData);
       //hjolahghg
 }

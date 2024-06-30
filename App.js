@@ -14,7 +14,6 @@ import {
   TouchableOpacity,
   Modal,
 } from 'react-native';
-import { useNavigate } from 'react-router-native';
 
 
 import Comercios from './src/components/Comercios';
@@ -25,7 +24,7 @@ import Login from './src/components/Login';
 import Home from './src/components/Home';
 import Perfil from './src/components/Perfil';
 import Notificaciones from './src/components/Notificaciones';
-import Notificacion from  './src/components/Notificaciones';
+import getNotificacionesVecino from './src/controllers/getNotificacionesVecino';
 import { AppRegistry } from 'react-native';
 import { name as appName } from './app.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -42,13 +41,40 @@ const App = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(true);
   const [nombre, setNombre] = useState('');
+  const [notificaciones, setNotificaciones] = useState([])
+  const [documentoVecino, setDocumentoVecino] = useState('')
   // const navigate = useNavigate();
 
 
-  const getData1 = async () => { try { const value = await AsyncStorage.getItem('nombre'); if (value !== null) { setNombre(value); } } catch (e) { console.error('Failed to fetch the data from storage', e); } };
-
   useEffect(() => {
-    getData1()
+    const fetchData = async () => {
+      try {
+        // Fetch 'nombre' from AsyncStorage
+        const nombreValue = await AsyncStorage.getItem('nombre');
+        if (nombreValue !== null) {
+          setNombre(nombreValue);
+        } else {
+          console.error('Nombre is null');
+        }
+  
+        // Fetch 'documento' from AsyncStorage
+        const documentoValue = await AsyncStorage.getItem('documento');
+        if (documentoValue !== null) {
+          setDocumentoVecino(documentoValue);
+          console.log("documentoVecino", documentoValue);
+  
+          // Fetch notifications using the documento value
+          const response = await getNotificacionesVecino(documentoValue);
+          setNotificaciones(response);
+          console.log("notificaciones", response);
+        } else {
+          console.error('Documento vecino is null');
+        }
+      } catch (e) {
+        console.error('Failed to fetch the data from storage or get notifications', e);
+      }
+    };
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -71,12 +97,12 @@ const App = () => {
   useEffect(() => {
     const fetchLogueado = async () => {
       const value = await AsyncStorage.getItem('logueado');
-      console.log("Este es el valor que ingresa:",value);
+      console.log("Este es el valor que ingresa:", value);
       if (value == 'vecino') {
         setLogueado("vecino");
         console.log('entra en veinooo');
-      } 
-      if ( value == 'inspector') {
+      }
+      if (value == 'inspector') {
         setLogueado("inspector");
         console.log('Entro aca');
       }
@@ -167,11 +193,11 @@ const App = () => {
         </>
       )}
       <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-      {logueado === "vecino" || logueado === "inspector" ? (
+        {logueado === "vecino" || logueado === "inspector" ? (
           <>
             <Link to="/notificaciones" onPress={() => drawer.current.closeDrawer()}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <NotificacionesIcono notificaciones={notificacionesEjemplo} />
+                <NotificacionesIcono notificaciones={notificaciones} />
                 <Text style={styles.link}>Notificaciones</Text>
               </View>
             </Link>
@@ -200,36 +226,7 @@ const App = () => {
     </View>
   );
 
-  // const usuario = {
-  //   nombre: 'Juan',
-  //   apellido: 'Perez',
-  //   email: 'juanperez@gmail.com',
-  //   password: '123',
-  //   dni: '12345678',
-  //   tipo: 'vecino',
-  //   validado: true,
-  // };
 
-  const notificacionesEjemplo = [
-    { title: 'Notificación 1', date: '2022-04-29', type: 'Reclamo', description: 'Descripción de la notificación 1' },
-    { title: 'Notificación 2', date: '2022-04-20', type: 'Denuncia', description: 'Descripción de la notificación 2' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-    { title: 'Notificación 3', date: '2022-04-15', type: 'Otro', description: 'Descripción de la notificación 3' },
-  ];
 
   const AppBarTitle = () => {
     const location = useLocation();
@@ -265,10 +262,10 @@ const App = () => {
         appBarColor = '#57B27E';
         titulo = 'Bienvenido/a ' + nombre;
         break;
-        case '/notificaciones':
-          appBarColor = '#decf35';
-          titulo = 'Notificaciones';
-          break; 
+      case '/notificaciones':
+        appBarColor = '#decf35';
+        titulo = 'Notificaciones';
+        break;
       default:
         appBarColor = 'grey';
         titulo = 'Home';
@@ -292,11 +289,11 @@ const App = () => {
           drawerPosition={drawerPosition}
           renderNavigationView={navigationView}
         >
-      {keyboardVisible && (
-        <TouchableOpacity style={styles.menuButton} onPress={() => drawer.current.openDrawer()}>
-          <Ionicons name="menu" size={36} color="#fff" />
-        </TouchableOpacity>
-      )}
+          {keyboardVisible && (
+            <TouchableOpacity style={styles.menuButton} onPress={() => drawer.current.openDrawer()}>
+              <Ionicons name="menu" size={36} color="#fff" />
+            </TouchableOpacity>
+          )}
           <View>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -307,7 +304,7 @@ const App = () => {
               <Route path="/denuncias" element={<Denuncias />} />
               <Route path="/perfil" element={<Perfil />} />
               <Route path="/login" element={<Login onLogin={handleLogin} />} />
-              <Route path="/notificaciones" element={<Notificaciones notificaciones={notificacionesEjemplo}/>} />
+              <Route path="/notificaciones" element={<Notificaciones notificaciones={notificaciones} />} />
             </Routes>
           </View>
         </DrawerLayoutAndroid>

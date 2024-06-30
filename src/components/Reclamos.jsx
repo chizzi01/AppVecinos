@@ -11,6 +11,9 @@ import postReclamoVecino from '../controllers/postReclamoVecino';
 import ModalEnviado from './ModalEnviado';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatDate } from 'date-fns';
+import getRubros from '../controllers/getRubros';
+import getDesperfectos from '../controllers/getDesperfectos';
+import getSitios from '../controllers/getSitios';
 
 
 
@@ -37,6 +40,9 @@ const Reclamos = () => {
     const [legajo, setLegajo] = useState('');
     const [token, setToken] = useState('');
     const [idReclamoCreado, setIdReclamoCreado] = useState('')
+    const [rubros, setRubros] = useState([]);
+    const [desperfectos, setDesperfectos] = useState([]);
+    const [sitios, setSitios] = useState([]);
 
 
 
@@ -54,10 +60,18 @@ const Reclamos = () => {
         const fetchData = async () => {
             setLoading(true);
             await getReclamos(setReclamos);
+            await getRubros(setRubros)
+            await getDesperfectos(setDesperfectos)
+            await getSitios(setSitios)
             setLoading(false);
         };
         fetchData();
     }, []);
+
+    console.log("reclamos", reclamos)
+    console.log("rubros", rubros)
+    console.log("desperfectos", desperfectos)
+    console.log("sitios", sitios)
 
 
     const onRefresh = useCallback(async () => {
@@ -141,9 +155,9 @@ const Reclamos = () => {
         }
     };
 
-
+    console.log("lista de reclamos", reclamos)
     const filteredReclamos = reclamos.filter(reclamo =>
-        (reclamo.sitios.descripcion || '').toLowerCase().includes((search || '').toLowerCase())
+        reclamo.descripcion.toLowerCase().includes(search.toLowerCase())
     );
 
     return (
@@ -164,8 +178,9 @@ const Reclamos = () => {
                     style={styles.pickerRubro}
                 >
                     <Picker.Item label="Todos los rubros" value="" />
-                    <Picker.Item label="Plomeria" value="plomeria" />
-                    <Picker.Item label="Carpinteria" value="carpinteria" />
+                    {rubros.map((rubro, index) => (
+                        <Picker.Item key={index} label={rubro.descripcion} value={rubro.idRubro} />
+                    ))}
                 </Picker>
             </View>
             <ScrollView
@@ -226,7 +241,13 @@ const Reclamos = () => {
                                             <View style={styles.estadoTextos}>
                                                 <Text style={{ color: "grey" }}>Responsable: {selectedReclamo.movimientosReclamo[selectedReclamo.movimientosReclamo.length - 1]?.responsable || 'No disponible'}</Text>
                                                 <Text style={{ color: "grey" }}>Causa: {selectedReclamo.movimientosReclamo[selectedReclamo.movimientosReclamo.length - 1]?.causa || 'No disponible'}</Text>
-                                                <Text style={{ color: "grey" }}>Ultima actualizacion: {formatDate(new Date(selectedReclamo.movimientosReclamo[selectedReclamo.movimientosReclamo.length - 1]?.fecha), 'dd/MM/yyyy HH:mm')}</Text>
+                                                <Text style={{ color: "grey" }}>
+                                                    Ultima actualizacion: {
+                                                        selectedReclamo.movimientosReclamo.length > 0 && !isNaN(new Date(selectedReclamo.movimientosReclamo[selectedReclamo.movimientosReclamo.length - 1]?.fecha).getTime())
+                                                            ? formatDate(new Date(selectedReclamo.movimientosReclamo[selectedReclamo.movimientosReclamo.length - 1]?.fecha), 'dd/MM/yyyy HH:mm')
+                                                            : 'No disponible'
+                                                    }
+                                                </Text>
                                             </View>
                                         </View>
                                     </View>
@@ -257,8 +278,9 @@ const Reclamos = () => {
                                 onValueChange={(itemValue) => setInstalacionAfectada(itemValue)}
                                 style={styles.picker}
                             >
-                                <Picker.Item label="Instalacion 1" value="1" />
-                                <Picker.Item label="Instalacion 2" value="2" />
+                                {sitios.map((sitio, index) => (
+                                    <Picker.Item key={index} label={sitio.descripcion} value={sitio.idSitio} />
+                                ))}
 
                             </Picker>
 
@@ -267,8 +289,10 @@ const Reclamos = () => {
                                 onValueChange={(itemValue) => setTipoDesperfecto(itemValue)}
                                 style={styles.picker}
                             >
-                                <Picker.Item label="Desperfecto 1" value="1" />
-                                <Picker.Item label="Desperfecto 2" value="2" />
+                                {desperfectos.map((desperfecto, index) => (
+                                    <Picker.Item key={index} label={desperfecto.descripcion} value={desperfecto.idTipoDesperfecto} />
+                                ))
+                                }
 
                             </Picker>
                             <Picker
@@ -276,8 +300,10 @@ const Reclamos = () => {
                                 onValueChange={(itemValue) => setRubro(itemValue)}
                                 style={styles.picker}
                             >
-                                <Picker.Item label="Rubro 1" value="rubro1" />
-                                <Picker.Item label="Rubro 2" value="rubro2" />
+
+                                {rubros.map((rubro, index) => (
+                                    <Picker.Item key={index} label={rubro.descripcion} value={rubro.idRubro} />
+                                ))}
 
                             </Picker>
                             <TextInput style={styles.input} placeholder="Informacion adicional" onChangeText={setDescripcion} multiline={true}
