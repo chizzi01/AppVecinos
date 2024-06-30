@@ -61,23 +61,24 @@ const Reclamos = () => {
 
 
     const handleSave = async () => {
-        if (rol === 'vecino'){
-            console.log(imagenes, documentoVecino, instalacionAfectada, tipoDesperfecto, descripcion)
-            const response = await postReclamoVecino(imagenes, documentoVecino, instalacionAfectada, tipoDesperfecto, descripcion)
-            
-                
-            }else {
-            
+        console.log(rol)
+        if (rol === 'vecino') {
+            // console.log(imagenes, documentoVecino, instalacionAfectada, tipoDesperfecto, descripcion)
+            const response = await postReclamoVecino(imagenes, documentoVecino, parseInt(instalacionAfectada), parseInt(tipoDesperfecto), descripcion)
+            console.log(response)
+
+        } else {
+
             const response = await postReclamoInspector(imagenes, legajo, instalacionAfectada, tipoDesperfecto, descripcion)
-            }
-            setModalReclamosVisible(false);
-            setInstalacionAfectada('');
-            setTipoDesperfecto('');
-            setDescripcion('');
-            setRubro('');
-            setImagenes([]);
-            setVistasPrevia([]);
-            setModalEnviado(true);
+        }
+        setModalReclamosVisible(false);
+        setInstalacionAfectada('');
+        setTipoDesperfecto('');
+        setDescripcion('');
+        setRubro('');
+        setImagenes([]);
+        setVistasPrevia([]);
+        setModalEnviado(true);
     }
 
     const pickImage = async () => {
@@ -287,7 +288,9 @@ const Reclamos = () => {
                                 ))}
                             </View>
                             <View style={styles.lineAlign}>
-                                <Button title="Crear reclamo" onPress={handleSave} />
+                                <TouchableOpacity style={styles.save} onPress={handleSave}>
+                                    <Text style={{ color: "white" }}>Enviar reclamo</Text>
+                                </TouchableOpacity>
                                 <TouchableOpacity style={styles.cancel} onPress={() => setModalReclamosVisible(false)}>
                                     <Text style={styles.colorText}>Cancelar</Text>
                                 </TouchableOpacity>
@@ -379,7 +382,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5,
         height: '100%', // Larger height
-        width: '95%' // Larger width
+        width: '95%', // Larger width
+        gap: 10
     },
     input: {// Adjust the height as needed
         width: '100%', // Make the input take up the full width of the modal
@@ -591,6 +595,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'grey', // Customize as needed
         borderRadius: 25, // Adjust size as needed
+    },
+    save: {
+        backgroundColor: '#2c3e50',
+        padding: 10,
+        borderRadius: 10,
+        width: '50%',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 
 });

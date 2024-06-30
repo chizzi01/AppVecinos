@@ -281,7 +281,9 @@ const Denuncias = () => {
                             <Text style={styles.checkboxText}>Confirmo autenticidad del hecho</Text>
                         </TouchableOpacity>
                         <View style={styles.lineAlign}>
-                            <Button title="Crear denuncia" onPress={handleSave} />
+                        <TouchableOpacity style={styles.save} onPress={handleSave}>
+                                        <Text style={{color:"white"}}>Enviar Denunia</Text>
+                                    </TouchableOpacity>
                             <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
                                 <Text style={styles.colorText}>Cancelar</Text>
                             </TouchableOpacity>
@@ -826,6 +828,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'grey', // Customize as needed
         borderRadius: 25, // Adjust size as needed
+    },
+    save: {
+        backgroundColor: '#fd746c',
+        padding: 10,
+        borderRadius: 10,
+        width: '40%',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 
 

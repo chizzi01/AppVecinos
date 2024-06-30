@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, Modal, TextInput } from 'react-native';
+import { View, Text, Button, StyleSheet, Modal, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import cambiarPass from '../controllers/cambiarPass';
@@ -45,14 +45,14 @@ const Perfil = ({ onPasswordChange }) => {
 
   const handleChangePassword = async () => {
     console.log(rol)
-    if (rol === 'vecino'){
+    if (rol === 'vecino') {
       const reponse = await cambiarPass(storedValue, oldPassword, newPassword)
       //onPasswordChange(storedValue, oldPassword, newPassword);
-    } else{
+    } else {
       const response = await cambiarPassInspector(legajo, oldPassword, newPassword)
       //onPasswordChange(legajo, oldPassword, newPassword);
     }
-    
+
     setModalVisible(false);
   };
   return (
@@ -91,7 +91,14 @@ const Perfil = ({ onPasswordChange }) => {
               placeholder="Nueva contraseña"
               secureTextEntry
             />
-            <Button title="Cambiar" onPress={handleChangePassword} />
+            <View style={styles.lineAlign}>
+              <TouchableOpacity style={styles.cambiar} onPress={handleChangePassword}>
+                <Text style={{ color: "white" }}>Cambiar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.cancelar} onPress={() => setModalVisible(false)}>
+                <Text style={{ color: "white" }}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -175,6 +182,24 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     color: '#333',
     borderColor: '#4bdaa3',
+  },
+  cambiar: {
+    backgroundColor: '#4bdaa3',
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  lineAlign: {
+    flexDirection: 'row', // Align items horizontally
+    alignItems: 'center', // Center items vertically
+    justifyContent: 'space-evenly', // Add space between the buttons
+    width: '100%' // Make the buttons take up the full width of the modal
+  },
+  cancelar: {
+    backgroundColor: 'grey',
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 20,
   },
 });
 

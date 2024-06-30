@@ -170,7 +170,10 @@ const Comercios = ( logueado ) => {
                             ))}
                         </View>
                         <View style={styles.lineAlign}>
-                            <Button title="Guardar" onPress={handleSave} />
+                            <TouchableOpacity style={styles.save} onPress={handleSave}>
+                                <Text style={{color:"white"}}>Guardar</Text>
+                            </TouchableOpacity>
+
                             <TouchableOpacity style={styles.cancel} onPress={() => setModalVisible(false)}>
                                 <Text style={styles.colorText}>Cancelar</Text>
                             </TouchableOpacity>
@@ -270,7 +273,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5,
         height: '90%', // Larger height
-        width: '95%' // Larger width
+        width: '95%', // Larger width
+        gap: 10
     },
     input: {
         height: 40, // Adjust the height as needed
@@ -466,8 +470,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 20,
     },
-
-
+    save : {
+        backgroundColor: '#03A9F4',
+        padding: 10,
+        borderRadius: 10,
+        paddingHorizontal: 20,
+    }
 });
 
 
