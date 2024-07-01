@@ -25,6 +25,7 @@ import Home from './src/components/Home';
 import Perfil from './src/components/Perfil';
 import Notificaciones from './src/components/Notificaciones';
 import getNotificacionesVecino from './src/controllers/getNotificacionesVecino';
+import getNotificacionesInspector from './src/controllers/getNotificacionesInspector';
 import { AppRegistry } from 'react-native';
 import { name as appName } from './app.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -43,6 +44,8 @@ const App = () => {
   const [nombre, setNombre] = useState('');
   const [notificaciones, setNotificaciones] = useState([])
   const [documentoVecino, setDocumentoVecino] = useState('')
+  const [legajo, setLegajo] = useState('')
+
   // const navigate = useNavigate();
 
 
@@ -57,283 +60,318 @@ const App = () => {
           console.error('Nombre is null');
         }
   
-        // Fetch 'documento' from AsyncStorage
+        // Fetch 'documento' and 'legajo' from AsyncStorage
         const documentoValue = await AsyncStorage.getItem('documento');
-        if (documentoValue !== null) {
+        const legajoValue = await AsyncStorage.getItem('legajo');
+        const rol = await AsyncStorage.getItem('logueado');
+  
+        if (rol === 'vecino') {
           setDocumentoVecino(documentoValue);
           console.log("documentoVecino", documentoValue);
   
           // Fetch notifications using the documento value
           const response = await getNotificacionesVecino(documentoValue);
           setNotificaciones(response);
-          console.log("notificaciones", response);
         } else {
-          console.error('Documento vecino is null');
+          const response = await getNotificacionesInspector(legajoValue);
+          setNotificaciones(response);
         }
       } catch (e) {
         console.error('Failed to fetch the data from storage or get notifications', e);
       }
     };
+  
     fetchData();
-  }, []);
+  
+    // Consider adding a polling mechanism or WebSocket listener here if you need real-time updates
+  }, []); // Add dependencies if needed, for example, if notifications should be fetched when a certain state changes.
 
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => setKeyboardVisible(false)
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => setKeyboardVisible(true)
-    );
+useEffect(() => {
+  const keyboardDidShowListener = Keyboard.addListener(
+    'keyboardDidShow',
+    () => setKeyboardVisible(false)
+  );
+  const keyboardDidHideListener = Keyboard.addListener(
+    'keyboardDidHide',
+    () => setKeyboardVisible(true)
+  );
 
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
+  return () => {
+    keyboardDidShowListener.remove();
+    keyboardDidHideListener.remove();
+  };
+}, []);
 
-
-  useEffect(() => {
-    const fetchLogueado = async () => {
-      const value = await AsyncStorage.getItem('logueado');
-      console.log("Este es el valor que ingresa:", value);
-      if (value == 'vecino') {
-        setLogueado("vecino");
-        console.log('entra en veinooo');
-      }
-      if (value == 'inspector') {
-        setLogueado("inspector");
-        console.log('Entro aca');
-      }
-
-      if (value == null || value === 'false') {
-        setLogueado(false);
-        console.log('no logueado');
-      }
-    };
-
-    fetchLogueado();
-  }, []);
-
-  const handleLogin = () => {
-    AsyncStorage.getItem('logueado').then((value) => {
-      if (value == 'vecino') {
-        setLogueado('vecino');
-      } else if (value == 'inspector') {
-        setLogueado('inspector');
-      } else {
-        setLogueado(false);
-      }
+const cargarNotificaciones = async (rol) => {
+  try {
+    if (rol === 'vecino') {
+      // Suponiendo que existe una función para obtener las notificaciones del vecino
+      const documentoValue = await AsyncStorage.getItem('documento');
+      const response = await getNotificacionesVecino(documentoValue);
+      setNotificaciones(response);
+    } else if (rol === 'inspector') {
+      // Suponiendo que existe una función para obtener las notificaciones del inspector
+      const legajoValue = await AsyncStorage.getItem('legajo');
+      const response = await getNotificacionesInspector(legajoValue);
+      setNotificaciones(response);
     }
-    );
+  } catch (e) {
+    console.error('Error al cargar las notificaciones', e);
+  }
+};
+
+
+useEffect(() => {
+  const fetchLogueado = async () => {
+    const value = await AsyncStorage.getItem('logueado');
+    console.log("Este es el valor que ingresa:", value);
+    if (value == 'vecino') {
+      setLogueado("vecino");
+      console.log('entra en veinooo');
+    }
+    if (value == 'inspector') {
+      setLogueado("inspector");
+      console.log('Entro aca');
+    }
+
+    if (value == null || value === 'false') {
+      setLogueado(false);
+      console.log('no logueado');
+    }
   };
 
+  fetchLogueado();
+}, []);
 
-  const handleLogout = async () => {
-    await AsyncStorage.setItem('logueado', 'false');
-    setLogueado(false);
-    setModalVisible(false);
-  };
-
-  const NotificacionesIcono = ({ notificaciones }) => {
-    return (
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Ionicons name="notifications" size={30} color="#decf35" />
-        <Badge value={notificaciones.length} status="error" containerStyle={{ position: 'absolute', top: -4, right: -4 }} />
-      </View>
-    );
-  };
-
-
-  const navigationView = () => (
+const handleLogin = () => {
+  AsyncStorage.getItem('logueado').then((value) => {
+    if (value == 'vecino') {
+      setLogueado('vecino');
+      cargarNotificaciones('vecino');
+    } else if (value == 'inspector') {
+      setLogueado('inspector');
+      cargarNotificaciones('inspector');
+    } else {
+      setLogueado(false);
+    }
+  }
+  );
+};
 
 
-    <View style={[styles.container, styles.navigationContainer]}>
-      {logueado == false && (
-        <>
-          <Link to="/" onPress={() => drawer.current.closeDrawer()}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="home" size={30} color="#57B27E" />
-              <Text style={styles.link}>Home</Text>
-            </View>
-          </Link>
-        </>
-      )}
-      <Link to="/comercios" onPress={() => drawer.current.closeDrawer()}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="cart" size={30} color="#3072ff" />
-          <Text style={styles.link}>Comercios</Text>
-        </View>
-      </Link>
-      <Link to="/servicios" onPress={() => drawer.current.closeDrawer()}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="briefcase" size={30} color="#ff834e" />
-          <Text style={styles.link}>Servicios</Text>
-        </View>
-      </Link>
-      {((logueado == "vecino") || (logueado == "inspector")) && (
-        <>
-          <Link to="/reclamos" onPress={() => drawer.current.closeDrawer()}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="construct" size={30} color="#2c3e50" />
-              <Text style={styles.link}>Reclamos</Text>
-            </View>
-          </Link>
-        </>
-      )}
-      {logueado == "vecino" && (
-        <>
-          <Link to="/denuncias" onPress={() => drawer.current.closeDrawer()}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="alert-circle" size={30} color="#fd746c" />
-              <Text style={styles.link}>Denuncias</Text>
-            </View>
-          </Link>
-        </>
-      )}
-      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-        {logueado === "vecino" || logueado === "inspector" ? (
-          <>
-            <Link to="/notificaciones" onPress={() => drawer.current.closeDrawer()}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <NotificacionesIcono notificaciones={notificaciones} />
-                <Text style={styles.link}>Notificaciones</Text>
-              </View>
-            </Link>
-            <Link to="/perfil" onPress={() => drawer.current.closeDrawer()}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="person-circle-outline" size={30} color="#57B27E" />
-                <Text style={styles.link}>Mi perfil</Text>
-              </View>
-            </Link>
-            <TouchableOpacity onPress={() => setModalVisible(true)}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="log-out" size={30} color="#fd746c" />
-                <Text style={styles.link}>Cerrar sesión</Text>
-              </View>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <Link to="/login" onPress={() => drawer.current.closeDrawer()}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="log-in" size={30} color="#4bdaa3" />
-              <Text style={styles.link}>Ingresar</Text>
-            </View>
-          </Link>
-        )}
-      </View>
+const handleLogout = async () => {
+  await AsyncStorage.setItem('logueado', 'false');
+  await AsyncStorage.setItem('nombre', '');
+  await AsyncStorage.setItem('documento', '');
+  await AsyncStorage.setItem('legajo', '');
+  await AsyncStorage.setItem('notificaciones', '');
+  setNotificaciones([]);
+  setNombre('');
+  setDocumentoVecino('');
+  setLegajo('');
+  setLogueado(false);
+  setModalVisible(false);
+
+};
+
+const NotificacionesIcono = ({ notificaciones }) => {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Ionicons name="notifications" size={30} color="#decf35" />
+      <Badge value={notificaciones.length} status="error" containerStyle={{ position: 'absolute', top: -4, right: -4 }} />
     </View>
   );
+};
 
 
+const navigationView = () => (
 
-  const AppBarTitle = () => {
-    const location = useLocation();
-    let appBarColor;
-    let titulo;
 
-    switch (location.pathname) {
-      case '/':
-        appBarColor = '#57B27E';
-        titulo = 'Home';
-        break;
-      case '/comercios':
-        appBarColor = '#3072ff';
-        titulo = 'Comercios';
-        break;
-      case '/servicios':
-        appBarColor = '#ff834e';
-        titulo = 'Servicios';
-        break;
-      case '/reclamos':
-        appBarColor = '#2c3e50';
-        titulo = 'Reclamos';
-        break;
-      case '/denuncias':
-        appBarColor = '#fd746c';
-        titulo = 'Denuncias';
-        break;
-      case '/login':
-        appBarColor = '#4bdaa3';
-        titulo = 'Ingreso';
-        break;
-      case '/perfil':
-        appBarColor = '#57B27E';
-        titulo = 'Bienvenido/a ' + nombre;
-        break;
-      case '/notificaciones':
-        appBarColor = '#decf35';
-        titulo = 'Notificaciones';
-        break;
-      default:
-        appBarColor = 'grey';
-        titulo = 'Home';
-    }
-
-    return (
-      <View style={[styles.appBar, { backgroundColor: appBarColor }]}>
-        <Text style={styles.appBarTitle}>{titulo}</Text>
+  <View style={[styles.container, styles.navigationContainer]}>
+    {logueado == false && (
+      <>
+        <Link to="/" onPress={() => drawer.current.closeDrawer()}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="home" size={30} color="#57B27E" />
+            <Text style={styles.link}>Home</Text>
+          </View>
+        </Link>
+      </>
+    )}
+    <Link to="/comercios" onPress={() => drawer.current.closeDrawer()}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Ionicons name="cart" size={30} color="#3072ff" />
+        <Text style={styles.link}>Comercios</Text>
       </View>
-    );
-  };
+    </Link>
+    <Link to="/servicios" onPress={() => drawer.current.closeDrawer()}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Ionicons name="briefcase" size={30} color="#ff834e" />
+        <Text style={styles.link}>Servicios</Text>
+      </View>
+    </Link>
+    {((logueado == "vecino") || (logueado == "inspector")) && (
+      <>
+        <Link to="/reclamos" onPress={() => drawer.current.closeDrawer()}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="construct" size={30} color="#2c3e50" />
+            <Text style={styles.link}>Reclamos</Text>
+          </View>
+        </Link>
+      </>
+    )}
+    {logueado == "vecino" && (
+      <>
+        <Link to="/denuncias" onPress={() => drawer.current.closeDrawer()}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="alert-circle" size={30} color="#fd746c" />
+            <Text style={styles.link}>Denuncias</Text>
+          </View>
+        </Link>
+      </>
+    )}
+    <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+      {logueado === "vecino" || logueado === "inspector" ? (
+        <>
+          <Link to="/notificaciones" onPress={() => drawer.current.closeDrawer()}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <NotificacionesIcono notificaciones={notificaciones} />
+              <Text style={styles.link}>Notificaciones</Text>
+            </View>
+          </Link>
+          <Link to="/perfil" onPress={() => drawer.current.closeDrawer()}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="person-circle-outline" size={30} color="#57B27E" />
+              <Text style={styles.link}>Mi perfil</Text>
+            </View>
+          </Link>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="log-out" size={30} color="#fd746c" />
+              <Text style={styles.link}>Cerrar sesión</Text>
+            </View>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <Link to="/login" onPress={() => drawer.current.closeDrawer()}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="log-in" size={30} color="#4bdaa3" />
+            <Text style={styles.link}>Ingresar</Text>
+          </View>
+        </Link>
+      )}
+    </View>
+  </View>
+);
 
+
+
+const AppBarTitle = () => {
+  const location = useLocation();
+  let appBarColor;
+  let titulo;
+
+  switch (location.pathname) {
+    case '/':
+      appBarColor = '#57B27E';
+      titulo = 'Home';
+      break;
+    case '/comercios':
+      appBarColor = '#3072ff';
+      titulo = 'Comercios';
+      break;
+    case '/servicios':
+      appBarColor = '#ff834e';
+      titulo = 'Servicios';
+      break;
+    case '/reclamos':
+      appBarColor = '#2c3e50';
+      titulo = 'Reclamos';
+      break;
+    case '/denuncias':
+      appBarColor = '#fd746c';
+      titulo = 'Denuncias';
+      break;
+    case '/login':
+      appBarColor = '#4bdaa3';
+      titulo = 'Ingreso';
+      break;
+    case '/perfil':
+      appBarColor = '#57B27E';
+      titulo = 'Bienvenido/a ' + nombre;
+      break;
+    case '/notificaciones':
+      appBarColor = '#decf35';
+      titulo = 'Notificaciones';
+      break;
+    default:
+      appBarColor = 'grey';
+      titulo = 'Home';
+  }
 
   return (
-    <Router style={[styles.appSpace]}>
-      <SafeAreaView style={{ flex: 1 }}>
-        <AppBarTitle />
-        <DrawerLayoutAndroid
-          ref={drawer}
-          drawerWidth={300}
-          drawerPosition={drawerPosition}
-          renderNavigationView={navigationView}
-        >
-          {keyboardVisible && (
-            <TouchableOpacity style={styles.menuButton} onPress={() => drawer.current.openDrawer()}>
-              <Ionicons name="menu" size={36} color="#fff" />
-            </TouchableOpacity>
-          )}
-          <View>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/comercios" element={<Comercios logueado={logueado} />} />
-              <Route path="/servicios" element={<Servicios logueado={logueado} />} />
-              <Route path="/reclamos" element={<Reclamos />} />
-              <Route path="/denuncias" element={<Denuncias />} />
-              <Route path="/perfil" element={<Perfil />} />
-              <Route path="/login" element={<Login onLogin={handleLogin} />} />
-              <Route path="/notificaciones" element={<Notificaciones notificaciones={notificaciones} />} />
-            </Routes>
-          </View>
-        </DrawerLayoutAndroid>
-        <Modal animationType="slide"
-          transparent={true}
-          visible={isModalVisible}
-          onRequestClose={() => {
-            setModalVisible(false);
-          }}>
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text>¿Deseas cerrar sesión?</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={styles.buttonsModal}>
-                  <Link to="/login" onPress={() => drawer.current.closeDrawer()}>
-                    <Button title="Sí" onPress={handleLogout} color={'#fd746c'} />
-                  </Link>
-                </View>
-                <View style={styles.buttonsModal}>
-                  <Button title="No" onPress={() => setModalVisible(false)} />
-                </View>
-              </View>
-
-            </View>
-          </View>
-        </Modal>
-      </SafeAreaView>
-    </Router>
+    <View style={[styles.appBar, { backgroundColor: appBarColor }]}>
+      <Text style={styles.appBarTitle}>{titulo}</Text>
+    </View>
   );
+};
+
+
+return (
+  <Router style={[styles.appSpace]}>
+    <SafeAreaView style={{ flex: 1 }}>
+      <AppBarTitle />
+      <DrawerLayoutAndroid
+        ref={drawer}
+        drawerWidth={300}
+        drawerPosition={drawerPosition}
+        renderNavigationView={navigationView}
+      >
+        {keyboardVisible && (
+          <TouchableOpacity style={styles.menuButton} onPress={() => drawer.current.openDrawer()}>
+            <Ionicons name="menu" size={36} color="#fff" />
+          </TouchableOpacity>
+        )}
+        <View>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/comercios" element={<Comercios logueado={logueado} />} />
+            <Route path="/servicios" element={<Servicios logueado={logueado} />} />
+            <Route path="/reclamos" element={<Reclamos />} />
+            <Route path="/denuncias" element={<Denuncias />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route path="/notificaciones" element={<Notificaciones notificaciones={notificaciones} />} />
+          </Routes>
+        </View>
+      </DrawerLayoutAndroid>
+      <Modal animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text>¿Deseas cerrar sesión?</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={styles.buttonsModal}>
+                <Link to="/login" onPress={() => drawer.current.closeDrawer()}>
+                  <Button title="Sí" onPress={handleLogout} color={'#fd746c'} />
+                </Link>
+              </View>
+              <View style={styles.buttonsModal}>
+                <Button title="No" onPress={() => setModalVisible(false)} />
+              </View>
+            </View>
+
+          </View>
+        </View>
+      </Modal>
+    </SafeAreaView>
+  </Router>
+);
 };
 
 AppRegistry.registerComponent(appName, () => App);
