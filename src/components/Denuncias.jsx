@@ -213,7 +213,7 @@ const Denuncias = () => {
         // Actualiza el estado o la variable que contiene las vistas previas con el nuevo array
         setVistasPrevia(newArray);
     }
-    const filteredDenuncias = (generada ? denuncias : denunciasPorVecino ).filter(denuncia => {
+    const filteredDenuncias = (generada ? denunciasPorVecino : denuncias).filter(denuncia => {
         return denuncia.denunciaDenunciado[0]?.nombre.toLowerCase().includes(search.toLowerCase());
       });
 
