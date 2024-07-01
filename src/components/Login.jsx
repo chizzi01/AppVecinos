@@ -312,6 +312,7 @@ const Login = ({ onLogin }) => {
                 await AsyncStorage.setItem('legajo', legajo);
                 await AsyncStorage.setItem('nombre', response.data.user.nombre);
                 await AsyncStorage.setItem('apellido', response.data.user.apellido);
+                await AsyncStorage.setItem('categoria', String(response.data.user.categoria));
                 await AsyncStorage.setItem('mail', '');
                 //await AsyncStorage.setItem('rubro', response.data.user.cateorgria);
                 // console.log(response.data.user.nombre)

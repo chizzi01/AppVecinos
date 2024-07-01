@@ -14,6 +14,7 @@ import { formatDate } from 'date-fns';
 import getRubros from '../controllers/getRubros';
 import getDesperfectos from '../controllers/getDesperfectos';
 import getSitios from '../controllers/getSitios';
+import getReclamosByRubro from '../controllers/getReclamosByRubro.js';
 import NetInfo from '@react-native-community/netinfo';
 
 
@@ -47,6 +48,7 @@ const Reclamos = () => {
     const [idDesperfecto, setIdDesperfecto] = useState('');
     const [desperfectosFiltrados, setDesperfectosFiltrados] = useState([]);
     const [rubroFiltro, setRubroFiltro] = useState('');
+    const [categoria, setCategoria] = useState('');
 
 
 
@@ -95,7 +97,15 @@ const Reclamos = () => {
                 }
 
                 // Fetch additional data
-                await getReclamos(setReclamos);
+                if (rol == 'vecino') {
+                    await getReclamos(setReclamos);
+                } else {
+                    const categoria = await AsyncStorage.getItem('categoria');
+                    setCategoria(categoria);
+                    console.log("categoria", categoria);
+                    await getReclamosByRubro(setReclamos, categoria);
+                    console.log("byRubro", reclamos)
+                }
                 await getRubros(setRubros);
                 await getDesperfectos(setDesperfectos);
                 await getSitios(setSitios);
@@ -105,11 +115,29 @@ const Reclamos = () => {
             setLoading(false);
         };
         fetchData();
-    }, []);
+        const fetchCategoria = async () => {
+            if (rol == 'inspector') {
+
+                // Asumiendo que rubros ya ha sido establecido por getRubros
+                const rubroEspecifico = rubros.find(rubro => rubro.idRubro == categoria);
+                console.log("rubro", rubroEspecifico);
+                console.log("rubros", rubros);
+                console.log("categoria", categoria);
+                if (rubroEspecifico) {
+                    console.log("IdRubro:", rubroEspecifico.idRubro, "Categoria:", categoria);
+                } else {
+                    console.log("No se encontró un rubro que coincida con la categoria.");
+                }
+            }
+        };
+
+        fetchCategoria();
+    }
+        , []);
 
     // console.log("reclamos", reclamos)
     // console.log("rubros", rubros)
-    console.log("desperfectos", desperfectos)
+    // console.log("desperfectos", desperfectos)
     // console.log("sitios", sitios)
 
 
@@ -121,7 +149,7 @@ const Reclamos = () => {
 
     const handleSave = async () => {
         const estadoConexion = await NetInfo.fetch();
-    
+
         const enviarReclamo = async () => {
             console.log(rol);
             let response;
@@ -133,7 +161,7 @@ const Reclamos = () => {
             setIdReclamoCreado(response);
             resetFormulario();
         };
-    
+
         const guardarReclamoLocalmente = async () => {
             const reclamo = {
                 rol,
@@ -149,7 +177,7 @@ const Reclamos = () => {
             console.log('Reclamo guardado localmente', reclamo);
             resetFormulario();
         };
-    
+
         const resetFormulario = () => {
             setModalReclamosVisible(false);
             setInstalacionAfectada('');
@@ -160,7 +188,7 @@ const Reclamos = () => {
             setVistasPrevia([]);
             setModalEnviado(true);
         };
-    
+
         if (!estadoConexion.isConnected) {
             Alert.alert(
                 "Sin conexión a Internet",
@@ -237,7 +265,7 @@ const Reclamos = () => {
         const desperfectosFiltrados = desperfectos.filter(desperfecto => desperfecto.idRubro === idRubroSeleccionado);
         setDesperfectosFiltrados(desperfectosFiltrados);
     };
-    
+
 
 
 
@@ -253,16 +281,28 @@ const Reclamos = () => {
                         onChangeText={text => setSearch(text)}
                     />
                 </View>
-                <Picker
-                    selectedValue={rubroFiltro}
-                    onValueChange={(itemValue) => setRubroFiltro(itemValue)}
-                    style={styles.pickerRubro}
-                >
-                    <Picker.Item label="Todos los rubros" value="" />
-                    {rubros.map((rubro, index) => (
-                        <Picker.Item key={index} label={rubro.descripcion} value={rubro.idRubro} />
-                    ))}
-                </Picker>
+                {rol === 'vecino' ? (
+                    <Picker
+                        selectedValue={rubroFiltro}
+                        onValueChange={(itemValue) => setRubroFiltro(itemValue)}
+                        style={styles.pickerRubro}
+                    >
+                        <Picker.Item label="Todos los rubros" value="" />
+                        {rubros.map((rubro, index) => (
+                            <Picker.Item key={index} label={rubro.descripcion} value={rubro.idRubro} />
+                        ))}
+                    </Picker>
+                ) : (
+                    <Picker
+                        selectedValue={rubroFiltro}
+                        onValueChange={(itemValue) => setRubroFiltro(itemValue)}
+                        style={styles.pickerRubro}
+                    >
+                        {rubros.filter(rubro => rubro.idRubro == categoria).map((rubro, index) => (
+                            <Picker.Item key={index} label={rubro.descripcion} value={rubro.idRubro} />
+                        ))}
+                    </Picker>
+                )}
             </View>
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
@@ -363,20 +403,36 @@ const Reclamos = () => {
                     <View style={styles.centeredView}>
                         <View style={styles.modalView}>
                             <Text style={styles.tituloModal}>Nuevo reclamo</Text>
-                            <Picker
-                                selectedValue={rubro}
-                                onValueChange={(itemValue) => {
-                                    setRubro(itemValue);
-                                    // Asumiendo que tienes una función para filtrar los desperfectos basados en el rubro seleccionado
-                                    filtrarDesperfectosPorRubro(itemValue);
-                                }}
-                                style={styles.picker}
-                            >
-                                <Picker.Item label="Rubro" value="" enabled={false} />
-                                {rubros.map((rubro, index) => (
-                                    <Picker.Item key={index} label={rubro.descripcion} value={rubro.idRubro} />
-                                ))}
-                            </Picker>
+                            {rol === 'vecino' ? (
+                                <Picker
+                                    selectedValue={rubro}
+                                    onValueChange={(itemValue) => {
+                                        setRubro(itemValue);
+                                        filtrarDesperfectosPorRubro(itemValue);
+                                    }}
+                                    style={styles.picker}
+                                >
+                                    <Picker.Item label="Rubro" value="" enabled={false} />
+                                    {rubros.map((rubro, index) => (
+                                        <Picker.Item key={index} label={rubro.descripcion} value={rubro.idRubro} />
+                                    ))}
+                                </Picker>
+                            ) : (
+                                <Picker
+                                    selectedValue={rubro}
+                                    onValueChange={(itemValue) => {
+                                        setRubro(itemValue);
+                                        filtrarDesperfectosPorRubro(itemValue);
+                                    }}
+                                    style={styles.picker}
+                                >
+                                    {rubros.filter(rubro => rubro.idRubro == categoria).map((rubro, index) => (
+                                        <Picker.Item key={index} label={rubro.descripcion} value={rubro.idRubro} />
+                                    ))}
+                                </Picker>
+                            )}
+
+
                             <Picker
                                 selectedValue={instalacionAfectada}
                                 onValueChange={(itemValue) => setInstalacionAfectada(itemValue)}
