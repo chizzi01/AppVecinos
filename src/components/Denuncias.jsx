@@ -231,7 +231,7 @@ const Denuncias = () => {
                 </View>
                 <Picker
                     selectedValue={generada}
-                    onValueChange={(itemValue) => setGenerada(itemValue)}
+                    onValueChange={(itemValue) => setGenerada(itemValue) && getDenunciasVecino()}
                     style={styles.pickerRubro}
                 >
                     <Picker.Item label="Todas" value="" />

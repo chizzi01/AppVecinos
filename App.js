@@ -57,7 +57,7 @@ const App = () => {
         if (nombreValue !== null) {
           setNombre(nombreValue);
         } else {
-          console.error('Nombre is null');
+          console.log('Nombre is null');
         }
   
         // Fetch 'documento' and 'legajo' from AsyncStorage
