@@ -14,6 +14,7 @@ import { formatDate } from 'date-fns';
 import getRubros from '../controllers/getRubros';
 import getDesperfectos from '../controllers/getDesperfectos';
 import getSitios from '../controllers/getSitios';
+import NetInfo from '@react-native-community/netinfo';
 
 
 
@@ -45,6 +46,7 @@ const Reclamos = () => {
     const [sitios, setSitios] = useState([]);
     const [idDesperfecto, setIdDesperfecto] = useState('');
     const [desperfectosFiltrados, setDesperfectosFiltrados] = useState([]);
+    const [rubroFiltro, setRubroFiltro] = useState('');
 
 
 
@@ -117,40 +119,62 @@ const Reclamos = () => {
         setRefreshing(false);
     }, []);
 
-
     const handleSave = async () => {
-        console.log(rol)
-        if (rol === 'vecino') {
-            console.log("Entra en vecinio:", imagenes, documentoVecino, instalacionAfectada, tipoDesperfecto, descripcion, token)
-            const response = await postReclamoVecino(imagenes, documentoVecino, parseInt(instalacionAfectada), parseInt(idDesperfecto), descripcion, token).then((response) => {
-
-                setModalVisible(false);
-                setModalEnviado(true);
+        const estadoConexion = await NetInfo.fetch();
+    
+        const enviarReclamo = async () => {
+            console.log(rol);
+            let response;
+            if (rol === 'vecino') {
+                response = await postReclamoVecino(imagenes, documentoVecino, parseInt(instalacionAfectada), parseInt(idDesperfecto), descripcion, token);
+            } else {
+                response = await postReclamoInspector(imagenes, legajo, instalacionAfectada, tipoDesperfecto, descripcion, token);
             }
-            )
-            setIdReclamoCreado(response)
-
-
+            setIdReclamoCreado(response);
+            resetFormulario();
+        };
+    
+        const guardarReclamoLocalmente = async () => {
+            const reclamo = {
+                rol,
+                imagenes,
+                documentoVecino,
+                legajo,
+                instalacionAfectada,
+                tipoDesperfecto,
+                descripcion,
+                token
+            };
+            // Aquí se guardaría el reclamo en AsyncStorage o en el almacenamiento local de tu elección
+            console.log('Reclamo guardado localmente', reclamo);
+            resetFormulario();
+        };
+    
+        const resetFormulario = () => {
+            setModalReclamosVisible(false);
+            setInstalacionAfectada('');
+            setTipoDesperfecto('');
+            setDescripcion('');
+            setRubro('');
+            setImagenes([]);
+            setVistasPrevia([]);
+            setModalEnviado(true);
+        };
+    
+        if (!estadoConexion.isConnected) {
+            Alert.alert(
+                "Sin conexión a Internet",
+                "¿Deseas usar datos móviles o guardar el reclamo para enviarlo más tarde?",
+                [
+                    { text: "Usar datos móviles", onPress: () => enviarReclamo() },
+                    { text: "Guardar", onPress: () => guardarReclamoLocalmente() }
+                ],
+                { cancelable: false }
+            );
         } else {
-
-            const response = await postReclamoInspector(imagenes, legajo, instalacionAfectada, tipoDesperfecto, descripcion, token).then((response) => {
-
-                setModalVisible(false);
-                setModalEnviado(true);
-            }
-            )
-            setIdReclamoCreado(response)
+            await enviarReclamo();
         }
-
-        setModalReclamosVisible(false);
-        setInstalacionAfectada('');
-        setTipoDesperfecto('');
-        setDescripcion('');
-        setRubro('');
-        setImagenes([]);
-        setVistasPrevia([]);
-        setModalEnviado(true);
-    }
+    };
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -206,7 +230,7 @@ const Reclamos = () => {
     // console.log("lista de reclamos", reclamos)
     const filteredReclamos = reclamos.filter(reclamo =>
         (search === '' || reclamo.descripcion.toLowerCase().includes(search.toLowerCase()) || reclamo.idReclamo.toString().includes(search)) &&
-        (rubro === '' || reclamo.desperfectos.rubro.idRubro === rubro)
+        (rubroFiltro === '' || reclamo.desperfectos.rubro.idRubro === rubroFiltro)
     );
 
     const filtrarDesperfectosPorRubro = (idRubroSeleccionado) => {
@@ -230,8 +254,8 @@ const Reclamos = () => {
                     />
                 </View>
                 <Picker
-                    selectedValue={rubro}
-                    onValueChange={(itemValue) => setRubro(itemValue)}
+                    selectedValue={rubroFiltro}
+                    onValueChange={(itemValue) => setRubroFiltro(itemValue)}
                     style={styles.pickerRubro}
                 >
                     <Picker.Item label="Todos los rubros" value="" />
