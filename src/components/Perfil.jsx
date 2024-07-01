@@ -62,10 +62,6 @@ const Perfil = ({ onPasswordChange }) => {
       </View>
       <Text style={styles.name}>{nombre} {apellido}</Text>
       <Text style={styles.mail}>{mail}</Text>
-      <Card title="Mis comercios" />
-      <Card title="Mis servicios" />
-      <Card title="Mis denuncias" />
-      <Card title="Mis reclamos" />
       <View style={styles.buttonContainer}>
         <Button title="Cambiar contraseña" onPress={() => setModalVisible(true)} color="#4bdaa3" />
       </View>
