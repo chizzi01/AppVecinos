@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, ActivityIndicator } f
 import format from 'date-fns/format';
 import getNotificacionesVecino from '../controllers/getNotificacionesVecino';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import getNotificacionesInspector from '../controllers/getNotificacionesInspector';
 
 
 
@@ -29,15 +30,31 @@ const Notificaciones = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const value = await AsyncStorage.getItem('documento');
-        if (value !== null) {
-          console.log("documentoVecino", value);
-          const response = await getNotificacionesVecino(value);
-          setNotificaciones(response);
-          console.log("notificaciones", response);
-        } else {
-          console.error('Documento vecino is null');
+        const rol = await AsyncStorage.getItem('logueado')
+        if (rol==='vecino'){
+          const value = await AsyncStorage.getItem('documento');
+          if (value !== null) {
+            console.log("documentoVecino", value);
+            const response = await getNotificacionesVecino(value);
+            setNotificaciones(response);
+            console.log("notificaciones", response);
+          } else {
+            console.error('Documento vecino is null');
+          }
+        }else {
+          const legajo = await AsyncStorage.getItem('legajo')
+          if (legajo !== null) {
+            console.log("legajo", legajo);
+            const response = await getNotificacionesInspector(legajo);
+            console.log(response)
+            setNotificaciones(response);
+            console.log("notificaciones", response);
+          } else {
+            console.error('Legajo is null');
+          }
         }
+        console.log("roll", rol)
+        
       } catch (e) {
         console.error('Failed to fetch the data from storage or get notifications', e);
       }
