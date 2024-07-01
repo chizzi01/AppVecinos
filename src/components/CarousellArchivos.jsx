@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Button, Alert, Linking } from 'react-native';
+import { View, Text, Alert, Linking, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 const CarousellArchivos = ({ idDenuncia }) => {
 
     const handlePress = async () => {
@@ -9,17 +10,37 @@ const CarousellArchivos = ({ idDenuncia }) => {
         if (supported) {
             await Linking.openURL(url);
         } else {
-            Alert.alert(`No se puede abrir el enlace: ${ url }`);
+            Alert.alert(`No se puede abrir el enlace: ${url}`);
         }
     };
-console.log(idDenuncia);
+    console.log(idDenuncia);
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Button title="Descargar Archivos" onPress={handlePress} />
+
+            <TouchableOpacity style={styles.descargar} onPress={handlePress}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Ionicons name="download" size={30} color="#FFFF" />
+                    <Text style={styles.texto}>Descargar archivos</Text>
+                </View>
+            </TouchableOpacity>
+
+
         </View>
     );
 };
 
+const styles = {
+    descargar: {
+        backgroundColor: '#FF5733',
+        padding: 10,
+        borderRadius: 5,
+    },
+    texto: {
+        color: '#FFFF',
+        fontSize: 20,
+        marginLeft: 5,
+    },
+};
 
 
 export default CarousellArchivos;

@@ -215,7 +215,7 @@ const Denuncias = () => {
     }
     const filteredDenuncias = (generada ? denunciasPorVecino : denuncias).filter(denuncia => {
         return denuncia.denunciaDenunciado[0]?.nombre.toLowerCase().includes(search.toLowerCase());
-      });
+    });
 
     return (
         <SafeAreaView style={styles.container}>
@@ -377,7 +377,9 @@ const Denuncias = () => {
                     <View style={styles.comercioView}>
                         {selectedDenuncia && (
                             <>
-                                <CarousellArchivos idDenuncia={selectedDenuncia.idDenuncias} />
+                                <View style={styles.carousell}>
+                                    <CarousellArchivos idDenuncia={selectedDenuncia.idDenuncias} />
+                                </View>
                                 <View style={styles.contentView}>
                                     <Text style={styles.comercioTitulo}>Denuncia #{selectedDenuncia.idDenuncias}</Text>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -389,6 +391,7 @@ const Denuncias = () => {
                                         <Text style={styles.comercioTelefono}>{selectedDenuncia.denunciaDenunciado[0]?.direccion}</Text>
                                     </View>
                                     <Text style={styles.comercioDescripcion}>{selectedDenuncia.descripcion}</Text>
+
                                     <View style={{ paddingTop: 15 }}>
                                         <Text style={styles.titulo}>Estado</Text>
                                         <ScrollView>
@@ -477,7 +480,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 22
+        // marginTop: 22
     },
     contentView: {
         padding: 20,
@@ -917,7 +920,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-
+    carousell: {
+        height: 100,
+        width: '100%',
+    },
 
 
 });
