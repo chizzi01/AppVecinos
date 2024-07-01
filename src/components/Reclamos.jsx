@@ -43,7 +43,10 @@ const Reclamos = () => {
     const [rubros, setRubros] = useState([]);
     const [desperfectos, setDesperfectos] = useState([]);
     const [sitios, setSitios] = useState([]);
-    const [idDesperfecto, setIdDesperfecto] = useState('')
+    const [idDesperfecto, setIdDesperfecto] = useState('');
+    const [desperfectosFiltrados, setDesperfectosFiltrados] = useState([]);
+
+
 
 
 
@@ -102,10 +105,10 @@ const Reclamos = () => {
         fetchData();
     }, []);
 
-    console.log("reclamos", reclamos)
-    console.log("rubros", rubros)
+    // console.log("reclamos", reclamos)
+    // console.log("rubros", rubros)
     console.log("desperfectos", desperfectos)
-    console.log("sitios", sitios)
+    // console.log("sitios", sitios)
 
 
     const onRefresh = useCallback(async () => {
@@ -118,13 +121,24 @@ const Reclamos = () => {
     const handleSave = async () => {
         console.log(rol)
         if (rol === 'vecino') {
-            // console.log(imagenes, documentoVecino, instalacionAfectada, tipoDesperfecto, descripcion)
-            const response = await postReclamoVecino(imagenes, documentoVecino, parseInt(instalacionAfectada), parseInt(idDesperfecto), descripcion, token)
+            console.log("Entra en vecinio:", imagenes, documentoVecino, instalacionAfectada, tipoDesperfecto, descripcion, token)
+            const response = await postReclamoVecino(imagenes, documentoVecino, parseInt(instalacionAfectada), parseInt(idDesperfecto), descripcion, token).then((response) => {
+
+                setModalVisible(false);
+                setModalEnviado(true);
+            }
+            )
             setIdReclamoCreado(response)
+
 
         } else {
 
-            const response = await postReclamoInspector(imagenes, legajo, instalacionAfectada, tipoDesperfecto, descripcion, token)
+            const response = await postReclamoInspector(imagenes, legajo, instalacionAfectada, tipoDesperfecto, descripcion, token).then((response) => {
+
+                setModalVisible(false);
+                setModalEnviado(true);
+            }
+            )
             setIdReclamoCreado(response)
         }
 
@@ -175,7 +189,7 @@ const Reclamos = () => {
             quality: 1,
         });
 
-        console.log(result);
+        // console.log(result);
 
         if (!result.cancelled && result.assets && result.assets.length > 0) {
             // Asegurarse de que assets existe y tiene al menos un elemento
@@ -189,11 +203,19 @@ const Reclamos = () => {
         }
     };
 
-    console.log("lista de reclamos", reclamos)
+    // console.log("lista de reclamos", reclamos)
     const filteredReclamos = reclamos.filter(reclamo =>
-        reclamo.descripcion.toLowerCase().includes(search.toLowerCase()) &&
+        (search === '' || reclamo.descripcion.toLowerCase().includes(search.toLowerCase()) || reclamo.idReclamo.toString().includes(search)) &&
         (rubro === '' || reclamo.desperfectos.rubro.idRubro === rubro)
     );
+
+    const filtrarDesperfectosPorRubro = (idRubroSeleccionado) => {
+        const desperfectosFiltrados = desperfectos.filter(desperfecto => desperfecto.idRubro === idRubroSeleccionado);
+        setDesperfectosFiltrados(desperfectosFiltrados);
+    };
+    
+
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -318,6 +340,20 @@ const Reclamos = () => {
                         <View style={styles.modalView}>
                             <Text style={styles.tituloModal}>Nuevo reclamo</Text>
                             <Picker
+                                selectedValue={rubro}
+                                onValueChange={(itemValue) => {
+                                    setRubro(itemValue);
+                                    // Asumiendo que tienes una función para filtrar los desperfectos basados en el rubro seleccionado
+                                    filtrarDesperfectosPorRubro(itemValue);
+                                }}
+                                style={styles.picker}
+                            >
+                                <Picker.Item label="Rubro" value="" enabled={false} />
+                                {rubros.map((rubro, index) => (
+                                    <Picker.Item key={index} label={rubro.descripcion} value={rubro.idRubro} />
+                                ))}
+                            </Picker>
+                            <Picker
                                 selectedValue={instalacionAfectada}
                                 onValueChange={(itemValue) => setInstalacionAfectada(itemValue)}
                                 style={styles.picker}
@@ -326,7 +362,6 @@ const Reclamos = () => {
                                 {sitios.map((sitio, index) => (
                                     <Picker.Item key={index} label={sitio.descripcion} value={sitio.idSitio} />
                                 ))}
-
                             </Picker>
 
                             <Picker
@@ -338,21 +373,12 @@ const Reclamos = () => {
                                 style={styles.picker}
                             >
                                 <Picker.Item label="Desperfecto" value="" enabled={false} />
-                                {desperfectos.map((desperfecto, index) => (
+                                {/* Asegúrate de que desperfectos sea la lista filtrada basada en el rubro seleccionado */}
+                                {desperfectosFiltrados.map((desperfecto, index) => (
                                     <Picker.Item key={index} label={desperfecto.descripcion} value={desperfecto.idDesperfecto} />
                                 ))}
                             </Picker>
-                            <Picker
-                                selectedValue={rubro}
-                                onValueChange={(itemValue) => setRubro(itemValue)}
-                                style={styles.picker}
-                            >
-                                <Picker.Item label="Rubro" value="" enabled={false} />
-                                {rubros.map((rubro, index) => (
-                                    <Picker.Item key={index} label={rubro.descripcion} value={rubro.idRubro} />
-                                ))}
 
-                            </Picker>
                             <TextInput style={styles.input} placeholder="Informacion adicional" onChangeText={setDescripcion} multiline={true}
                                 numberOfLines={4} selectionColor="#2c3e50" />
                             <TouchableOpacity style={styles.addImg} onPress={pickImage}>
