@@ -16,6 +16,7 @@ import getDesperfectos from '../controllers/getDesperfectos';
 import getSitios from '../controllers/getSitios';
 import getReclamosByRubro from '../controllers/getReclamosByRubro.js';
 import NetInfo from '@react-native-community/netinfo';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry.js';
 
 
 
@@ -63,6 +64,10 @@ const Reclamos = () => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
+            getData();
+            getData2();
+            getData3();
+            getData4();
             try {
                 const logueadoValue = await AsyncStorage.getItem('logueado');
                 if (logueadoValue !== null) {
