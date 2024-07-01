@@ -64,60 +64,43 @@ const Reclamos = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                // Fetch 'logueado' from AsyncStorage and set it
                 const logueadoValue = await AsyncStorage.getItem('logueado');
                 if (logueadoValue !== null) {
                     setRol(logueadoValue);
+                    // Asegúrate de que el estado 'rol' se establezca antes de continuar
+                    await fetchReclamosBasedOnRol(logueadoValue);
                 } else {
                     console.error('Logueado is null');
                 }
-
-                // Fetch 'legajo' from AsyncStorage and set it
+            } catch (e) {
+                console.error('Failed to fetch the data from storage or get additional data', e);
+            }
+            setLoading(false);
+        };
+        
+        const fetchReclamosBasedOnRol = async (rol) => {
+            if (rol === 'vecino') {
+                await getReclamos(setReclamos);
+            } else if (rol === 'inspector') {
                 const legajoValue = await AsyncStorage.getItem('legajo');
                 if (legajoValue !== null) {
                     setLegajo(legajoValue);
                 } else {
                     console.error('Legajo is null');
                 }
-
-                // Fetch 'documento' from AsyncStorage and set it
-                const documentoValue = await AsyncStorage.getItem('documento');
-                if (documentoValue !== null) {
-                    setDocumentoVecino(documentoValue);
-                } else {
-                    console.error('Documento is null');
-                }
-
-                // Fetch 'token' from AsyncStorage and set it
-                const tokenValue = await AsyncStorage.getItem('token');
-                if (tokenValue !== null) {
-                    setToken(tokenValue);
-                } else {
-                    console.error('Token is null');
-                }
-
-                // Fetch additional data
-                if (rol == 'vecino') {
-                    await getReclamos(setReclamos);
-                } else {
-                    const categoria = await AsyncStorage.getItem('categoria');
-                    setCategoria(categoria);
-                    console.log("categoria", categoria);
-                    await getReclamosByRubro(setReclamos, categoria);
-                    console.log("byRubro", reclamos)
-                }
-                await getRubros(setRubros);
-                await getDesperfectos(setDesperfectos);
-                await getSitios(setSitios);
-            } catch (e) {
-                console.error('Failed to fetch the data from storage or get additional data', e);
+                const categoria = await AsyncStorage.getItem('categoria');
+                setCategoria(categoria);
+                await getReclamosByRubro(setReclamos, categoria);
             }
-            setLoading(false);
+            // Continúa con la carga de otros datos necesarios
+            await getRubros(setRubros);
+            await getDesperfectos(setDesperfectos);
+            await getSitios(setSitios);
         };
+        
         fetchData();
-        const fetchCategoria = async () => {
-            if (rol == 'inspector') {
-
+        if (rol == 'inspector') {
+            const fetchCategoria = async () => {
                 // Asumiendo que rubros ya ha sido establecido por getRubros
                 const rubroEspecifico = rubros.find(rubro => rubro.idRubro == categoria);
                 console.log("rubro", rubroEspecifico);
@@ -129,9 +112,8 @@ const Reclamos = () => {
                     console.log("No se encontró un rubro que coincida con la categoria.");
                 }
             }
+            fetchCategoria();
         };
-
-        fetchCategoria();
     }
         , []);
 
