@@ -5,13 +5,14 @@ import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import * as DocumentPicker from 'expo-document-picker';
 import { Picker } from '@react-native-picker/picker';
-import CarousellImagenes from './CarousellImagenes';
+import CarousellArchivos from './CarousellArchivos';
 import postDenunciaComercio from '../controllers/postDenunciaComercio';
 import postDenunciaVecino from '../controllers/postDenunciaVecino';
 import ModalEnviado from './ModalEnviado';
 import getDenuncias from '../controllers/denuncias';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatDate, set } from 'date-fns';
+import getDenunciasByVecino from '../controllers/getDenunciaByVecino';
 
 
 
@@ -40,9 +41,24 @@ const Denuncias = () => {
     const [storedValue, setStoredValue] = useState('');
     const [token, setToken] = useState('');
     const [idSitio, setIdSitio] = useState('');
+    const [denunciasPorVecino, setDenunciasPorVecino] = useState(null);
+
 
 
     useEffect(() => {
+        const getDenunciasVecino = async () => {
+            try {
+                console.log('Valor almacenado:', storedValue);
+                const value = await AsyncStorage.getItem('documento');
+                const denunciasVecino = await getDenunciasByVecino(value) || [];
+                console.log('Denuncias por vecino:', denunciasVecino);
+                setDenunciasPorVecino(denunciasVecino);
+            } catch (error) {
+                console.error('Error al obtener las denuncias por vecino:', error);
+            }
+        };
+        console.log('Llamando a getDenunciasVecino...'); // Paso 5: Depuración
+        getDenunciasVecino();
         const fetchData = async () => {
             setLoading(true);
             await getDenuncias(setDenuncias);
@@ -66,6 +82,7 @@ const Denuncias = () => {
         };
         getData();
     }, []);
+
 
 
     const onRefresh = useCallback(async () => {
@@ -100,15 +117,15 @@ const Denuncias = () => {
         }
 
         if (vecinoDenuncia) {
-            console.log("estos son los archivos",imagenes)
-            console.log("este es el storedValue",storedValue)
-            console.log("este es el idSitio",idSitio)
-            console.log("este es el motivo",motivo)
-            console.log("este es la descripcion",descripcion)
-            console.log("este es el terminos aceptados",termsAccepted)
-            console.log("este es la direccion",direccion)
-            console.log("este es la ubicacion",ubicacion)
-            console.log("este es el token",token)
+            console.log("estos son los archivos", imagenes)
+            console.log("este es el storedValue", storedValue)
+            console.log("este es el idSitio", idSitio)
+            console.log("este es el motivo", motivo)
+            console.log("este es la descripcion", descripcion)
+            console.log("este es el terminos aceptados", termsAccepted)
+            console.log("este es la direccion", direccion)
+            console.log("este es la ubicacion", ubicacion)
+            console.log("este es el token", token)
 
             postDenunciaVecino(imagenes, storedValue, idSitio, motivo, descripcion, termsAccepted, direccion, ubicacion, token)
                 .then(() => {
@@ -120,7 +137,7 @@ const Denuncias = () => {
                     alert('Error al enviar la denuncia. Por favor, inténtelo de nuevo.');
                 });
         } else {
-            postDenunciaComercio(imagenes, storedValue,idSitio, motivo, direccion, descripcion, termsAccepted, token)
+            postDenunciaComercio(imagenes, storedValue, idSitio, motivo, direccion, descripcion, termsAccepted, token)
                 .then(() => {
                     setModalVisible(false);
                     setModalEnviado(true);
@@ -196,14 +213,9 @@ const Denuncias = () => {
         // Actualiza el estado o la variable que contiene las vistas previas con el nuevo array
         setVistasPrevia(newArray);
     }
-
-
-    const filteredDenuncias = denuncias.filter(denuncia =>
-        denuncia.denunciaDenunciado[0]?.nombre.toLowerCase().includes(search.toLowerCase())
-        &&
-        (generada === "" || denuncia.denunciaDenunciado.generada === generada)
-
-    );
+    const filteredDenuncias = (generada ? denuncias : denunciasPorVecino ).filter(denuncia => {
+        return denuncia.denunciaDenunciado[0]?.nombre.toLowerCase().includes(search.toLowerCase());
+      });
 
     return (
         <SafeAreaView style={styles.container}>
@@ -365,9 +377,7 @@ const Denuncias = () => {
                     <View style={styles.comercioView}>
                         {selectedDenuncia && (
                             <>
-                                <View style={{ maxWidth: '100%', overflow: 'hidden', borderTopLeftRadius: 15, borderTopRightRadius: 15 }}>
-                                    <CarousellImagenes idServicio={selectedDenuncia.idDenuncias} tipo={"denuncias"} />
-                                </View>
+                                <CarousellArchivos idDenuncia={selectedDenuncia.idDenuncias} />
                                 <View style={styles.contentView}>
                                     <Text style={styles.comercioTitulo}>Denuncia #{selectedDenuncia.idDenuncias}</Text>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -396,8 +406,8 @@ const Denuncias = () => {
                                                                 ? formatDate(new Date(selectedDenuncia.movimientosDenuncia[selectedDenuncia.movimientosDenuncia.length - 1]?.fecha), 'dd/MM/yyyy HH:mm')
                                                                 : 'No disponible'
                                                         }
-                                                    </Text>                                            
-                                                    </View>
+                                                    </Text>
+                                                </View>
                                             </View>
                                         </ScrollView>
                                     </View>

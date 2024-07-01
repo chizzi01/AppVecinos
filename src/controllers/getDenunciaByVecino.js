@@ -1,4 +1,6 @@
-const getNotificacionesVecino = async(documentoVecino) => {
+const getDenunciasByVecino = async (documentoVecino) => {
+
+    console.log("documentoVecinooooo: ", documentoVecino);
 
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -7,12 +9,12 @@ const getNotificacionesVecino = async(documentoVecino) => {
         method: 'GET',
         headers: myHeaders,
         redirect: 'follow',
-        mode:'cors'
+        mode: 'cors'
     };
-      
-      let response = await fetch(`https://municipio-g8-servidor-production-dcd2.up.railway.app/api/denuncias/notificaciones/${documentoVecino}`, requestOptions);
-      let jsonData = await response.json();
-      console.log(jsonData.notificaciones)
-      return(jsonData.notificaciones);
+
+    let response = await fetch(`https://municipio-g8-servidor-production-dcd2.up.railway.app/api/denuncias/getDenunciasByVecino/${documentoVecino}`, requestOptions);
+    let jsonData = await response.json();
+    console.log(jsonData);
+    return jsonData;
 }
-export default getNotificacionesVecino;
+export default getDenunciasByVecino;
