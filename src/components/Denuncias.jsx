@@ -11,7 +11,7 @@ import postDenunciaVecino from '../controllers/postDenunciaVecino';
 import ModalEnviado from './ModalEnviado';
 import getDenuncias from '../controllers/denuncias';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { formatDate } from 'date-fns';
+import { formatDate, set } from 'date-fns';
 
 
 
@@ -38,6 +38,8 @@ const Denuncias = () => {
     const [denuncias, setDenuncias] = useState([]);
     const [loading, setLoading] = useState(false);
     const [storedValue, setStoredValue] = useState('');
+    const [token, setToken] = useState('');
+    const [idSitio, setIdSitio] = useState('');
 
 
     useEffect(() => {
@@ -51,8 +53,12 @@ const Denuncias = () => {
         const getData = async () => {
             try {
                 const value = await AsyncStorage.getItem('documento');
+                const token = await AsyncStorage.getItem('token');
+                console.log('Documento:', value);
+                console.log('Token:', token);
                 if (value !== null) {
                     setStoredValue(value);
+                    setToken(token);
                 }
             } catch (e) {
                 console.error('Failed to fetch the data from storage', e);
@@ -94,7 +100,17 @@ const Denuncias = () => {
         }
 
         if (vecinoDenuncia) {
-            postDenunciaVecino(imagenes, storedValue, motivo, descripcion, termsAccepted, direccion, ubicacion)
+            console.log("estos son los archivos",imagenes)
+            console.log("este es el storedValue",storedValue)
+            console.log("este es el idSitio",idSitio)
+            console.log("este es el motivo",motivo)
+            console.log("este es la descripcion",descripcion)
+            console.log("este es el terminos aceptados",termsAccepted)
+            console.log("este es la direccion",direccion)
+            console.log("este es la ubicacion",ubicacion)
+            console.log("este es el token",token)
+
+            postDenunciaVecino(imagenes, storedValue, idSitio, motivo, descripcion, termsAccepted, direccion, ubicacion, token)
                 .then(() => {
                     setModalVisible(false);
                     setModalEnviado(true);
@@ -104,7 +120,7 @@ const Denuncias = () => {
                     alert('Error al enviar la denuncia. Por favor, inténtelo de nuevo.');
                 });
         } else {
-            postDenunciaComercio(imagenes, storedValue, motivo, direccion, descripcion, termsAccepted)
+            postDenunciaComercio(imagenes, storedValue,idSitio, motivo, direccion, descripcion, termsAccepted, token)
                 .then(() => {
                     setModalVisible(false);
                     setModalEnviado(true);
