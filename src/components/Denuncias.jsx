@@ -214,7 +214,7 @@ const Denuncias = () => {
         setVistasPrevia(newArray);
     }
     const filteredDenuncias = (generada ? denunciasPorVecino : denuncias).filter(denuncia => {
-        return denuncia.denunciaDenunciado[0]?.nombre.toLowerCase().includes(search.toLowerCase());
+        return denuncia.denunciaDenunciado[0]?.nombre.toLowerCase().includes(search.toLowerCase()) || denuncia.idDenuncias.toString().includes(search);
     });
 
     return (
@@ -224,7 +224,7 @@ const Denuncias = () => {
                     <Ionicons style={styles.searchIcon} name="search" size={20} color="#000" />
                     <TextInput
                         style={styles.inputSearch}
-                        placeholder="Buscar por nombre"
+                        placeholder="Busca por nombre o ID"
                         selectionColor="#fd746c"
                         onChangeText={text => setSearch(text)}
                     />
@@ -391,7 +391,7 @@ const Denuncias = () => {
                                         <Text style={styles.comercioTelefono}>{selectedDenuncia.denunciaDenunciado[0]?.direccion}</Text>
                                     </View>
                                     <Text style={styles.comercioDescripcion}>{selectedDenuncia.descripcion}</Text>
-
+                                    {selectedDenuncia.documento === storedValue && (
                                     <View style={{ paddingTop: 15 }}>
                                         <Text style={styles.titulo}>Estado</Text>
                                         <ScrollView>
@@ -412,8 +412,11 @@ const Denuncias = () => {
                                                     </Text>
                                                 </View>
                                             </View>
+                                                    
+                                                 
                                         </ScrollView>
                                     </View>
+                                )}
                                 </View>
                             </>
                         )}
